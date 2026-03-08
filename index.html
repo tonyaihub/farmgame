@@ -12,17 +12,17 @@
         :root {
             --primary-green: #4CAF50;
             --accent-neon: #8BC34A;
-            --graffiti-shadow: #1b5e20; /* Глубокий зеленый для 3D */
-            --graffiti-outline: #fff; /* Белый контур */
-            --dark-bg: #0a0a0a;
-            --card-bg: #1a1a1a;
+            --neon-glow-white: #fff;
+            --neon-glow-green: #4CAF50;
+            --dark-bg: #050505; /* Еще темнее */
+            --card-bg: #111;
             --text-color: #e0e0e0;
         }
 
         body {
             background-color: var(--dark-bg);
             color: var(--text-color);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Courier New', Courier, monospace; /* Более "технический" шрифт для фона */
             margin: 0;
             padding: 0;
             display: flex;
@@ -32,73 +32,91 @@
             overflow-x: hidden;
         }
 
-        /* --- Объемное Граффити Лого --- */
+        /* --- НОВЫЙ ЛОГОТИП: ЦИФРОВОЙ ТРАФАРЕТ --- */
         .header-logo {
             margin-top: 50px;
+            margin-bottom: 20px;
             text-align: center;
             width: 90%;
-            max-width: 650px;
-            perspective: 1000px; /* Для 3D эффекта */
-        }
-
-        .graffiti-wrapper {
-            display: inline-block;
-            transform: rotateX(10deg) rotateY(-5deg); /* Легкий наклон */
-            filter: drop-shadow(0 0 15px rgba(139, 195, 74, 0.4));
+            max-width: 700px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            border: 1px solid rgba(76, 175, 80, 0.1);
         }
 
         .logo-word {
             display: block;
+            font-family: 'Trebuchet MS', sans-serif; /* Временный армейский стиль */
             font-weight: 900;
-            text-transform: uppercase; /* Все равно капсим для граффити стиля */
-            letter-spacing: -3px;
-            line-height: 0.85;
-            font-family: 'Arial Black', 'Gadget', sans-serif; /* "Тяжелый" шрифт */
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -1px;
             
-            /* Эффект баллончика и градиент */
-            background: linear-gradient(180deg, #fff 20%, var(--accent-neon) 60%, var(--primary-green) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-
-            /* Белый контур */
-            -webkit-text-stroke: 1.5px var(--graffiti-outline);
+            /* Эффект трафарета (через clip-path или mask, но сделаем проще через шрифт) */
+            /* Для настоящего трафарета нужен спец. шрифт, имитируем через цвет */
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255,255,255,0.6);
             
-            /* ОБЪЕМ (Layered shadows) */
-            text-shadow: 
-                0 1px 0 var(--graffiti-shadow),
-                0 2px 0 var(--graffiti-shadow),
-                0 3px 0 var(--graffiti-shadow),
-                0 4px 0 var(--graffiti-shadow),
-                0 5px 0 var(--graffiti-shadow),
-                0 6px 1px rgba(0,0,0,.1),
-                0 0 5px rgba(0,0,0,.1),
-                0 1px 3px rgba(0,0,0,.3),
-                0 3px 5px rgba(0,0,0,.2),
-                0 5px 10px rgba(0,0,0,.25),
-                0 10px 10px rgba(0,0,0,.2),
-                0 20px 20px rgba(0,0,0,.15);
+            position: relative;
         }
 
-        /* "Рваный" регистр через замену букв (имитация в CSS) */
-        .w1::before { content: "AnotHeR"; -webkit-text-fill-color: transparent; }
-        .w2::before { content: "F*CkF*Rm"; -webkit-text-fill-color: transparent; }
-        .w3::before { content: "GAMe"; -webkit-text-fill-color: transparent; }
-        
-        /* Скрываем реальный текст, показываем ::before */
-        .w1, .w2, .w3 { color: transparent; }
-        .w1::before, .w2::before, .w3::before { color: initial; -webkit-text-fill-color: initial; }
+        /* Восстанавливаем рваный регистр через ::before */
+        .w1::before { content: "AnotHeR"; }
+        .w2::before { content: "F*CkF*Rm"; }
+        .w3::before { content: "GAMe"; }
 
-        .w1 { font-size: 3.5rem; }
-        .w2 { font-size: 5rem; letter-spacing: -5px; margin-top: -5px;}
-        .w3 { font-size: 4rem; letter-spacing: -2px; margin-top: -5px; transform: rotate(2deg);}
+        .w1::before, .w2::before, .w3::before {
+            position: absolute;
+            left: 0; top: 0; width: 100%; height: 100%;
+            -webkit-text-fill-color: var(--neon-glow-white);
+            -webkit-text-stroke: 0;
+        }
 
-        /* --- Анимация (Квадрокоптер и Трактор) --- */
+        /* Размеры строк */
+        .w1 { font-size: 3.8rem; letter-spacing: 2px;}
+        .w2 { font-size: 5.5rem; letter-spacing: -2px; margin-top: -5px;}
+        .w3 { font-size: 4.5rem; letter-spacing: 5px; margin-top: -5px;}
+
+        /* НЕОНОВОЕ СВЕЧЕНИЕ (Digital Glow) */
+        .w1::before {
+            color: var(--neon-glow-white);
+            text-shadow: 
+                0 0 5px var(--neon-glow-white),
+                0 0 10px var(--neon-glow-white),
+                0 0 20px var(--neon-glow-green),
+                0 0 40px var(--neon-glow-green),
+                0 0 60px var(--neon-glow-green);
+        }
+
+        .w2::before {
+            color: var(--accent-neon);
+            text-shadow: 
+                0 0 5px var(--neon-glow-white),
+                0 0 10px var(--accent-neon),
+                0 0 20px var(--neon-glow-green),
+                0 0 30px var(--neon-glow-green),
+                0 0 50px var(--neon-glow-green),
+                0 0 80px var(--neon-glow-green);
+        }
+
+        .w3::before {
+            color: var(--neon-glow-white);
+            text-shadow: 
+                0 0 5px var(--neon-glow-white),
+                0 0 10px var(--neon-glow-white),
+                0 0 20px var(--neon-glow-green),
+                0 0 40px var(--neon-glow-green);
+        }
+
+
+        /* --- Анимация (Трактор и Квадрокоптер без отзеркаливания) --- */
         .animation-container {
             width: 100%;
             height: 180px;
             position: relative;
             overflow: hidden;
-            margin-top: 20px;
+            margin-top: 10px;
             background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.08) 70%, transparent);
             border-bottom: 2px solid rgba(76, 175, 80, 0.2);
         }
@@ -108,8 +126,8 @@
             position: absolute;
             bottom: -15px;
             left: -200px;
-            transform: scaleX(-1); /* Разворот лицом направо */
-            animation: driveRight 14s linear infinite; /* Чуть медленнее */
+            transform: none; /* Убрано отзеркаливание */
+            animation: driveRight 14s linear infinite;
             z-index: 2;
             filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
@@ -117,10 +135,10 @@
         .quadcopter {
             font-size: 3.5rem;
             position: absolute;
-            bottom: 110px; /* Чуть выше */
+            bottom: 110px;
             left: -300px;
-            transform: scaleX(-1); /* Разворот лицом направо */
-            animation: flyRight 14s linear infinite; /* В такт трактору */
+            transform: none; /* Убрано отзеркаливание */
+            animation: flyRight 14s linear infinite;
             z-index: 1;
             filter: drop-shadow(0 0 15px var(--accent-neon));
         }
@@ -134,17 +152,17 @@
         }
 
         @keyframes flyRight {
-            0% { left: -300px; transform: translateY(0px) scaleX(-1); }
-            25% { transform: translateY(-30px) rotate(5deg) scaleX(-1); } /* Больше амплитуда */
-            50% { transform: translateY(0px) rotate(-5deg) scaleX(-1); }
-            75% { transform: translateY(15px) rotate(0deg) scaleX(-1); }
-            80% { left: calc(100% + 100px); opacity: 1; transform: translateY(0px) scaleX(-1); }
+            0% { left: -300px; transform: translateY(0px); }
+            25% { transform: translateY(-30px) rotate(5deg); }
+            50% { transform: translateY(0px) rotate(-5deg); }
+            75% { transform: translateY(15px) rotate(0deg); }
+            80% { left: calc(100% + 100px); opacity: 1; transform: translateY(0px); }
             81% { left: calc(100% + 100px); opacity: 0; }
             82% { left: -300px; opacity: 0; }
-            100% { left: -300px; opacity: 1; transform: translateY(0px) scaleX(-1); }
+            100% { left: -300px; opacity: 1; transform: translateY(0px); }
         }
 
-        /* --- UI Профиля --- */
+        /* --- UI Профиля (Шрифт изменен на Courier New) --- */
         .hidden { display: none; }
         
         .main-container {
@@ -154,6 +172,7 @@
             width: 100%;
             margin-top: 40px;
             margin-bottom: 50px;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* Возвращаем для UI */
         }
 
         .btn-login-google {
@@ -251,11 +270,8 @@
 <body>
 
     <div class="header-logo">
-        <div class="graffiti-wrapper">
-            <span class="logo-word w1">AnotHeR</span>
-            <span class="logo-word w2">F*CkF*Rm</span>
-            <span class="logo-word w3">GAMe</span>
-        </div>
+        <span class="logo-word w1"></span> <span class="logo-word w2"></span>
+        <span class="logo-word w3"></span>
     </div>
 
     <div class="animation-container">
@@ -277,7 +293,7 @@
                     <img id="userAvatar" class="avatar" src="" alt="Avatar">
                     <div class="level-badge"><span id="userLevel">1</span> LVL</div>
                 </div>
-                <h2 id="userName" style="margin: 0; color: #fff;">Агроном</h2>
+                <h2 id="userName" style="margin: 0; color: #fff; font-family: 'Segoe UI', sans-serif;">Агроном</h2>
                 <p class="user-coins"><span id="userCoins">100</span> <span style="font-size:1rem; opacity:0.7;">💰</span></p>
                 
                 <div style="margin-top: 25px;">
