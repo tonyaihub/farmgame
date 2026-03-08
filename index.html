@@ -3,141 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGRO-NATION | Загрузка</title>
+    <title>AGRO-NATION | Профиль</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root {
-            --primary-green: #4CAF50;
-            --dark-bg: #1a1a1a;
-            --text-color: #e0e0e0;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: var(--dark-bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--text-color);
-            overflow: hidden;
-        }
-
-        .loader-container {
-            text-align: center;
-            width: 80%;
-            max-width: 400px;
-        }
-
-        .logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            color: var(--primary-green);
-            text-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #333;
-            border-radius: 5px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #444;
-        }
-
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A);
-            box-shadow: 0 0 10px var(--primary-green);
-            transition: width 0.3s ease;
-        }
-
-        .status-text {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
-
-        .percentage {
-            margin-top: 5px;
-            font-weight: bold;
-            color: var(--primary-green);
-        }
-
-        /* Анимация колоска или трактора (условно) */
-        .icon-anim {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
+        body { background: #1a1a1a; color: #fff; font-family: sans-serif; text-align: center; }
+        .hidden { display: none; }
+        .profile-card { background: #2a2a2a; padding: 20px; border-radius: 15px; width: 300px; margin: 50px auto; border: 1px solid #4CAF50; }
+        .avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #4CAF50; }
+        input { background: #333; color: #fff; border: 1px solid #555; padding: 5px; margin: 5px 0; }
+        .btn { background: #4CAF50; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="loader-container">
-        <div class="icon-anim">🚜</div>
-        <div class="logo">AGRO-NATION</div>
-        
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
+    <div id="authScreen">
+        <h1>AGRO-NATION</h1>
+        <button class="btn" onclick="login()">Войти через Google 🚜</button>
+    </div>
+
+    <div id="profileScreen" class="hidden">
+        <div class="profile-card">
+            <img id="userAvatar" class="avatar" src="" alt="Avatar">
+            <h2 id="userName">Агроном</h2>
+            <p>Уровень: <span id="userLevel">1</span> ⭐</p>
+            <p>Монеты: <span id="userCoins">100</span> 💰</p>
+            <hr>
+            <input type="text" id="editName" placeholder="Изменить имя">
+            <input type="text" id="editPhoto" placeholder="Ссылка на фото">
+            <button class="btn" onclick="saveProfile()">Сохранить профиль</button>
+            <button class="btn" style="background:#555" onclick="logout()">Выйти</button>
         </div>
-        
-        <div class="status-text" id="status">Подготовка почвы...</div>
-        <div class="percentage" id="percent">0%</div>
     </div>
 
     <script>
-        const progressFill = document.getElementById('progressFill');
-        const statusText = document.getElementById('status');
-        const percentText = document.getElementById('percent');
+        // ВСТАВЬ СВОЙ КОНФИГ ИЗ FIREBASE ТУТ
+        const firebaseConfig = {
+            apiKey: "ТВОЙ_КЛЮЧ",
+            authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com",
+            projectId: "ТВОЙ_ПРОЕКТ",
+            storageBucket: "ТВОЙ_ПРОЕКТ.appspot.com",
+            messagingSenderId: "ID",
+            appId: "APP_ID"
+        };
 
-        const phrases = [
-            "Закупаем семена...",
-            "Проверяем влажность...",
-            "Прогреваем тракторы...",
-            "Нанимаем агрономов...",
-            "Готовим рынок сбыта...",
-            "Почти готово..."
-        ];
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        let progress = 0;
+        function login() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider);
+        }
 
-        function updateLoader() {
-            if (progress < 100) {
-                progress += Math.random() * 3; // Имитация разной скорости загрузки
-                if (progress > 100) progress = 100;
-                
-                progressFill.style.width = progress + '%';
-                percentText.innerText = Math.floor(progress) + '%';
+        function logout() { auth.signOut(); }
 
-                // Меняем текст статуса в зависимости от прогресса
-                const phraseIndex = Math.floor((progress / 100) * phrases.length);
-                if (phrases[phraseIndex]) {
-                    statusText.innerText = phrases[phraseIndex];
-                }
-
-                setTimeout(updateLoader, 100 + Math.random() * 200);
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('profileScreen').classList.remove('hidden');
+                loadUserData(user);
             } else {
-                statusText.innerText = "Ферма готова к работе!";
-                statusText.style.color = "#8BC34A";
-                // Здесь можно добавить редирект на саму игру
-                // window.location.href = "game.html";
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('profileScreen').classList.add('hidden');
+            }
+        });
+
+        async function loadUserData(user) {
+            const doc = await db.collection("players").doc(user.uid).get();
+            if (doc.exists) {
+                const data = doc.data();
+                updateUI(data);
+            } else {
+                // Создаем профиль новичка
+                const newUser = {
+                    name: user.displayName,
+                    photo: user.photoURL,
+                    level: 1,
+                    coins: 100,
+                    exp: 0
+                };
+                await db.collection("players").doc(user.uid).set(newUser);
+                updateUI(newUser);
             }
         }
 
-        window.onload = updateLoader;
+        function updateUI(data) {
+            document.getElementById('userName').innerText = data.name;
+            document.getElementById('userAvatar').src = data.photo;
+            document.getElementById('userLevel').innerText = data.level;
+            document.getElementById('userCoins').innerText = data.coins;
+        }
+
+        async function saveProfile() {
+            const newName = document.getElementById('editName').value;
+            const newPhoto = document.getElementById('editPhoto').value;
+            const user = auth.currentUser;
+            
+            let updates = {};
+            if(newName) updates.name = newName;
+            if(newPhoto) updates.photo = newPhoto;
+
+            if(Object.keys(updates).length > 0) {
+                await db.collection("players").doc(user.uid).update(updates);
+                alert("Данные обновлены!");
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>
