@@ -27,60 +27,81 @@
             min-height: 100vh; overflow-x: hidden; padding-bottom: 90px;
         }
 
-        /* --- Логотип --- */
-        .header-logo { margin-top: 40px; text-align: center; width: 90%; max-width: 90%; }
+        /* --- СТИЛЬНЫЙ ЛОГОТИП (Как в ТЗ) --- */
+        .header-logo { 
+            margin-top: 40px; 
+            text-align: center; 
+            width: 100%;
+            padding: 10px;
+        }
         .logo-text {
-            font-size: 3.2rem; font-weight: 800; letter-spacing: -2px; line-height: 1;
+            font-size: clamp(1.8rem, 8vw, 3.5rem); /* Адаптивный размер */
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+            text-transform: uppercase;
             background: linear-gradient(135deg, #fff 10%, var(--accent-neon) 60%, var(--primary-green) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 25px rgba(76, 175, 80, 0.4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(76, 175, 80, 0.5));
+            display: inline-block;
         }
 
-        /* --- Анимация --- */
+        /* --- АНИМАЦИЯ (Дрон впереди) --- */
         .animation-container {
             width: 100%; height: 140px; position: relative; overflow: hidden; margin-top: 10px;
             background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.05) 70%, transparent);
             border-bottom: 2px solid rgba(76, 175, 80, 0.1);
         }
-        .tractor { font-size: 6rem; position: absolute; bottom: -10px; left: -150px; transform: scaleX(-1); animation: driveRight 14s linear infinite; z-index: 2; color: red}
-        .drone { font-size: 2.8rem; position: absolute; bottom: 70px; left: -50px; transform: scaleX(-1); animation: flyRight 14s linear infinite; z-index: 1; filter: drop-shadow(0 0 15px var(--accent-neon)); }
+        .tractor { font-size: 5.5rem; position: absolute; bottom: -5px; left: -150px; transform: scaleX(-1); animation: driveRight 14s linear infinite; z-index: 2; }
+        .drone { font-size: 2.5rem; position: absolute; bottom: 70px; left: -50px; transform: scaleX(-1); animation: flyRight 14s linear infinite; z-index: 1; filter: drop-shadow(0 0 15px var(--accent-neon)); }
 
         @keyframes driveRight { 0% { left: -200px; } 100% { left: 110%; } }
         @keyframes flyRight { 
             0% { left: -50px; transform: translateY(0px) scaleX(-1); }
-            50% { transform: translateY(-15px) scaleX(-1); }
+            50% { transform: translateY(-20px) scaleX(-1); }
             100% { left: calc(110% + 150px); transform: translateY(0px) scaleX(-1); }
         }
 
-        /* --- Контейнеры --- */
-        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 25px; }
+        /* --- КАРТОЧКИ --- */
+        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
         .hidden { display: none !important; }
 
         .game-card {
-            background-color: var(--card-bg); padding: 25px; border-radius: 20px; width: 85%; max-width: 400px;
-            border: 1px solid rgba(139, 195, 74, 0.15); box-shadow: 0 15px 40px rgba(0,0,0,0.6); text-align: center;
+            background-color: var(--card-bg); padding: 25px; border-radius: 25px; width: 85%; max-width: 400px;
+            border: 1px solid rgba(139, 195, 74, 0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.8); text-align: center;
         }
 
-        .avatar { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--primary-green); object-fit: cover; }
-        .user-coins { color: var(--gold); font-weight: bold; font-size: 1.6rem; margin: 10px 0; }
+        /* --- КНОПКИ --- */
+        .btn { padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; margin: 8px 0; width: 100%; font-size: 1rem; }
+        .btn-start { 
+            background: linear-gradient(45deg, #FFEB3B, #FBC02D); 
+            color: #000; 
+            font-size: 1.3rem; 
+            box-shadow: 0 8px 20px rgba(255, 235, 59, 0.3);
+            margin-bottom: 20px;
+        }
+        .btn-start:hover { transform: scale(1.03); filter: brightness(1.1); }
+        
+        .avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--primary-green); object-fit: cover; margin: 10px 0; }
+        .user-coins { color: var(--gold); font-weight: 900; font-size: 1.8rem; margin: 10px 0; }
 
-        /* --- Кнопки --- */
-        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; margin: 5px 0; width: 100%; }
-        .btn-start { background: linear-gradient(135deg, #FFEB3B, #FBC02D); color: #000; font-size: 1.2rem; text-transform: uppercase; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(255, 235, 59, 0.3); }
-        .btn-start:hover { transform: scale(1.05); }
-        .btn-save { background: var(--primary-green); color: white; }
-        .btn-buy { background: var(--accent-neon); color: var(--dark-bg); width: auto; }
+        /* --- ГРЯДКИ --- */
+        .farm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+        .plot { 
+            background: #3e2723; height: 90px; border-radius: 15px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2.5rem; border: 3px solid #5d4037; cursor: pointer;
+            transition: 0.2s;
+        }
+        .plot:active { transform: scale(0.9); }
 
-        /* --- Игровое поле (Ферма) --- */
-        .farm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .plot { background: #3e2723; height: 80px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 2px solid #5d4037; }
+        /* --- НАВИГАЦИЯ --- */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #050505; display: flex; justify-content: space-around; padding: 18px 0; border-top: 2px solid var(--primary-green); z-index: 100; }
+        .nav-item { color: #555; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.3s; }
+        .nav-item.active { color: var(--accent-neon); transform: translateY(-3px); }
 
-        /* --- Навигация --- */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 15px 0; border-top: 2px solid var(--primary-green); z-index: 100; }
-        .nav-item { color: #666; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-        .nav-item.active { color: var(--accent-neon); }
-
-        input[type="text"] { width: 100%; background: #222; color: #fff; border: 1px solid #333; padding: 10px; margin: 5px 0; border-radius: 8px; box-sizing: border-box; }
+        input { width: 100%; background: #222; color: #fff; border: 1px solid #333; padding: 12px; margin: 5px 0; border-radius: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -89,32 +110,30 @@
         <div class="logo-text">AnotherF**kFarmGame</div>
     </div>
 
-    <div class="animation-container" id="topAnim">
+    <div class="animation-container">
         <div class="drone">🛸</div>
         <div class="tractor">🚜</div>
     </div>
 
     <div class="main-container">
         <div id="authScreen">
-            <button class="btn" style="background:white; color:#333; width: auto; padding: 15px 30px;" onclick="login()">Войти через Google</button>
+            <button class="btn" style="background:white; color:#333; width: auto; padding: 15px 40px;" onclick="login()">ВХОД ЧЕРЕЗ GOOGLE</button>
         </div>
 
         <div id="profileScreen" class="game-card hidden">
-            <button class="btn btn-start" onclick="showScreen('farm')">🚀 Начать игру</button>
-            <img id="userAvatar" class="avatar" src="" alt="Avatar">
-            <h2 id="userName" style="margin:5px 0;">Фермер</h2>
+            <button class="btn btn-start" onclick="showScreen('farm')">🎮 ИГРАТЬ</button>
+            <img id="userAvatar" class="avatar" src="https://via.placeholder.com/150" alt="Avatar">
+            <h2 id="userName" style="margin:5px 0; letter-spacing: 1px;">ФЕРМЕР</h2>
             <div class="user-coins"><span id="coinDisplay">0</span> 💰</div>
             
-            <div style="text-align: left; margin-top: 10px;">
-                <input type="text" id="editName" placeholder="Никнейм">
-                <input type="text" id="editPhoto" placeholder="URL аватара">
-            </div>
-            <button class="btn btn-save" onclick="saveProfile()">Сохранить изменения</button>
-            <button onclick="logout()" style="background:none; border:none; color:#ff4444; margin-top:10px; cursor:pointer;">Выйти</button>
+            <input type="text" id="editName" placeholder="Никнейм">
+            <input type="text" id="editPhoto" placeholder="URL аватара">
+            <button class="btn" style="background: var(--primary-green); color: white;" onclick="saveProfile()">СОХРАНИТЬ</button>
+            <button onclick="logout()" style="background:none; border:none; color:#ff4444; margin-top:15px; cursor:pointer; font-weight:bold;">ВЫЙТИ</button>
         </div>
 
         <div id="farmScreen" class="game-card hidden">
-            <h2 style="margin:0;">Твоя Ферма</h2>
+            <h2 style="margin:0; color: var(--accent-neon);">МОЯ ФЕРМА</h2>
             <div class="user-coins"><span id="farmCoinDisplay">0</span> 💰</div>
             <div class="farm-grid">
                 <div class="plot" onclick="plant(this)">🟤</div>
@@ -124,14 +143,11 @@
                 <div class="plot" onclick="plant(this)">🟤</div>
                 <div class="plot" onclick="plant(this)">🟤</div>
             </div>
-            <p style="font-size: 0.8rem; margin-top: 15px; opacity: 0.6;">Нажми на грядку, чтобы посадить урожай</p>
         </div>
 
         <div id="cityScreen" class="game-card hidden">
-            <h2 style="margin:0;">Рынок</h2>
-            <div class="shop-item" style="background:none; border:none;">
-                <button class="btn btn-buy" onclick="buyItem('seeds', 50)">Купить семена (50 💰)</button>
-            </div>
+            <h2 style="margin:0;">РЫНОК</h2>
+            <p>Скоро здесь появятся новые семена и техника!</p>
         </div>
     </div>
 
@@ -142,11 +158,24 @@
     </nav>
 
     <script>
-        const firebaseConfig = { apiKey: "API_KEY", authDomain: "ID.firebaseapp.com", projectId: "ID", storageBucket: "ID.appspot.com", messagingSenderId: "ID", appId: "ID" };
+        // !!! ОБЯЗАТЕЛЬНО ВСТАВЬ СВОЙ КОНФИГ ИЗ FIREBASE CONSOLE !!!
+        const firebaseConfig = { 
+            apiKey: "ТВОЙ_КЛЮЧ", 
+            authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com", 
+            projectId: "ТВОЙ_ПРОЕКТ", 
+            storageBucket: "ТВОЙ_ПРОЕКТ.appspot.com", 
+            messagingSenderId: "ID", 
+            appId: "ID" 
+        };
+
+        if (firebaseConfig.apiKey === "ТВОЙ_КЛЮЧ") {
+            console.error("ОШИБКА: Подключи Firebase в коде!");
+            alert("Игра не сможет сохранить данные, пока ты не вставишь Firebase Config в скрипт!");
+        }
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        let userData = null;
 
         function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
         function logout() { auth.signOut().then(() => location.reload()); }
@@ -155,10 +184,8 @@
             document.querySelectorAll('.game-card').forEach(c => c.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(screen + 'Screen').classList.remove('hidden');
-            
-            // Подсветка иконок в навбаре
-            const navIndex = { 'profile': 0, 'farm': 1, 'city': 2 };
-            document.querySelectorAll('.nav-item')[navIndex[screen]].classList.add('active');
+            const idx = { 'profile': 0, 'farm': 1, 'city': 2 };
+            document.querySelectorAll('.nav-item')[idx[screen]].classList.add('active');
         }
 
         auth.onAuthStateChanged(user => {
@@ -167,15 +194,15 @@
                 document.getElementById('bottomNav').classList.remove('hidden');
                 db.collection("players").doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
-                        userData = doc.data();
-                        document.getElementById('userName').innerText = userData.name;
-                        document.getElementById('userAvatar').src = userData.photo || "https://via.placeholder.com/150";
-                        document.getElementById('coinDisplay').innerText = userData.coins;
-                        document.getElementById('farmCoinDisplay').innerText = userData.coins;
-                        document.getElementById('editName').value = userData.name;
-                        document.getElementById('editPhoto').value = userData.photo;
+                        const data = doc.data();
+                        document.getElementById('userName').innerText = data.name || "Фермер";
+                        document.getElementById('userAvatar').src = data.photo || "https://via.placeholder.com/150";
+                        document.getElementById('coinDisplay').innerText = data.coins || 0;
+                        document.getElementById('farmCoinDisplay').innerText = data.coins || 0;
+                        document.getElementById('editName').value = data.name || "";
+                        document.getElementById('editPhoto').value = data.photo || "";
                     } else {
-                        db.collection("players").doc(user.uid).set({ name: user.displayName, coins: 1000, level: 1 });
+                        db.collection("players").doc(user.uid).set({ name: user.displayName, coins: 1000, photo: user.photoURL });
                     }
                 });
                 showScreen('profile');
@@ -185,18 +212,22 @@
         function plant(el) {
             if(el.innerText === '🟤') {
                 el.innerText = '🌱';
-                setTimeout(() => { el.innerText = '🌽'; }, 3000);
+                setTimeout(() => { el.innerText = '🌽'; }, 2000);
             } else if (el.innerText === '🌽') {
                 el.innerText = '🟤';
-                db.collection("players").doc(auth.currentUser.uid).update({ coins: firebase.firestore.FieldValue.increment(20) });
+                db.collection("players").doc(auth.currentUser.uid).update({ 
+                    coins: firebase.firestore.FieldValue.increment(25) 
+                });
             }
         }
 
         async function saveProfile() {
-            await db.collection("players").doc(auth.currentUser.uid).update({ name: document.getElementById('editName').value, photo: document.getElementById('editPhoto').value });
-            alert("Сохранено!");
+            await db.collection("players").doc(auth.currentUser.uid).update({ 
+                name: document.getElementById('editName').value, 
+                photo: document.getElementById('editPhoto').value 
+            });
+            alert("Профиль обновлен!");
         }
     </script>
 </body>
 </html>
-
