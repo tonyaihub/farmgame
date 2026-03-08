@@ -1,55 +1,316 @@
-<style>
-    /* --- Увеличенная и Развернутая Анимация --- */
-    .animation-container {
-        width: 100%;
-        height: 180px; 
-        position: relative;
-        overflow: hidden;
-        margin-top: 10px;
-        background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.08) 70%, transparent);
-        border-bottom: 2px solid rgba(76, 175, 80, 0.2);
-    }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnotherF**kFarmGame | Профиль</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary-green: #4CAF50;
+            --accent-neon: #8BC34A;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-color: #e0e0e0;
+        }
 
-    .tractor {
-        font-size: 7rem; 
-        position: absolute;
-        bottom: -15px; 
-        left: -150px;
-        /* РАЗВОРОТ ТРАКТОРА ПО ГОРИЗОНТАЛИ */
-        transform: scaleX(-1); 
-        animation: driveTractorRight 12s linear infinite;
-        z-index: 2;
-        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-    }
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    .drone {
-        font-size: 3.5rem; 
-        position: absolute;
-        bottom: 100px; 
-        left: -250px; 
-        /* РАЗВОРОТ ДРОНА ПО ГОРИЗОНТАЛИ */
-        transform: scaleX(-1);
-        animation: flyDroneRight 12s linear infinite;
-        z-index: 1;
-        filter: drop-shadow(0 0 15px var(--accent-neon));
-    }
+        /* --- Логотип --- */
+        .header-logo {
+            margin-top: 40px;
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
 
-    @keyframes driveTractorRight {
-        0% { left: -150px; }
-        80% { left: calc(100% + 50px); opacity: 1; }
-        81% { left: calc(100% + 50px); opacity: 0; }
-        82% { left: -150px; opacity: 0; }
-        100% { left: -150px; opacity: 1; }
-    }
+        .logo-text {
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 10%, var(--accent-neon) 60%, var(--primary-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(76, 175, 80, 0.4);
+            position: relative;
+        }
 
-    @keyframes flyDroneRight {
-        0% { left: -250px; transform: translateY(0px) scaleX(-1); }
-        15% { transform: translateY(-15px) scaleX(-1); }
-        40% { transform: translateY(0px) scaleX(-1); }
-        65% { transform: translateY(15px) scaleX(-1); }
-        80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(-1); }
-        81% { left: calc(100% + 50px); opacity: 0; }
-        82% { left: -250px; opacity: 0; }
-        100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(-1); }
-    }
-</style>
+        /* --- Анимация (Увеличенная и развернутая) --- */
+        .animation-container {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+            background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.08) 70%, transparent);
+            border-bottom: 2px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .tractor {
+            font-size: 7rem;
+            position: absolute;
+            bottom: -15px;
+            left: -150px;
+            /* Разворот по горизонтали */
+            transform: scaleX(-1);
+            animation: driveTractorRight 12s linear infinite;
+            z-index: 2;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+        }
+
+        .drone {
+            font-size: 3.5rem;
+            position: absolute;
+            bottom: 100px;
+            left: -250px;
+            /* Разворот по горизонтали */
+            transform: scaleX(-1);
+            animation: flyDroneRight 12s linear infinite;
+            z-index: 1;
+            filter: drop-shadow(0 0 15px var(--accent-neon));
+        }
+
+        @keyframes driveTractorRight {
+            0% { left: -150px; }
+            80% { left: calc(100% + 50px); opacity: 1; }
+            81% { left: calc(100% + 50px); opacity: 0; }
+            82% { left: -150px; opacity: 0; }
+            100% { left: -150px; opacity: 1; }
+        }
+
+        @keyframes flyDroneRight {
+            0% { left: -250px; transform: translateY(0px) scaleX(-1); }
+            15% { transform: translateY(-15px) scaleX(-1); }
+            40% { transform: translateY(0px) scaleX(-1); }
+            65% { transform: translateY(15px) scaleX(-1); }
+            80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(-1); }
+            81% { left: calc(100% + 50px); opacity: 0; }
+            82% { left: -250px; opacity: 0; }
+            100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(-1); }
+        }
+
+        /* --- UI Профиля --- */
+        .hidden { display: none; }
+        
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        .btn-login-google {
+            background: white;
+            color: #757575;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .profile-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            width: 350px;
+            border: 1px solid rgba(139, 195, 74, 0.15);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 25px;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid var(--primary-green);
+            object-fit: cover;
+        }
+
+        .level-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, var(--accent-neon), var(--primary-green));
+            color: var(--dark-bg);
+            font-weight: bold;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; }
+
+        input[type="text"] {
+            width: calc(100% - 24px);
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 12px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary-green), var(--accent-neon));
+            color: var(--dark-bg);
+        }
+
+        .btn-logout { background: #2a2a2a; color: #aaa; margin-top: 25px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-logo">
+        <div class="logo-text">AnotherF**kFarmGame</div>
+    </div>
+
+    <div class="animation-container">
+        <div class="drone">🛸</div>
+        <div class="tractor">🚜</div>
+    </div>
+
+    <div class="main-container">
+        <div id="authScreen">
+            <button class="btn-login-google" onclick="login()">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\" G\"_Logo.svg" width="22" alt="G">
+                Привязать Google Аккаунт
+            </button>
+        </div>
+
+        <div id="profileScreen" class="hidden">
+            <div class="profile-card">
+                <div class="avatar-container">
+                    <img id="userAvatar" class="avatar" src="" alt="Avatar">
+                    <div class="level-badge"><span id="userLevel">1</span> LVL</div>
+                </div>
+                <h2 id="userName">Агроном</h2>
+                <p class="user-coins"><span id="userCoins">100</span> 💰</p>
+                
+                <div style="text-align: left;">
+                    <label style="font-size: 0.8rem; color: #888;">Никнейм</label>
+                    <input type="text" id="editName">
+                    <label style="font-size: 0.8rem; color: #888;">URL Аватара</label>
+                    <input type="text" id="editPhoto">
+                </div>
+
+                <button class="btn btn-save" onclick="saveProfile()">Сохранить изменения</button>
+                <button class="btn btn-logout" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === КОНФИГ FIREBASE (ЗАМЕНИ НА СВОЙ) ===
+        const firebaseConfig = {
+            apiKey: "ТВОЙ_API_KEY",
+            authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com",
+            projectId: "ТВОЙ_ПРОЕКТ",
+            storageBucket: "ТВОЙ_ПРОЕКТ.appspot.com",
+            messagingSenderId: "ID",
+            appId: "APP_ID"
+        };
+        // ========================================
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function login() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider);
+        }
+
+        function logout() { auth.signOut(); }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('profileScreen').classList.remove('hidden');
+                loadUserData(user);
+            } else {
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('profileScreen').classList.add('hidden');
+            }
+        });
+
+        async function loadUserData(user) {
+            const doc = await db.collection("players").doc(user.uid).get();
+            if (doc.exists) {
+                const data = doc.data();
+                updateUI(data);
+            } else {
+                const newUser = {
+                    name: user.displayName || "Новый фермер",
+                    photo: user.photoURL || "",
+                    level: 1,
+                    coins: 1000,
+                    exp: 0
+                };
+                await db.collection("players").doc(user.uid).set(newUser);
+                updateUI(newUser);
+            }
+        }
+
+        function updateUI(data) {
+            document.getElementById('userName').innerText = data.name;
+            document.getElementById('userAvatar').src = data.photo || "https://via.placeholder.com/150";
+            document.getElementById('userLevel').innerText = data.level;
+            document.getElementById('userCoins').innerText = data.coins.toLocaleString();
+            document.getElementById('editName').value = data.name;
+            document.getElementById('editPhoto').value = data.photo;
+        }
+
+        async function saveProfile() {
+            const user = auth.currentUser;
+            const updates = {
+                name: document.getElementById('editName').value,
+                photo: document.getElementById('editPhoto').value
+            };
+            await db.collection("players").doc(user.uid).update(updates);
+            alert("Обновлено!");
+            location.reload();
+        }
+    </script>
+</body>
+</html>
