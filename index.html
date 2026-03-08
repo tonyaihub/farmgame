@@ -12,8 +12,8 @@
         :root {
             --primary-green: #4CAF50;
             --accent-neon: #8BC34A;
-            --dark-bg: #121212;
-            --card-bg: #1e1e1e;
+            --dark-bg: #0a0a0a; /* Еще темнее для контраста */
+            --card-bg: #1a1a1a;
             --text-color: #e0e0e0;
         }
 
@@ -27,23 +27,27 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden; /* Чтобы анимация не ломала скролл */
         }
 
-        /* --- Атмосферный логотип --- */
+        /* --- Обновленный Логотип (Регистр учтен) --- */
         .header-logo {
-            margin-top: 30px;
+            margin-top: 40px;
             text-align: center;
+            width: 90%;
+            max-width: 600px;
         }
 
         .logo-text {
-            font-size: 2.8rem;
+            font-size: 3.2rem; /* Увеличили */
             font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-            background: linear-gradient(135deg, #fff 30%, var(--accent-neon) 100%);
+            letter-spacing: -2px;
+            line-height: 1;
+            /* Градиент в точности по названию */
+            background: linear-gradient(135deg, #fff 10%, var(--accent-neon) 60%, var(--primary-green) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(139, 195, 74, 0.5);
+            text-shadow: 0 0 25px rgba(76, 175, 80, 0.4);
             position: relative;
         }
 
@@ -54,69 +58,71 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--primary-green) 0%, transparent 50%);
+            background: linear-gradient(135deg, var(--primary-green) 0%, transparent 70%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             z-index: -1;
-            filter: blur(5px);
-        }
-
-        .logo-subtext {
-            font-size: 0.9rem;
-            color: var(--primary-green);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-top: -5px;
+            filter: blur(8px);
             opacity: 0.8;
         }
 
-        /* --- Анимация Трактора и Дрона --- */
+        /* --- Увеличенная и Развернутая Анимация --- */
         .animation-container {
             width: 100%;
-            height: 100px;
+            height: 180px; /* Увеличили высоту для крупных эмодзи */
             position: relative;
             overflow: hidden;
-            margin-top: 20px;
-            background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.05) 50%, transparent);
+            margin-top: 10px;
+            /* Эффект грядки */
+            background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.08) 70%, transparent);
+            border-bottom: 2px solid rgba(76, 175, 80, 0.2);
         }
 
         .tractor {
-            font-size: 3rem;
+            font-size: 7rem; /* В 2.3 раза крупнее */
             position: absolute;
-            bottom: 10px;
-            left: -100px;
-            animation: driveTractor 15s linear infinite;
+            bottom: -15px; /* Чуть притоплен в грядку */
+            left: -150px;
+            /* Развернут: scaleX(-1) —> scaleX(1) для движения направо */
+            transform: scaleX(1); 
+            animation: driveTractorRight 12s linear infinite; /* Быстрее и только направо */
             z-index: 2;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
 
         .drone {
-            font-size: 1.5rem;
+            font-size: 3.5rem; /* В 2.3 раза крупнее */
             position: absolute;
-            bottom: 60px; /* Выше трактора */
-            left: -150px; /* Чуть позади */
-            animation: flyDrone 15s linear infinite;
+            bottom: 100px; /* Выше трактора */
+            left: -250px; /* Сильнее позади */
+            /* Развернут: scaleX(-1) —> scaleX(1) */
+            transform: scaleX(1);
+            animation: flyDroneRight 12s linear infinite; /* В такт трактору */
             z-index: 1;
+            filter: drop-shadow(0 0 15px var(--accent-neon));
         }
 
-        @keyframes driveTractor {
-            0% { left: -100px; transform: scaleX(1); }
-            45% { transform: scaleX(1); }
-            50% { left: calc(100% + 100px); transform: scaleX(1); }
-            51% { transform: scaleX(-1); } /* Разворот */
-            95% { transform: scaleX(-1); }
-            100% { left: -100px; transform: scaleX(-1); }
+        /* Анимация движения ТОЛЬКО направо с перезагрузкой за экраном */
+        @keyframes driveTractorRight {
+            0% { left: -150px; }
+            80% { left: calc(100% + 50px); opacity: 1; }
+            81% { left: calc(100% + 50px); opacity: 0; } /* Прячем за краем */
+            82% { left: -150px; opacity: 0; } /* Телепорт назад */
+            100% { left: -150px; opacity: 1; } /* Появляемся снова */
         }
 
-        @keyframes flyDrone {
-            0% { left: -150px; transform: translateY(0px); }
-            25% { transform: translateY(-10px); }
-            50% { left: calc(100% + 50px); transform: translateY(0px); }
-            51% { transform: translateY(0px); }
-            75% { transform: translateY(10px); }
-            100% { left: -150px; transform: translateY(0px); }
+        @keyframes flyDroneRight {
+            0% { left: -250px; transform: translateY(0px) scaleX(1); }
+            15% { transform: translateY(-15px) scaleX(1); }
+            40% { transform: translateY(0px) scaleX(1); }
+            65% { transform: translateY(15px) scaleX(1); }
+            80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(1); }
+            81% { left: calc(100% + 50px); opacity: 0; } /* Прячем */
+            82% { left: -250px; opacity: 0; } /* Телепорт */
+            100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(1); }
         }
 
-        /* --- Остальной UI Профиля --- */
+        /* --- Остальной UI Профиля (без изменений) --- */
         .hidden { display: none; }
         
         .main-container {
@@ -124,104 +130,111 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 30px;
+            margin-bottom: 50px;
         }
 
         .btn-login-google {
             background: white;
             color: #757575;
             border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
+            padding: 15px 30px;
+            font-size: 1.1rem;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
-            gap: 10px;
-            transition: background 0.2s;
+            gap: 12px;
+            transition: background 0.2s, transform 0.1s;
         }
 
-        .btn-login-google:hover { background: #eee; }
+        .btn-login-google:hover { background: #eee; transform: translateY(-2px); }
+        .btn-login-google:active { transform: translateY(1px); }
 
         .profile-card {
             background-color: var(--card-bg);
             padding: 30px;
             border-radius: 20px;
             width: 350px;
-            border: 1px solid rgba(76, 175, 80, 0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(139, 195, 74, 0.15);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
             text-align: center;
         }
 
         .avatar-container {
             position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 25px;
         }
 
         .avatar {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 4px solid var(--primary-green);
+            border: 5px solid var(--primary-green);
             object-fit: cover;
-            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
         }
 
         .level-badge {
             position: absolute;
-            bottom: 0;
-            right: 0;
-            background: var(--accent-neon);
+            bottom: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, var(--accent-neon), var(--primary-green));
             color: var(--dark-bg);
             font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
-        h2 { margin: 10px 0 5px; color: #fff; }
-        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.1rem; }
+        h2 { margin: 10px 0 5px; color: #fff; font-size: 1.6rem; }
+        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; margin-top: 0; }
 
         .edit-group {
-            margin-top: 20px;
+            margin-top: 25px;
             text-align: left;
             width: 100%;
         }
 
         .edit-group label {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #aaa;
             margin-left: 5px;
+            display: block;
+            margin-bottom: 4px;
         }
 
         input[type="text"] {
-            width: calc(100% - 20px);
-            background: rgba(255,255,255,0.05);
+            width: calc(100% - 24px);
+            background: rgba(255,255,255,0.03);
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 12px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            font-size: 1rem;
         }
 
         input[type="text"]:focus {
             outline: none;
-            border-color: var(--primary-green);
+            border-color: var(--accent-neon);
+            background: rgba(255,255,255,0.06);
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s;
             margin-top: 10px;
         }
 
@@ -230,15 +243,18 @@
         .btn-save {
             background: linear-gradient(135deg, var(--primary-green), var(--accent-neon));
             color: var(--dark-bg);
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
         }
+        .btn-save:hover { box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3); }
 
         .btn-logout {
-            background: #333;
-            color: #ccc;
-            margin-top: 20px;
+            background: #2a2a2a;
+            color: #aaa;
+            margin-top: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .btn-logout:hover { opacity: 0.8; }
+        .btn-logout:hover { background: #333; color: #fff; }
 
     </style>
 </head>
@@ -246,7 +262,6 @@
 
     <div class="header-logo">
         <div class="logo-text">AnotherF**kFarmGame</div>
-        <div class="logo-subtext">The Ultimate Digital Harvest</div>
     </div>
 
     <div class="animation-container">
@@ -258,7 +273,7 @@
         
         <div id="authScreen">
             <button class="btn-login-google" onclick="login()">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\" G\"_Logo.svg" width="20" alt="G">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\" G\"_Logo.svg" width="22" alt="G">
                 Привязать Google Аккаунт
             </button>
         </div>
