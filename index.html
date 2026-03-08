@@ -30,7 +30,7 @@
             overflow-x: hidden;
         }
 
-        /* --- Логотип --- */
+        /* --- Логотип (Строгий регистр) --- */
         .header-logo {
             margin-top: 40px;
             text-align: center;
@@ -50,7 +50,7 @@
             position: relative;
         }
 
-        /* --- Анимация (Увеличенная и развернутая) --- */
+        /* --- Анимация (Трактор и Квадрокоптер развернуты) --- */
         .animation-container {
             width: 100%;
             height: 180px;
@@ -62,46 +62,45 @@
         }
 
         .tractor {
-            font-size: 7rem;
+            font-size: 7rem; /* Увеличенный размер */
             position: absolute;
             bottom: -15px;
-            left: -150px;
-            /* Разворот по горизонтали */
+            left: -200px;
+            /* scaleX(-1) разворачивает эмодзи по горизонтали лицом направо */
             transform: scaleX(-1);
-            animation: driveTractorRight 12s linear infinite;
+            animation: driveRight 12s linear infinite;
             z-index: 2;
             filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
 
-        .drone {
-            font-size: 3.5rem;
+        .quadcopter {
+            font-size: 3.5rem; /* Увеличенный размер */
             position: absolute;
             bottom: 100px;
-            left: -250px;
-            /* Разворот по горизонтали */
+            left: -300px;
+            /* scaleX(-1) разворачивает квадрокоптер лицом направо */
             transform: scaleX(-1);
-            animation: flyDroneRight 12s linear infinite;
+            animation: flyRight 12s linear infinite;
             z-index: 1;
             filter: drop-shadow(0 0 15px var(--accent-neon));
         }
 
-        @keyframes driveTractorRight {
-            0% { left: -150px; }
-            80% { left: calc(100% + 50px); opacity: 1; }
-            81% { left: calc(100% + 50px); opacity: 0; }
-            82% { left: -150px; opacity: 0; }
-            100% { left: -150px; opacity: 1; }
+        @keyframes driveRight {
+            0% { left: -200px; }
+            80% { left: calc(100% + 100px); opacity: 1; }
+            81% { left: calc(100% + 100px); opacity: 0; }
+            82% { left: -200px; opacity: 0; }
+            100% { left: -200px; opacity: 1; }
         }
 
-        @keyframes flyDroneRight {
-            0% { left: -250px; transform: translateY(0px) scaleX(-1); }
-            15% { transform: translateY(-15px) scaleX(-1); }
-            40% { transform: translateY(0px) scaleX(-1); }
-            65% { transform: translateY(15px) scaleX(-1); }
-            80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(-1); }
-            81% { left: calc(100% + 50px); opacity: 0; }
-            82% { left: -250px; opacity: 0; }
-            100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(-1); }
+        @keyframes flyRight {
+            0% { left: -300px; transform: translateY(0px) scaleX(-1); }
+            20% { transform: translateY(-25px) scaleX(-1); }
+            50% { transform: translateY(0px) scaleX(-1); }
+            80% { left: calc(100% + 100px); opacity: 1; transform: translateY(0px) scaleX(-1); }
+            81% { left: calc(100% + 100px); opacity: 0; }
+            82% { left: -300px; opacity: 0; }
+            100% { left: -300px; opacity: 1; transform: translateY(0px) scaleX(-1); }
         }
 
         /* --- UI Профиля --- */
@@ -171,6 +170,8 @@
 
         .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; }
 
+        label { font-size: 0.8rem; color: #888; display: block; text-align: left; margin-left: 5px; }
+
         input[type="text"] {
             width: calc(100% - 24px);
             background: rgba(255,255,255,0.03);
@@ -206,7 +207,7 @@
     </div>
 
     <div class="animation-container">
-        <div class="drone">🛸</div>
+        <div class="quadcopter">🚁</div>
         <div class="tractor">🚜</div>
     </div>
 
@@ -227,10 +228,10 @@
                 <h2 id="userName">Агроном</h2>
                 <p class="user-coins"><span id="userCoins">100</span> 💰</p>
                 
-                <div style="text-align: left;">
-                    <label style="font-size: 0.8rem; color: #888;">Никнейм</label>
+                <div style="margin-top: 20px;">
+                    <label>Никнейм</label>
                     <input type="text" id="editName">
-                    <label style="font-size: 0.8rem; color: #888;">URL Аватара</label>
+                    <label>URL Аватара</label>
                     <input type="text" id="editPhoto">
                 </div>
 
@@ -241,7 +242,7 @@
     </div>
 
     <script>
-        // === КОНФИГ FIREBASE (ЗАМЕНИ НА СВОЙ) ===
+        // === КОНФИГ FIREBASE (Вставь свои данные) ===
         const firebaseConfig = {
             apiKey: "ТВОЙ_API_KEY",
             authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com",
@@ -250,7 +251,7 @@
             messagingSenderId: "ID",
             appId: "APP_ID"
         };
-        // ========================================
+        // ===========================================
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -258,7 +259,7 @@
 
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider);
+            auth.signInWithPopup(provider).catch(e => console.error(e));
         }
 
         function logout() { auth.signOut(); }
@@ -277,12 +278,11 @@
         async function loadUserData(user) {
             const doc = await db.collection("players").doc(user.uid).get();
             if (doc.exists) {
-                const data = doc.data();
-                updateUI(data);
+                updateUI(doc.data());
             } else {
                 const newUser = {
                     name: user.displayName || "Новый фермер",
-                    photo: user.photoURL || "",
+                    photo: user.photoURL || "https://via.placeholder.com/150",
                     level: 1,
                     coins: 1000,
                     exp: 0
@@ -294,7 +294,7 @@
 
         function updateUI(data) {
             document.getElementById('userName').innerText = data.name;
-            document.getElementById('userAvatar').src = data.photo || "https://via.placeholder.com/150";
+            document.getElementById('userAvatar').src = data.photo;
             document.getElementById('userLevel').innerText = data.level;
             document.getElementById('userCoins').innerText = data.coins.toLocaleString();
             document.getElementById('editName').value = data.name;
@@ -308,7 +308,7 @@
                 photo: document.getElementById('editPhoto').value
             };
             await db.collection("players").doc(user.uid).update(updates);
-            alert("Обновлено!");
+            alert("Профиль обновлен! 🚜");
             location.reload();
         }
     </script>
