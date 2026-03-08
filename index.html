@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnotherF**kFarmGame | Профиль</title>
+    <title>AnotherF**kFarmGame | Game</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -15,6 +15,7 @@
             --dark-bg: #0a0a0a;
             --card-bg: #1a1a1a;
             --text-color: #e0e0e0;
+            --gold: #FFD700;
         }
 
         body {
@@ -28,175 +29,76 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
+            padding-bottom: 80px; /* Место для навигации */
         }
 
         /* --- Логотип --- */
-        .header-logo {
-            margin-top: 40px;
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-        }
-
+        .header-logo { margin-top: 40px; text-align: center; width: 90%; max-width: 600px; }
         .logo-text {
-            font-size: 3.2rem;
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1;
+            font-size: 3.2rem; font-weight: 900; letter-spacing: -2px; line-height: 1;
             background: linear-gradient(135deg, #fff 10%, var(--accent-neon) 60%, var(--primary-green) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-shadow: 0 0 25px rgba(76, 175, 80, 0.4);
-            position: relative;
         }
 
-        /* --- Анимация (Увеличенная и развернутая) --- */
+        /* --- Анимация --- */
         .animation-container {
-            width: 100%;
-            height: 180px;
-            position: relative;
-            overflow: hidden;
-            margin-top: 10px;
-            background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.08) 70%, transparent);
-            border-bottom: 2px solid rgba(76, 175, 80, 0.2);
+            width: 100%; height: 120px; position: relative; overflow: hidden;
+            background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.05) 70%, transparent);
         }
+        .tractor { font-size: 5rem; position: absolute; bottom: 0; left: -150px; transform: scaleX(-1); animation: drive 15s linear infinite; }
+        @keyframes drive { from { left: -150px; } to { left: 100%; } }
 
-        .tractor {
-            font-size: 7rem;
-            position: absolute;
-            bottom: -15px;
-            left: -150px;
-            /* Разворот по горизонтали */
-            transform: scaleX(-1);
-            animation: driveTractorRight 12s linear infinite;
-            z-index: 2;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        }
+        /* --- Общие стили контейнеров --- */
+        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+        .hidden { display: none !important; }
 
-        .drone {
-            font-size: 3.5rem;
-            position: absolute;
-            bottom: 100px;
-            left: -250px;
-            /* Разворот по горизонтали */
-            transform: scaleX(-1);
-            animation: flyDroneRight 12s linear infinite;
-            z-index: 1;
-            filter: drop-shadow(0 0 15px var(--accent-neon));
-        }
-
-        @keyframes driveTractorRight {
-            0% { left: -150px; }
-            80% { left: calc(100% + 50px); opacity: 1; }
-            81% { left: calc(100% + 50px); opacity: 0; }
-            82% { left: -150px; opacity: 0; }
-            100% { left: -150px; opacity: 1; }
-        }
-
-        @keyframes flyDroneRight {
-            0% { left: -250px; transform: translateY(0px) scaleX(-1); }
-            15% { transform: translateY(-15px) scaleX(-1); }
-            40% { transform: translateY(0px) scaleX(-1); }
-            65% { transform: translateY(15px) scaleX(-1); }
-            80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(-1); }
-            81% { left: calc(100% + 50px); opacity: 0; }
-            82% { left: -250px; opacity: 0; }
-            100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(-1); }
-        }
-
-        /* --- UI Профиля --- */
-        .hidden { display: none; }
-        
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
-
-        .btn-login-google {
-            background: white;
-            color: #757575;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.2s;
-        }
-
-        .profile-card {
+        /* --- Карточка Профиля и Магазина --- */
+        .game-card {
             background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            width: 350px;
+            padding: 25px; border-radius: 20px; width: 90%; max-width: 400px;
             border: 1px solid rgba(139, 195, 74, 0.15);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             text-align: center;
         }
 
-        .avatar-container {
-            position: relative;
-            width: 130px;
-            height: 130px;
-            margin: 0 auto 25px;
-        }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary-green); object-fit: cover; }
+        .user-coins { color: var(--gold); font-weight: bold; font-size: 1.5rem; margin: 10px 0; }
 
-        .avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 5px solid var(--primary-green);
-            object-fit: cover;
+        /* --- Сетка Магазина --- */
+        .shop-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; margin-top: 20px; }
+        .shop-item {
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
         }
+        .shop-item:hover { background: rgba(255,255,255,0.08); }
+        .item-info { text-align: left; }
+        .item-name { font-weight: bold; color: var(--accent-neon); }
+        .item-price { color: var(--gold); font-size: 0.9rem; }
 
-        .level-badge {
-            position: absolute;
-            bottom: -5px;
-            right: -5px;
-            background: linear-gradient(135deg, var(--accent-neon), var(--primary-green));
-            color: var(--dark-bg);
-            font-weight: bold;
-            padding: 7px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+        /* --- Кнопки --- */
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 10px;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
         }
+        .btn-save { background: var(--primary-green); color: white; width: 100%; }
+        .btn-buy { background: var(--accent-neon); color: var(--dark-bg); padding: 8px 15px; }
+        .btn-buy:disabled { background: #555; cursor: not-allowed; }
 
-        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; }
+        /* --- Навигация --- */
+        .nav-bar {
+            position: fixed; bottom: 0; width: 100%; background: #111;
+            display: flex; justify-content: space-around; padding: 15px 0;
+            border-top: 1px solid var(--primary-green); z-index: 100;
+        }
+        .nav-item { color: #888; text-decoration: none; font-weight: bold; cursor: pointer; }
+        .nav-item.active { color: var(--accent-neon); text-shadow: 0 0 10px var(--accent-neon); }
 
         input[type="text"] {
-            width: calc(100% - 24px);
-            background: rgba(255,255,255,0.03);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 12px;
-            margin-bottom: 18px;
-            border-radius: 10px;
+            width: 100%; background: #222; color: #fff; border: 1px solid #333;
+            padding: 10px; margin: 10px 0; border-radius: 8px; box-sizing: border-box;
         }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .btn-save {
-            background: linear-gradient(135deg, var(--primary-green), var(--accent-neon));
-            color: var(--dark-bg);
-        }
-
-        .btn-logout { background: #2a2a2a; color: #aaa; margin-top: 25px; }
     </style>
 </head>
 <body>
@@ -206,42 +108,62 @@
     </div>
 
     <div class="animation-container">
-        <div class="drone">🛸</div>
         <div class="tractor">🚜</div>
     </div>
 
     <div class="main-container">
         <div id="authScreen">
-            <button class="btn-login-google" onclick="login()">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\" G\"_Logo.svg" width="22" alt="G">
-                Привязать Google Аккаунт
-            </button>
+            <button class="btn" style="background:white; color:#333;" onclick="login()">Войти через Google</button>
         </div>
 
-        <div id="profileScreen" class="hidden">
-            <div class="profile-card">
-                <div class="avatar-container">
-                    <img id="userAvatar" class="avatar" src="" alt="Avatar">
-                    <div class="level-badge"><span id="userLevel">1</span> LVL</div>
-                </div>
-                <h2 id="userName">Агроном</h2>
-                <p class="user-coins"><span id="userCoins">100</span> 💰</p>
-                
-                <div style="text-align: left;">
-                    <label style="font-size: 0.8rem; color: #888;">Никнейм</label>
-                    <input type="text" id="editName">
-                    <label style="font-size: 0.8rem; color: #888;">URL Аватара</label>
-                    <input type="text" id="editPhoto">
-                </div>
+        <div id="profileScreen" class="game-card hidden">
+            <img id="userAvatar" class="avatar" src="" alt="Avatar">
+            <h2 id="userName">Фермер</h2>
+            <div class="user-coins"><span id="coinDisplay">0</span> 💰</div>
+            <p>Уровень: <span id="userLevel">1</span></p>
+            
+            <input type="text" id="editName" placeholder="Никнейм">
+            <input type="text" id="editPhoto" placeholder="URL аватара">
+            <button class="btn btn-save" onclick="saveProfile()">Сохранить</button>
+            <button onclick="logout()" style="background:none; border:none; color:#ff4444; margin-top:15px; cursor:pointer;">Выйти</button>
+        </div>
 
-                <button class="btn btn-save" onclick="saveProfile()">Сохранить изменения</button>
-                <button class="btn btn-logout" onclick="logout()">Выйти</button>
+        <div id="cityScreen" class="game-card hidden">
+            <h2>Городской Магазин</h2>
+            <div class="user-coins">Баланс: <span id="shopCoinDisplay">0</span> 💰</div>
+            
+            <div class="shop-grid">
+                <div class="shop-item">
+                    <div class="item-info">
+                        <div class="item-name">📦 Супер-удобрение</div>
+                        <div class="item-price">150 💰</div>
+                    </div>
+                    <button class="btn btn-buy" onclick="buyItem('fertilizer', 150)">Купить</button>
+                </div>
+                <div class="shop-item">
+                    <div class="item-info">
+                        <div class="item-name">🚁 Квадрокоптер Mk2</div>
+                        <div class="item-price">500 💰</div>
+                    </div>
+                    <button class="btn btn-buy" onclick="buyItem('drone_v2', 500)">Купить</button>
+                </div>
+                <div class="shop-item">
+                    <div class="item-info">
+                        <div class="item-name">🤖 Авто-трактор</div>
+                        <div class="item-price">2000 💰</div>
+                    </div>
+                    <button class="btn btn-buy" onclick="buyItem('auto_tractor', 2000)">Купить</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <nav id="bottomNav" class="nav-bar hidden">
+        <div class="nav-item active" onclick="showScreen('profile')">👤 Профиль</div>
+        <div class="nav-item" onclick="showScreen('city')">🏙️ Город</div>
+    </nav>
+
     <script>
-        // === КОНФИГ FIREBASE (ЗАМЕНИ НА СВОЙ) ===
         const firebaseConfig = {
             apiKey: "ТВОЙ_API_KEY",
             authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com",
@@ -250,66 +172,89 @@
             messagingSenderId: "ID",
             appId: "APP_ID"
         };
-        // ========================================
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+
+        let currentUserData = null;
 
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider);
         }
 
-        function logout() { auth.signOut(); }
+        function logout() { auth.signOut(); location.reload(); }
+
+        // Переключение экранов
+        function showScreen(screen) {
+            document.getElementById('profileScreen').classList.add('hidden');
+            document.getElementById('cityScreen').classList.add('hidden');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+
+            if (screen === 'profile') {
+                document.getElementById('profileScreen').classList.remove('hidden');
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else {
+                document.getElementById('cityScreen').classList.remove('hidden');
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            }
+        }
 
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('profileScreen').classList.remove('hidden');
+                document.getElementById('bottomNav').classList.remove('hidden');
                 loadUserData(user);
-            } else {
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('profileScreen').classList.add('hidden');
             }
         });
 
         async function loadUserData(user) {
-            const doc = await db.collection("players").doc(user.uid).get();
-            if (doc.exists) {
-                const data = doc.data();
-                updateUI(data);
-            } else {
-                const newUser = {
-                    name: user.displayName || "Новый фермер",
-                    photo: user.photoURL || "",
-                    level: 1,
-                    coins: 1000,
-                    exp: 0
-                };
-                await db.collection("players").doc(user.uid).set(newUser);
-                updateUI(newUser);
-            }
+            const docRef = db.collection("players").doc(user.uid);
+            
+            // Real-time слушатель для обновления монет без перезагрузки
+            docRef.onSnapshot(doc => {
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    updateUI(currentUserData);
+                } else {
+                    const newUser = { name: user.displayName || "Фермер", photo: user.photoURL || "", level: 1, coins: 1000, inventory: [] };
+                    docRef.set(newUser);
+                }
+            });
         }
 
         function updateUI(data) {
             document.getElementById('userName').innerText = data.name;
             document.getElementById('userAvatar').src = data.photo || "https://via.placeholder.com/150";
             document.getElementById('userLevel').innerText = data.level;
-            document.getElementById('userCoins').innerText = data.coins.toLocaleString();
+            document.getElementById('coinDisplay').innerText = data.coins;
+            document.getElementById('shopCoinDisplay').innerText = data.coins;
             document.getElementById('editName').value = data.name;
             document.getElementById('editPhoto').value = data.photo;
+            showScreen('profile');
+        }
+
+        async function buyItem(itemId, price) {
+            if (currentUserData.coins >= price) {
+                const user = auth.currentUser;
+                await db.collection("players").doc(user.uid).update({
+                    coins: firebase.firestore.FieldValue.increment(-price),
+                    inventory: firebase.firestore.FieldValue.arrayUnion(itemId)
+                });
+                alert("Покупка совершена!");
+            } else {
+                alert("Недостаточно монет!");
+            }
         }
 
         async function saveProfile() {
             const user = auth.currentUser;
-            const updates = {
+            await db.collection("players").doc(user.uid).update({
                 name: document.getElementById('editName').value,
                 photo: document.getElementById('editPhoto').value
-            };
-            await db.collection("players").doc(user.uid).update(updates);
-            alert("Обновлено!");
-            location.reload();
+            });
+            alert("Профиль сохранен!");
         }
     </script>
 </body>
