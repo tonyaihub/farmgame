@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGRO-NATION | Загрузка</title>
+    <style>
+        :root {
+            --primary-green: #4CAF50;
+            --dark-bg: #1a1a1a;
+            --text-color: #e0e0e0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--dark-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        .loader-container {
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            color: var(--primary-green);
+            text-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            box-shadow: 0 0 10px var(--primary-green);
+            transition: width 0.3s ease;
+        }
+
+        .status-text {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .percentage {
+            margin-top: 5px;
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+
+        /* Анимация колоска или трактора (условно) */
+        .icon-anim {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader-container">
+        <div class="icon-anim">🚜</div>
+        <div class="logo">AGRO-NATION</div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="status-text" id="status">Подготовка почвы...</div>
+        <div class="percentage" id="percent">0%</div>
+    </div>
+
+    <script>
+        const progressFill = document.getElementById('progressFill');
+        const statusText = document.getElementById('status');
+        const percentText = document.getElementById('percent');
+
+        const phrases = [
+            "Закупаем семена...",
+            "Проверяем влажность...",
+            "Прогреваем тракторы...",
+            "Нанимаем агрономов...",
+            "Готовим рынок сбыта...",
+            "Почти готово..."
+        ];
+
+        let progress = 0;
+
+        function updateLoader() {
+            if (progress < 100) {
+                progress += Math.random() * 3; // Имитация разной скорости загрузки
+                if (progress > 100) progress = 100;
+                
+                progressFill.style.width = progress + '%';
+                percentText.innerText = Math.floor(progress) + '%';
+
+                // Меняем текст статуса в зависимости от прогресса
+                const phraseIndex = Math.floor((progress / 100) * phrases.length);
+                if (phrases[phraseIndex]) {
+                    statusText.innerText = phrases[phraseIndex];
+                }
+
+                setTimeout(updateLoader, 100 + Math.random() * 200);
+            } else {
+                statusText.innerText = "Ферма готова к работе!";
+                statusText.style.color = "#8BC34A";
+                // Здесь можно добавить редирект на саму игру
+                // window.location.href = "game.html";
+            }
+        }
+
+        window.onload = updateLoader;
+    </script>
+</body>
+</html>
