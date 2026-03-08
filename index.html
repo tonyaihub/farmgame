@@ -1,416 +1,55 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnotherF**kFarmGame | Профиль</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    
-    <style>
-        :root {
-            --primary-green: #4CAF50;
-            --accent-neon: #8BC34A;
-            --dark-bg: #0a0a0a; /* Еще темнее для контраста */
-            --card-bg: #1a1a1a;
-            --text-color: #e0e0e0;
-        }
+<style>
+    /* --- Увеличенная и Развернутая Анимация --- */
+    .animation-container {
+        width: 100%;
+        height: 180px; 
+        position: relative;
+        overflow: hidden;
+        margin-top: 10px;
+        background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.08) 70%, transparent);
+        border-bottom: 2px solid rgba(76, 175, 80, 0.2);
+    }
 
-        body {
-            background-color: var(--dark-bg);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden; /* Чтобы анимация не ломала скролл */
-        }
+    .tractor {
+        font-size: 7rem; 
+        position: absolute;
+        bottom: -15px; 
+        left: -150px;
+        /* РАЗВОРОТ ТРАКТОРА ПО ГОРИЗОНТАЛИ */
+        transform: scaleX(-1); 
+        animation: driveTractorRight 12s linear infinite;
+        z-index: 2;
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+    }
 
-        /* --- Обновленный Логотип (Регистр учтен) --- */
-        .header-logo {
-            margin-top: 40px;
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-        }
+    .drone {
+        font-size: 3.5rem; 
+        position: absolute;
+        bottom: 100px; 
+        left: -250px; 
+        /* РАЗВОРОТ ДРОНА ПО ГОРИЗОНТАЛИ */
+        transform: scaleX(-1);
+        animation: flyDroneRight 12s linear infinite;
+        z-index: 1;
+        filter: drop-shadow(0 0 15px var(--accent-neon));
+    }
 
-        .logo-text {
-            font-size: 3.2rem; /* Увеличили */
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1;
-            /* Градиент в точности по названию */
-            background: linear-gradient(135deg, #fff 10%, var(--accent-neon) 60%, var(--primary-green) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 25px rgba(76, 175, 80, 0.4);
-            position: relative;
-        }
+    @keyframes driveTractorRight {
+        0% { left: -150px; }
+        80% { left: calc(100% + 50px); opacity: 1; }
+        81% { left: calc(100% + 50px); opacity: 0; }
+        82% { left: -150px; opacity: 0; }
+        100% { left: -150px; opacity: 1; }
+    }
 
-        .logo-text::before {
-            content: "AnotherF**kFarmGame";
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary-green) 0%, transparent 70%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            z-index: -1;
-            filter: blur(8px);
-            opacity: 0.8;
-        }
-
-        /* --- Увеличенная и Развернутая Анимация --- */
-        .animation-container {
-            width: 100%;
-            height: 180px; /* Увеличили высоту для крупных эмодзи */
-            position: relative;
-            overflow: hidden;
-            margin-top: 10px;
-            /* Эффект грядки */
-            background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.08) 70%, transparent);
-            border-bottom: 2px solid rgba(76, 175, 80, 0.2);
-        }
-
-        .tractor {
-            font-size: 7rem; /* В 2.3 раза крупнее */
-            position: absolute;
-            bottom: -15px; /* Чуть притоплен в грядку */
-            left: -150px;
-            /* Развернут: scaleX(-1) —> scaleX(1) для движения направо */
-            transform: scaleX(1); 
-            animation: driveTractorRight 12s linear infinite; /* Быстрее и только направо */
-            z-index: 2;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        }
-
-        .drone {
-            font-size: 3.5rem; /* В 2.3 раза крупнее */
-            position: absolute;
-            bottom: 100px; /* Выше трактора */
-            left: -250px; /* Сильнее позади */
-            /* Развернут: scaleX(-1) —> scaleX(1) */
-            transform: scaleX(1);
-            animation: flyDroneRight 12s linear infinite; /* В такт трактору */
-            z-index: 1;
-            filter: drop-shadow(0 0 15px var(--accent-neon));
-        }
-
-        /* Анимация движения ТОЛЬКО направо с перезагрузкой за экраном */
-        @keyframes driveTractorRight {
-            0% { left: -150px; }
-            80% { left: calc(100% + 50px); opacity: 1; }
-            81% { left: calc(100% + 50px); opacity: 0; } /* Прячем за краем */
-            82% { left: -150px; opacity: 0; } /* Телепорт назад */
-            100% { left: -150px; opacity: 1; } /* Появляемся снова */
-        }
-
-        @keyframes flyDroneRight {
-            0% { left: -250px; transform: translateY(0px) scaleX(1); }
-            15% { transform: translateY(-15px) scaleX(1); }
-            40% { transform: translateY(0px) scaleX(1); }
-            65% { transform: translateY(15px) scaleX(1); }
-            80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(1); }
-            81% { left: calc(100% + 50px); opacity: 0; } /* Прячем */
-            82% { left: -250px; opacity: 0; } /* Телепорт */
-            100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(1); }
-        }
-
-        /* --- Остальной UI Профиля (без изменений) --- */
-        .hidden { display: none; }
-        
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
-
-        .btn-login-google {
-            background: white;
-            color: #757575;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        .btn-login-google:hover { background: #eee; transform: translateY(-2px); }
-        .btn-login-google:active { transform: translateY(1px); }
-
-        .profile-card {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            width: 350px;
-            border: 1px solid rgba(139, 195, 74, 0.15);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-
-        .avatar-container {
-            position: relative;
-            width: 130px;
-            height: 130px;
-            margin: 0 auto 25px;
-        }
-
-        .avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 5px solid var(--primary-green);
-            object-fit: cover;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-        }
-
-        .level-badge {
-            position: absolute;
-            bottom: -5px;
-            right: -5px;
-            background: linear-gradient(135deg, var(--accent-neon), var(--primary-green));
-            color: var(--dark-bg);
-            font-weight: bold;
-            padding: 7px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-
-        h2 { margin: 10px 0 5px; color: #fff; font-size: 1.6rem; }
-        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; margin-top: 0; }
-
-        .edit-group {
-            margin-top: 25px;
-            text-align: left;
-            width: 100%;
-        }
-
-        .edit-group label {
-            font-size: 0.85rem;
-            color: #aaa;
-            margin-left: 5px;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        input[type="text"] {
-            width: calc(100% - 24px);
-            background: rgba(255,255,255,0.03);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 12px;
-            margin-bottom: 18px;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--accent-neon);
-            background: rgba(255,255,255,0.06);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn:active { transform: scale(0.98); }
-
-        .btn-save {
-            background: linear-gradient(135deg, var(--primary-green), var(--accent-neon));
-            color: var(--dark-bg);
-            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
-        }
-        .btn-save:hover { box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3); }
-
-        .btn-logout {
-            background: #2a2a2a;
-            color: #aaa;
-            margin-top: 25px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .btn-logout:hover { background: #333; color: #fff; }
-
-    </style>
-</head>
-<body>
-
-    <div class="header-logo">
-        <div class="logo-text">AnotherF**kFarmGame</div>
-    </div>
-
-    <div class="animation-container">
-        <div class="drone">🛸</div>
-        <div class="tractor">🚜</div>
-    </div>
-
-    <div class="main-container">
-        
-        <div id="authScreen">
-            <button class="btn-login-google" onclick="login()">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\" G\"_Logo.svg" width="22" alt="G">
-                Привязать Google Аккаунт
-            </button>
-        </div>
-
-        <div id="profileScreen" class="hidden">
-            <div class="profile-card">
-                <div class="avatar-container">
-                    <img id="userAvatar" class="avatar" src="" alt="Avatar">
-                    <div class="level-badge"><span id="userLevel">1</span> LVL</div>
-                </div>
-                
-                <h2 id="userName">Агроном</h2>
-                <p class="user-coins"><span id="userCoins">100</span> 💰</p>
-                
-                <div class="edit-group">
-                    <label>Никнейм</label>
-                    <input type="text" id="editName" placeholder="Твое имя в игре">
-                    
-                    <label>Ссылка на аватар (URL)</label>
-                    <input type="text" id="editPhoto" placeholder="https://image.url/photo.jpg">
-                </div>
-
-                <button class="btn btn-save" onclick="saveProfile()">Сохранить изменения</button>
-                <button class="btn btn-logout" onclick="logout()">Выйти из системы</button>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        // === ВСТАВЬ СВОЙ КОНФИГ ИЗ FIREBASE ТУТ ===
-        const firebaseConfig = {
-            apiKey: "ТВОЙ_КЛЮЧ",
-            authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com",
-            projectId: "ТВОЙ_ПРОЕКТ",
-            storageBucket: "ТВОЙ_ПРОЕКТ.appspot.com",
-            messagingSenderId: "ID",
-            appId: "APP_ID"
-        };
-        // ========================================
-
-        // Инициализация Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // Логика Авторизации
-        function login() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                console.error("Ошибка входа:", error);
-                alert("Не удалось войти через Google.");
-            });
-        }
-
-        function logout() { auth.signOut(); }
-
-        // Отслеживание состояния пользователя
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('profileScreen').classList.remove('hidden');
-                loadUserData(user);
-            } else {
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('profileScreen').classList.add('hidden');
-            }
-        });
-
-        // Загрузка или создание данных игрока в Firestore
-        async function loadUserData(user) {
-            try {
-                const doc = await db.collection("players").doc(user.uid).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    updateUI(data);
-                } else {
-                    // Создаем новый профиль (Новичок)
-                    const newUser = {
-                        name: user.displayName || "Новый фермер",
-                        photo: user.photoURL || "https://via.placeholder.com/150/4CAF50/FFFFFF?text=Фермер",
-                        level: 1,
-                        coins: 1000, // Дадим стартовый капитал побольше
-                        exp: 0,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    await db.collection("players").doc(user.uid).set(newUser);
-                    updateUI(newUser);
-                }
-            } catch (error) {
-                console.error("Ошибка загрузки данных:", error);
-            }
-        }
-
-        // Обновление интерфейса данными из базы
-        function updateUI(data) {
-            document.getElementById('userName').innerText = data.name;
-            document.getElementById('userAvatar').src = data.photo;
-            document.getElementById('userLevel').innerText = data.level;
-            document.getElementById('userCoins').innerText = data.coins.toLocaleString(); // Красивое число
-            
-            // Предзаполняем поля редактирования
-            document.getElementById('editName').value = data.name;
-            document.getElementById('editPhoto').value = data.photo;
-        }
-
-        // Сохранение изменений профиля
-        async function saveProfile() {
-            const btn = document.querySelector('.btn-save');
-            const newName = document.getElementById('editName').value;
-            const newPhoto = document.getElementById('editPhoto').value;
-            const user = auth.currentUser;
-            
-            if(!newName) { alert("Имя не может быть пустым!"); return; }
-
-            btn.innerText = "Сохранение...";
-            btn.style.opacity = "0.7";
-
-            let updates = {
-                name: newName,
-                photo: newPhoto || "https://via.placeholder.com/150/4CAF50/FFFFFF?text=Фермер"
-            };
-
-            try {
-                await db.collection("players").doc(user.uid).update(updates);
-                // Локально обновляем UI, чтобы не перезагружать страницу
-                document.getElementById('userName').innerText = newName;
-                document.getElementById('userAvatar').src = updates.photo;
-                alert("Профиль успешно обновлен! 🔥");
-            } catch (error) {
-                console.error("Ошибка обновления:", error);
-                alert("Ошибка при сохранении.");
-            } finally {
-                btn.innerText = "Сохранить изменения";
-                btn.style.opacity = "1";
-            }
-        }
-    </script>
-</body>
-</html>
+    @keyframes flyDroneRight {
+        0% { left: -250px; transform: translateY(0px) scaleX(-1); }
+        15% { transform: translateY(-15px) scaleX(-1); }
+        40% { transform: translateY(0px) scaleX(-1); }
+        65% { transform: translateY(15px) scaleX(-1); }
+        80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(-1); }
+        81% { left: calc(100% + 50px); opacity: 0; }
+        82% { left: -250px; opacity: 0; }
+        100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(-1); }
+    }
+</style>
