@@ -22,132 +22,65 @@
             background-color: var(--dark-bg);
             color: var(--text-color);
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-bottom: 90px;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; overflow-x: hidden; padding-bottom: 90px;
         }
 
-        /* --- Логотип (Стиль Digital Stencil) --- */
-        .header-logo {
-            margin-top: 40px;
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-        }
-
+        /* --- Логотип --- */
+        .header-logo { margin-top: 40px; text-align: center; width: 90%; max-width: 600px; }
         .logo-text {
-            font-size: 3.2rem;
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1;
+            font-size: 3.2rem; font-weight: 900; letter-spacing: -2px; line-height: 1;
             background: linear-gradient(135deg, #fff 10%, var(--accent-neon) 60%, var(--primary-green) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-shadow: 0 0 25px rgba(76, 175, 80, 0.4);
         }
 
-        /* --- Обновленная Анимация (Дрон ПЕРЕД Трактором) --- */
+        /* --- Анимация --- */
         .animation-container {
-            width: 100%;
-            height: 150px;
-            position: relative;
-            overflow: hidden;
-            margin-top: 10px;
+            width: 100%; height: 140px; position: relative; overflow: hidden; margin-top: 10px;
             background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.05) 70%, transparent);
             border-bottom: 2px solid rgba(76, 175, 80, 0.1);
         }
+        .tractor { font-size: 6rem; position: absolute; bottom: -10px; left: -150px; transform: scaleX(-1); animation: driveRight 14s linear infinite; z-index: 2; }
+        .drone { font-size: 2.8rem; position: absolute; bottom: 70px; left: -50px; transform: scaleX(-1); animation: flyRight 14s linear infinite; z-index: 1; filter: drop-shadow(0 0 15px var(--accent-neon)); }
 
-        .tractor {
-            font-size: 6rem;
-            position: absolute;
-            bottom: -10px;
-            left: -150px;
-            transform: scaleX(-1); /* Разворот направо */
-            animation: driveRight 14s linear infinite;
-            z-index: 2;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        }
-
-        .drone {
-            font-size: 2.8rem;
-            position: absolute;
-            bottom: 70px;
-            left: -50px; /* Стартует впереди трактора */
-            transform: scaleX(-1); /* Разворот направо */
-            animation: flyRight 14s linear infinite;
-            z-index: 1;
-            filter: drop-shadow(0 0 15px var(--accent-neon));
-        }
-
-        @keyframes driveRight {
-            0% { left: -200px; }
-            100% { left: 110%; }
-        }
-
-        @keyframes flyRight {
+        @keyframes driveRight { 0% { left: -200px; } 100% { left: 110%; } }
+        @keyframes flyRight { 
             0% { left: -50px; transform: translateY(0px) scaleX(-1); }
-            25% { transform: translateY(-15px) scaleX(-1); }
-            50% { transform: translateY(0px) scaleX(-1); }
-            75% { transform: translateY(15px) scaleX(-1); }
+            50% { transform: translateY(-15px) scaleX(-1); }
             100% { left: calc(110% + 150px); transform: translateY(0px) scaleX(-1); }
         }
 
-        /* --- Контейнеры и Карточки --- */
+        /* --- Контейнеры --- */
         .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 25px; }
         .hidden { display: none !important; }
 
         .game-card {
-            background-color: var(--card-bg);
-            padding: 25px;
-            border-radius: 20px;
-            width: 85%;
-            max-width: 400px;
-            border: 1px solid rgba(139, 195, 74, 0.15);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-            text-align: center;
+            background-color: var(--card-bg); padding: 25px; border-radius: 20px; width: 85%; max-width: 400px;
+            border: 1px solid rgba(139, 195, 74, 0.15); box-shadow: 0 15px 40px rgba(0,0,0,0.6); text-align: center;
         }
 
-        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary-green); object-fit: cover; margin-bottom: 10px; }
-        .user-coins { color: var(--gold); font-weight: bold; font-size: 1.6rem; margin: 10px 0; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+        .avatar { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--primary-green); object-fit: cover; }
+        .user-coins { color: var(--gold); font-weight: bold; font-size: 1.6rem; margin: 10px 0; }
 
-        /* --- Сетка Магазина --- */
-        .shop-grid { display: grid; gap: 12px; width: 100%; margin-top: 15px; }
-        .shop-item {
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .item-info { text-align: left; }
-        .item-name { font-weight: bold; color: var(--accent-neon); display: block; }
-        .item-price { color: var(--gold); font-size: 0.9rem; }
+        /* --- Кнопки --- */
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; margin: 5px 0; width: 100%; }
+        .btn-start { background: linear-gradient(135deg, #FFEB3B, #FBC02D); color: #000; font-size: 1.2rem; text-transform: uppercase; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(255, 235, 59, 0.3); }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-save { background: var(--primary-green); color: white; }
+        .btn-buy { background: var(--accent-neon); color: var(--dark-bg); width: auto; }
 
-        /* --- Кнопки и Инпуты --- */
-        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-save { background: var(--primary-green); color: white; width: 100%; margin-top: 10px; }
-        .btn-buy { background: var(--accent-neon); color: var(--dark-bg); font-size: 0.8rem; }
-        
-        input[type="text"] {
-            width: 100%; background: #222; color: #fff; border: 1px solid #333;
-            padding: 10px; margin: 8px 0; border-radius: 8px; box-sizing: border-box;
-        }
+        /* --- Игровое поле (Ферма) --- */
+        .farm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .plot { background: #3e2723; height: 80px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 2px solid #5d4037; }
 
         /* --- Навигация --- */
-        .nav-bar {
-            position: fixed; bottom: 0; width: 100%; background: #111;
-            display: flex; justify-content: space-around; padding: 15px 0;
-            border-top: 2px solid var(--primary-green); z-index: 100;
-        }
-        .nav-item { color: #666; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 15px 0; border-top: 2px solid var(--primary-green); z-index: 100; }
+        .nav-item { color: #666; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .nav-item.active { color: var(--accent-neon); }
+
+        input[type="text"] { width: 100%; background: #222; color: #fff; border: 1px solid #333; padding: 10px; margin: 5px 0; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -156,156 +89,112 @@
         <div class="logo-text">AnotherF**kFarmGame</div>
     </div>
 
-    <div class="animation-container">
+    <div class="animation-container" id="topAnim">
         <div class="drone">🛸</div>
         <div class="tractor">🚜</div>
     </div>
 
     <div class="main-container">
         <div id="authScreen">
-            <button class="btn" style="background:white; color:#333; padding: 15px 30px;" onclick="login()">
-                Войти через Google
-            </button>
+            <button class="btn" style="background:white; color:#333; width: auto; padding: 15px 30px;" onclick="login()">Войти через Google</button>
         </div>
 
         <div id="profileScreen" class="game-card hidden">
+            <button class="btn btn-start" onclick="showScreen('farm')">🚀 Начать игру</button>
             <img id="userAvatar" class="avatar" src="" alt="Avatar">
             <h2 id="userName" style="margin:5px 0;">Фермер</h2>
             <div class="user-coins"><span id="coinDisplay">0</span> 💰</div>
-            <p style="margin: 5px 0; opacity: 0.7;">Уровень: <span id="userLevel">1</span></p>
             
-            <div style="text-align: left; margin-top: 15px;">
-                <label style="font-size: 0.7rem; color: #777; margin-left: 5px;">НИКНЕЙМ</label>
-                <input type="text" id="editName">
-                <label style="font-size: 0.7rem; color: #777; margin-left: 5px;">URL АВАТАРА</label>
-                <input type="text" id="editPhoto">
+            <div style="text-align: left; margin-top: 10px;">
+                <input type="text" id="editName" placeholder="Никнейм">
+                <input type="text" id="editPhoto" placeholder="URL аватара">
             </div>
             <button class="btn btn-save" onclick="saveProfile()">Сохранить изменения</button>
-            <button onclick="logout()" style="background:none; border:none; color:#ff4444; margin-top:20px; cursor:pointer; width:100%;">Выйти из аккаунта</button>
+            <button onclick="logout()" style="background:none; border:none; color:#ff4444; margin-top:10px; cursor:pointer;">Выйти</button>
+        </div>
+
+        <div id="farmScreen" class="game-card hidden">
+            <h2 style="margin:0;">Твоя Ферма</h2>
+            <div class="user-coins"><span id="farmCoinDisplay">0</span> 💰</div>
+            <div class="farm-grid">
+                <div class="plot" onclick="plant(this)">🟤</div>
+                <div class="plot" onclick="plant(this)">🟤</div>
+                <div class="plot" onclick="plant(this)">🟤</div>
+                <div class="plot" onclick="plant(this)">🟤</div>
+                <div class="plot" onclick="plant(this)">🟤</div>
+                <div class="plot" onclick="plant(this)">🟤</div>
+            </div>
+            <p style="font-size: 0.8rem; margin-top: 15px; opacity: 0.6;">Нажми на грядку, чтобы посадить урожай</p>
         </div>
 
         <div id="cityScreen" class="game-card hidden">
-            <h2 style="margin-top:0;">Городской рынок</h2>
-            <div class="user-coins">Баланс: <span id="shopCoinDisplay">0</span> 💰</div>
-            
-            <div class="shop-grid">
-                <div class="shop-item">
-                    <div class="item-info">
-                        <span class="item-name">📦 Био-удобрение</span>
-                        <span class="item-price">150 💰</span>
-                    </div>
-                    <button class="btn btn-buy" onclick="buyItem('fertilizer', 150)">КУПИТЬ</button>
-                </div>
-                <div class="shop-item">
-                    <div class="item-info">
-                        <span class="item-name">🚁 Дрон-опрыскиватель</span>
-                        <span class="item-price">600 💰</span>
-                    </div>
-                    <button class="btn btn-buy" onclick="buyItem('drone_v2', 600)">КУПИТЬ</button>
-                </div>
-                <div class="shop-item">
-                    <div class="item-info">
-                        <span class="item-name">🤖 Авто-система</span>
-                        <span class="item-price">2500 💰</span>
-                    </div>
-                    <button class="btn btn-buy" onclick="buyItem('auto_system', 2500)">КУПИТЬ</button>
-                </div>
+            <h2 style="margin:0;">Рынок</h2>
+            <div class="shop-item" style="background:none; border:none;">
+                <button class="btn btn-buy" onclick="buyItem('seeds', 50)">Купить семена (50 💰)</button>
             </div>
         </div>
     </div>
 
     <nav id="bottomNav" class="nav-bar hidden">
         <div class="nav-item active" onclick="showScreen('profile')">👤 ПРОФИЛЬ</div>
+        <div class="nav-item" onclick="showScreen('farm')">🚜 ФЕРМА</div>
         <div class="nav-item" onclick="showScreen('city')">🏙️ ГОРОД</div>
     </nav>
 
     <script>
-        // === ТВОЙ CONFIG FIREBASE ===
-        const firebaseConfig = {
-            apiKey: "ТВОЙ_API_KEY",
-            authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com",
-            projectId: "ТВОЙ_ПРОЕКТ",
-            storageBucket: "ТВОЙ_ПРОЕКТ.appspot.com",
-            messagingSenderId: "ID",
-            appId: "APP_ID"
-        };
-
+        const firebaseConfig = { apiKey: "API_KEY", authDomain: "ID.firebaseapp.com", projectId: "ID", storageBucket: "ID.appspot.com", messagingSenderId: "ID", appId: "ID" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-
         let userData = null;
 
-        function login() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider);
-        }
-
+        function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
         function logout() { auth.signOut().then(() => location.reload()); }
 
         function showScreen(screen) {
-            document.getElementById('profileScreen').classList.add('hidden');
-            document.getElementById('cityScreen').classList.add('hidden');
+            document.querySelectorAll('.game-card').forEach(c => c.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-
-            if (screen === 'profile') {
-                document.getElementById('profileScreen').classList.remove('hidden');
-                document.querySelectorAll('.nav-item')[0].classList.add('active');
-            } else {
-                document.getElementById('cityScreen').classList.remove('hidden');
-                document.querySelectorAll('.nav-item')[1].classList.add('active');
-            }
+            document.getElementById(screen + 'Screen').classList.remove('hidden');
+            
+            // Подсветка иконок в навбаре
+            const navIndex = { 'profile': 0, 'farm': 1, 'city': 2 };
+            document.querySelectorAll('.nav-item')[navIndex[screen]].classList.add('active');
         }
 
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('bottomNav').classList.remove('hidden');
-                loadData(user);
+                db.collection("players").doc(user.uid).onSnapshot(doc => {
+                    if (doc.exists) {
+                        userData = doc.data();
+                        document.getElementById('userName').innerText = userData.name;
+                        document.getElementById('userAvatar').src = userData.photo || "https://via.placeholder.com/150";
+                        document.getElementById('coinDisplay').innerText = userData.coins;
+                        document.getElementById('farmCoinDisplay').innerText = userData.coins;
+                        document.getElementById('editName').value = userData.name;
+                        document.getElementById('editPhoto').value = userData.photo;
+                    } else {
+                        db.collection("players").doc(user.uid).set({ name: user.displayName, coins: 1000, level: 1 });
+                    }
+                });
+                showScreen('profile');
             }
         });
 
-        function loadData(user) {
-            const docRef = db.collection("players").doc(user.uid);
-            docRef.onSnapshot(doc => {
-                if (doc.exists) {
-                    userData = doc.data();
-                    renderUI(userData);
-                } else {
-                    const freshUser = { name: user.displayName || "Фермер", photo: user.photoURL || "", level: 1, coins: 1000, inv: [] };
-                    docRef.set(freshUser);
-                }
-            });
-        }
-
-        function renderUI(data) {
-            document.getElementById('userName').innerText = data.name;
-            document.getElementById('userAvatar').src = data.photo || "https://via.placeholder.com/150";
-            document.getElementById('userLevel').innerText = data.level;
-            document.getElementById('coinDisplay').innerText = data.coins.toLocaleString();
-            document.getElementById('shopCoinDisplay').innerText = data.coins.toLocaleString();
-            document.getElementById('editName').value = data.name;
-            document.getElementById('editPhoto').value = data.photo;
-        }
-
-        async function buyItem(id, price) {
-            if (userData.coins >= price) {
-                await db.collection("players").doc(auth.currentUser.uid).update({
-                    coins: firebase.firestore.FieldValue.increment(-price),
-                    inv: firebase.firestore.FieldValue.arrayUnion(id)
-                });
-                alert("Успешно куплено!");
-            } else {
-                alert("Недостаточно монет!");
+        function plant(el) {
+            if(el.innerText === '🟤') {
+                el.innerText = '🌱';
+                setTimeout(() => { el.innerText = '🌽'; }, 3000);
+            } else if (el.innerText === '🌽') {
+                el.innerText = '🟤';
+                db.collection("players").doc(auth.currentUser.uid).update({ coins: firebase.firestore.FieldValue.increment(20) });
             }
         }
 
         async function saveProfile() {
-            await db.collection("players").doc(auth.currentUser.uid).update({
-                name: document.getElementById('editName').value,
-                photo: document.getElementById('editPhoto').value
-            });
-            alert("Данные обновлены!");
+            await db.collection("players").doc(auth.currentUser.uid).update({ name: document.getElementById('editName').value, photo: document.getElementById('editPhoto').value });
+            alert("Сохранено!");
         }
     </script>
 </body>
