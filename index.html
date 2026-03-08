@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnotherF**kFarmGame | Профиль</title>
+    <title>AnotHeR F*CkF*Rm GAMe | Профиль</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -12,6 +12,8 @@
         :root {
             --primary-green: #4CAF50;
             --accent-neon: #8BC34A;
+            --graffiti-shadow: #1b5e20; /* Глубокий зеленый для 3D */
+            --graffiti-outline: #fff; /* Белый контур */
             --dark-bg: #0a0a0a;
             --card-bg: #1a1a1a;
             --text-color: #e0e0e0;
@@ -30,33 +32,73 @@
             overflow-x: hidden;
         }
 
-        /* --- Логотип --- */
+        /* --- Объемное Граффити Лого --- */
         .header-logo {
-            margin-top: 40px;
+            margin-top: 50px;
             text-align: center;
             width: 90%;
-            max-width: 600px;
+            max-width: 650px;
+            perspective: 1000px; /* Для 3D эффекта */
         }
 
-        .logo-text {
-            font-size: 3.2rem;
+        .graffiti-wrapper {
+            display: inline-block;
+            transform: rotateX(10deg) rotateY(-5deg); /* Легкий наклон */
+            filter: drop-shadow(0 0 15px rgba(139, 195, 74, 0.4));
+        }
+
+        .logo-word {
+            display: block;
             font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1;
-            background: linear-gradient(135deg, #fff 10%, var(--accent-neon) 60%, var(--primary-green) 100%);
+            text-transform: uppercase; /* Все равно капсим для граффити стиля */
+            letter-spacing: -3px;
+            line-height: 0.85;
+            font-family: 'Arial Black', 'Gadget', sans-serif; /* "Тяжелый" шрифт */
+            
+            /* Эффект баллончика и градиент */
+            background: linear-gradient(180deg, #fff 20%, var(--accent-neon) 60%, var(--primary-green) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 25px rgba(76, 175, 80, 0.4);
-            position: relative;
+
+            /* Белый контур */
+            -webkit-text-stroke: 1.5px var(--graffiti-outline);
+            
+            /* ОБЪЕМ (Layered shadows) */
+            text-shadow: 
+                0 1px 0 var(--graffiti-shadow),
+                0 2px 0 var(--graffiti-shadow),
+                0 3px 0 var(--graffiti-shadow),
+                0 4px 0 var(--graffiti-shadow),
+                0 5px 0 var(--graffiti-shadow),
+                0 6px 1px rgba(0,0,0,.1),
+                0 0 5px rgba(0,0,0,.1),
+                0 1px 3px rgba(0,0,0,.3),
+                0 3px 5px rgba(0,0,0,.2),
+                0 5px 10px rgba(0,0,0,.25),
+                0 10px 10px rgba(0,0,0,.2),
+                0 20px 20px rgba(0,0,0,.15);
         }
 
-        /* --- Анимация (Увеличенная и развернутая) --- */
+        /* "Рваный" регистр через замену букв (имитация в CSS) */
+        .w1::before { content: "AnotHeR"; -webkit-text-fill-color: transparent; }
+        .w2::before { content: "F*CkF*Rm"; -webkit-text-fill-color: transparent; }
+        .w3::before { content: "GAMe"; -webkit-text-fill-color: transparent; }
+        
+        /* Скрываем реальный текст, показываем ::before */
+        .w1, .w2, .w3 { color: transparent; }
+        .w1::before, .w2::before, .w3::before { color: initial; -webkit-text-fill-color: initial; }
+
+        .w1 { font-size: 3.5rem; }
+        .w2 { font-size: 5rem; letter-spacing: -5px; margin-top: -5px;}
+        .w3 { font-size: 4rem; letter-spacing: -2px; margin-top: -5px; transform: rotate(2deg);}
+
+        /* --- Анимация (Квадрокоптер и Трактор) --- */
         .animation-container {
             width: 100%;
             height: 180px;
             position: relative;
             overflow: hidden;
-            margin-top: 10px;
+            margin-top: 20px;
             background: linear-gradient(to bottom, transparent, rgba(76, 175, 80, 0.08) 70%, transparent);
             border-bottom: 2px solid rgba(76, 175, 80, 0.2);
         }
@@ -65,43 +107,41 @@
             font-size: 7rem;
             position: absolute;
             bottom: -15px;
-            left: -150px;
-            /* Разворот по горизонтали */
-            transform: scaleX(-1);
-            animation: driveTractorRight 12s linear infinite;
+            left: -200px;
+            transform: scaleX(-1); /* Разворот лицом направо */
+            animation: driveRight 14s linear infinite; /* Чуть медленнее */
             z-index: 2;
             filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
 
-        .drone {
+        .quadcopter {
             font-size: 3.5rem;
             position: absolute;
-            bottom: 100px;
-            left: -250px;
-            /* Разворот по горизонтали */
-            transform: scaleX(-1);
-            animation: flyDroneRight 12s linear infinite;
+            bottom: 110px; /* Чуть выше */
+            left: -300px;
+            transform: scaleX(-1); /* Разворот лицом направо */
+            animation: flyRight 14s linear infinite; /* В такт трактору */
             z-index: 1;
             filter: drop-shadow(0 0 15px var(--accent-neon));
         }
 
-        @keyframes driveTractorRight {
-            0% { left: -150px; }
-            80% { left: calc(100% + 50px); opacity: 1; }
-            81% { left: calc(100% + 50px); opacity: 0; }
-            82% { left: -150px; opacity: 0; }
-            100% { left: -150px; opacity: 1; }
+        @keyframes driveRight {
+            0% { left: -200px; }
+            80% { left: calc(100% + 100px); opacity: 1; }
+            81% { left: calc(100% + 100px); opacity: 0; }
+            82% { left: -200px; opacity: 0; }
+            100% { left: -200px; opacity: 1; }
         }
 
-        @keyframes flyDroneRight {
-            0% { left: -250px; transform: translateY(0px) scaleX(-1); }
-            15% { transform: translateY(-15px) scaleX(-1); }
-            40% { transform: translateY(0px) scaleX(-1); }
-            65% { transform: translateY(15px) scaleX(-1); }
-            80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(-1); }
-            81% { left: calc(100% + 50px); opacity: 0; }
-            82% { left: -250px; opacity: 0; }
-            100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(-1); }
+        @keyframes flyRight {
+            0% { left: -300px; transform: translateY(0px) scaleX(-1); }
+            25% { transform: translateY(-30px) rotate(5deg) scaleX(-1); } /* Больше амплитуда */
+            50% { transform: translateY(0px) rotate(-5deg) scaleX(-1); }
+            75% { transform: translateY(15px) rotate(0deg) scaleX(-1); }
+            80% { left: calc(100% + 100px); opacity: 1; transform: translateY(0px) scaleX(-1); }
+            81% { left: calc(100% + 100px); opacity: 0; }
+            82% { left: -300px; opacity: 0; }
+            100% { left: -300px; opacity: 1; transform: translateY(0px) scaleX(-1); }
         }
 
         /* --- UI Профиля --- */
@@ -112,7 +152,7 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            margin-top: 30px;
+            margin-top: 40px;
             margin-bottom: 50px;
         }
 
@@ -131,6 +171,7 @@
             gap: 12px;
             transition: 0.2s;
         }
+        .btn-login-google:hover { background: #eee; transform: translateY(-2px); }
 
         .profile-card {
             background-color: var(--card-bg);
@@ -169,7 +210,9 @@
             font-size: 0.9rem;
         }
 
-        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; }
+        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; margin-top: 5px;}
+
+        label { font-size: 0.8rem; color: #888; display: block; text-align: left; margin-left: 5px; margin-bottom: 2px; }
 
         input[type="text"] {
             width: calc(100% - 24px);
@@ -179,7 +222,9 @@
             padding: 12px;
             margin-bottom: 18px;
             border-radius: 10px;
+            font-size: 1rem;
         }
+        input[type="text"]:focus { outline: none; border-color: var(--accent-neon); }
 
         .btn {
             width: 100%;
@@ -187,26 +232,34 @@
             border: none;
             border-radius: 10px;
             font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
             margin-top: 10px;
+            transition: 0.1s;
         }
+        .btn:active { transform: scale(0.98); }
 
         .btn-save {
             background: linear-gradient(135deg, var(--primary-green), var(--accent-neon));
             color: var(--dark-bg);
         }
 
-        .btn-logout { background: #2a2a2a; color: #aaa; margin-top: 25px; }
+        .btn-logout { background: #2a2a2a; color: #aaa; margin-top: 25px; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-logout:hover { background: #333; color: #fff; }
     </style>
 </head>
 <body>
 
     <div class="header-logo">
-        <div class="logo-text">AnotherF**kFarmGame</div>
+        <div class="graffiti-wrapper">
+            <span class="logo-word w1">AnotHeR</span>
+            <span class="logo-word w2">F*CkF*Rm</span>
+            <span class="logo-word w3">GAMe</span>
+        </div>
     </div>
 
     <div class="animation-container">
-        <div class="drone">🛸</div>
+        <div class="quadcopter">🚁</div>
         <div class="tractor">🚜</div>
     </div>
 
@@ -224,14 +277,14 @@
                     <img id="userAvatar" class="avatar" src="" alt="Avatar">
                     <div class="level-badge"><span id="userLevel">1</span> LVL</div>
                 </div>
-                <h2 id="userName">Агроном</h2>
-                <p class="user-coins"><span id="userCoins">100</span> 💰</p>
+                <h2 id="userName" style="margin: 0; color: #fff;">Агроном</h2>
+                <p class="user-coins"><span id="userCoins">100</span> <span style="font-size:1rem; opacity:0.7;">💰</span></p>
                 
-                <div style="text-align: left;">
-                    <label style="font-size: 0.8rem; color: #888;">Никнейм</label>
-                    <input type="text" id="editName">
-                    <label style="font-size: 0.8rem; color: #888;">URL Аватара</label>
-                    <input type="text" id="editPhoto">
+                <div style="margin-top: 25px;">
+                    <label>Никнейм</label>
+                    <input type="text" id="editName" placeholder="Твое имя в игре">
+                    <label>URL Аватара</label>
+                    <input type="text" id="editPhoto" placeholder="https://image.url/photo.jpg">
                 </div>
 
                 <button class="btn btn-save" onclick="saveProfile()">Сохранить изменения</button>
@@ -250,7 +303,7 @@
             messagingSenderId: "ID",
             appId: "APP_ID"
         };
-        // ========================================
+        // ===========================================
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -258,7 +311,7 @@
 
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider);
+            auth.signInWithPopup(provider).catch(e => console.error(e));
         }
 
         function logout() { auth.signOut(); }
@@ -275,26 +328,28 @@
         });
 
         async function loadUserData(user) {
-            const doc = await db.collection("players").doc(user.uid).get();
-            if (doc.exists) {
-                const data = doc.data();
-                updateUI(data);
-            } else {
-                const newUser = {
-                    name: user.displayName || "Новый фермер",
-                    photo: user.photoURL || "",
-                    level: 1,
-                    coins: 1000,
-                    exp: 0
-                };
-                await db.collection("players").doc(user.uid).set(newUser);
-                updateUI(newUser);
-            }
+            try {
+                const doc = await db.collection("players").doc(user.uid).get();
+                if (doc.exists) {
+                    updateUI(doc.data());
+                } else {
+                    const newUser = {
+                        name: user.displayName || "Новый фермер",
+                        photo: user.photoURL || "https://via.placeholder.com/150",
+                        level: 1,
+                        coins: 1000,
+                        exp: 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await db.collection("players").doc(user.uid).set(newUser);
+                    updateUI(newUser);
+                }
+            } catch (e) { console.error("Ошибка загрузки данных:", e); }
         }
 
         function updateUI(data) {
             document.getElementById('userName').innerText = data.name;
-            document.getElementById('userAvatar').src = data.photo || "https://via.placeholder.com/150";
+            document.getElementById('userAvatar').src = data.photo;
             document.getElementById('userLevel').innerText = data.level;
             document.getElementById('userCoins').innerText = data.coins.toLocaleString();
             document.getElementById('editName').value = data.name;
@@ -303,13 +358,18 @@
 
         async function saveProfile() {
             const user = auth.currentUser;
+            const newName = document.getElementById('editName').value;
+            if(!newName) { alert("Имя не может быть пустым!"); return; }
+
             const updates = {
-                name: document.getElementById('editName').value,
+                name: newName,
                 photo: document.getElementById('editPhoto').value
             };
-            await db.collection("players").doc(user.uid).update(updates);
-            alert("Обновлено!");
-            location.reload();
+            try {
+                await db.collection("players").doc(user.uid).update(updates);
+                alert("Профиль обновлен! 🚜");
+                location.reload();
+            } catch (e) { console.error("Ошибка обновления:", e); alert("Ошибка сохранения.");}
         }
     </script>
 </body>
