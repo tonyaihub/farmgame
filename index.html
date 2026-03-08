@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnotHeR F*CkF*Rm GAMe | Профиль</title>
+    <title>AnotherF**kFarmGame | Профиль</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -12,17 +12,15 @@
         :root {
             --primary-green: #4CAF50;
             --accent-neon: #8BC34A;
-            --neon-glow-white: #fff;
-            --neon-glow-green: #4CAF50;
-            --dark-bg: #050505; /* Еще темнее */
-            --card-bg: #111;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
             --text-color: #e0e0e0;
         }
 
         body {
             background-color: var(--dark-bg);
             color: var(--text-color);
-            font-family: 'Courier New', Courier, monospace; /* Более "технический" шрифт для фона */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -32,85 +30,27 @@
             overflow-x: hidden;
         }
 
-        /* --- НОВЫЙ ЛОГОТИП: ЦИФРОВОЙ ТРАФАРЕТ --- */
+        /* --- Логотип --- */
         .header-logo {
-            margin-top: 50px;
-            margin-bottom: 20px;
+            margin-top: 40px;
             text-align: center;
             width: 90%;
-            max-width: 700px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 10px;
-            border: 1px solid rgba(76, 175, 80, 0.1);
+            max-width: 600px;
         }
 
-        .logo-word {
-            display: block;
-            font-family: 'Trebuchet MS', sans-serif; /* Временный армейский стиль */
+        .logo-text {
+            font-size: 3.2rem;
             font-weight: 900;
-            text-transform: uppercase;
-            line-height: 0.9;
-            letter-spacing: -1px;
-            
-            /* Эффект трафарета (через clip-path или mask, но сделаем проще через шрифт) */
-            /* Для настоящего трафарета нужен спец. шрифт, имитируем через цвет */
-            color: transparent;
-            -webkit-text-stroke: 1px rgba(255,255,255,0.6);
-            
+            letter-spacing: -2px;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 10%, var(--accent-neon) 60%, var(--primary-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(76, 175, 80, 0.4);
             position: relative;
         }
 
-        /* Восстанавливаем рваный регистр через ::before */
-        .w1::before { content: "AnotHeR"; }
-        .w2::before { content: "F*CkF*Rm"; }
-        .w3::before { content: "GAMe"; }
-
-        .w1::before, .w2::before, .w3::before {
-            position: absolute;
-            left: 0; top: 0; width: 100%; height: 100%;
-            -webkit-text-fill-color: var(--neon-glow-white);
-            -webkit-text-stroke: 0;
-        }
-
-        /* Размеры строк */
-        .w1 { font-size: 3.8rem; letter-spacing: 2px;}
-        .w2 { font-size: 5.5rem; letter-spacing: -2px; margin-top: -5px;}
-        .w3 { font-size: 4.5rem; letter-spacing: 5px; margin-top: -5px;}
-
-        /* НЕОНОВОЕ СВЕЧЕНИЕ (Digital Glow) */
-        .w1::before {
-            color: var(--neon-glow-white);
-            text-shadow: 
-                0 0 5px var(--neon-glow-white),
-                0 0 10px var(--neon-glow-white),
-                0 0 20px var(--neon-glow-green),
-                0 0 40px var(--neon-glow-green),
-                0 0 60px var(--neon-glow-green);
-        }
-
-        .w2::before {
-            color: var(--accent-neon);
-            text-shadow: 
-                0 0 5px var(--neon-glow-white),
-                0 0 10px var(--accent-neon),
-                0 0 20px var(--neon-glow-green),
-                0 0 30px var(--neon-glow-green),
-                0 0 50px var(--neon-glow-green),
-                0 0 80px var(--neon-glow-green);
-        }
-
-        .w3::before {
-            color: var(--neon-glow-white);
-            text-shadow: 
-                0 0 5px var(--neon-glow-white),
-                0 0 10px var(--neon-glow-white),
-                0 0 20px var(--neon-glow-green),
-                0 0 40px var(--neon-glow-green);
-        }
-
-
-        /* --- Анимация (Трактор и Квадрокоптер без отзеркаливания) --- */
+        /* --- Анимация (Увеличенная и развернутая) --- */
         .animation-container {
             width: 100%;
             height: 180px;
@@ -125,44 +65,46 @@
             font-size: 7rem;
             position: absolute;
             bottom: -15px;
-            left: -200px;
-            transform: none; /* Убрано отзеркаливание */
-            animation: driveRight 14s linear infinite;
+            left: -150px;
+            /* Разворот по горизонтали */
+            transform: scaleX(-1);
+            animation: driveTractorRight 12s linear infinite;
             z-index: 2;
             filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
 
-        .quadcopter {
+        .drone {
             font-size: 3.5rem;
             position: absolute;
-            bottom: 110px;
-            left: -300px;
-            transform: none; /* Убрано отзеркаливание */
-            animation: flyRight 14s linear infinite;
+            bottom: 100px;
+            left: -250px;
+            /* Разворот по горизонтали */
+            transform: scaleX(-1);
+            animation: flyDroneRight 12s linear infinite;
             z-index: 1;
             filter: drop-shadow(0 0 15px var(--accent-neon));
         }
 
-        @keyframes driveRight {
-            0% { left: -200px; }
-            80% { left: calc(100% + 100px); opacity: 1; }
-            81% { left: calc(100% + 100px); opacity: 0; }
-            82% { left: -200px; opacity: 0; }
-            100% { left: -200px; opacity: 1; }
+        @keyframes driveTractorRight {
+            0% { left: -150px; }
+            80% { left: calc(100% + 50px); opacity: 1; }
+            81% { left: calc(100% + 50px); opacity: 0; }
+            82% { left: -150px; opacity: 0; }
+            100% { left: -150px; opacity: 1; }
         }
 
-        @keyframes flyRight {
-            0% { left: -300px; transform: translateY(0px); }
-            25% { transform: translateY(-30px) rotate(5deg); }
-            50% { transform: translateY(0px) rotate(-5deg); }
-            75% { transform: translateY(15px) rotate(0deg); }
-            80% { left: calc(100% + 100px); opacity: 1; transform: translateY(0px); }
-            81% { left: calc(100% + 100px); opacity: 0; }
-            82% { left: -300px; opacity: 0; }
-            100% { left: -300px; opacity: 1; transform: translateY(0px); }
+        @keyframes flyDroneRight {
+            0% { left: -250px; transform: translateY(0px) scaleX(-1); }
+            15% { transform: translateY(-15px) scaleX(-1); }
+            40% { transform: translateY(0px) scaleX(-1); }
+            65% { transform: translateY(15px) scaleX(-1); }
+            80% { left: calc(100% + 50px); opacity: 1; transform: translateY(0px) scaleX(-1); }
+            81% { left: calc(100% + 50px); opacity: 0; }
+            82% { left: -250px; opacity: 0; }
+            100% { left: -250px; opacity: 1; transform: translateY(0px) scaleX(-1); }
         }
 
-        /* --- UI Профиля (Шрифт изменен на Courier New) --- */
+        /* --- UI Профиля --- */
         .hidden { display: none; }
         
         .main-container {
@@ -170,9 +112,8 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            margin-top: 40px;
+            margin-top: 30px;
             margin-bottom: 50px;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* Возвращаем для UI */
         }
 
         .btn-login-google {
@@ -190,7 +131,6 @@
             gap: 12px;
             transition: 0.2s;
         }
-        .btn-login-google:hover { background: #eee; transform: translateY(-2px); }
 
         .profile-card {
             background-color: var(--card-bg);
@@ -229,9 +169,7 @@
             font-size: 0.9rem;
         }
 
-        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; margin-top: 5px;}
-
-        label { font-size: 0.8rem; color: #888; display: block; text-align: left; margin-left: 5px; margin-bottom: 2px; }
+        .user-coins { color: #FFD700; font-weight: bold; font-size: 1.3rem; }
 
         input[type="text"] {
             width: calc(100% - 24px);
@@ -241,9 +179,7 @@
             padding: 12px;
             margin-bottom: 18px;
             border-radius: 10px;
-            font-size: 1rem;
         }
-        input[type="text"]:focus { outline: none; border-color: var(--accent-neon); }
 
         .btn {
             width: 100%;
@@ -251,31 +187,26 @@
             border: none;
             border-radius: 10px;
             font-weight: bold;
-            font-size: 1rem;
             cursor: pointer;
             margin-top: 10px;
-            transition: 0.1s;
         }
-        .btn:active { transform: scale(0.98); }
 
         .btn-save {
             background: linear-gradient(135deg, var(--primary-green), var(--accent-neon));
             color: var(--dark-bg);
         }
 
-        .btn-logout { background: #2a2a2a; color: #aaa; margin-top: 25px; border: 1px solid rgba(255,255,255,0.05); }
-        .btn-logout:hover { background: #333; color: #fff; }
+        .btn-logout { background: #2a2a2a; color: #aaa; margin-top: 25px; }
     </style>
 </head>
 <body>
 
     <div class="header-logo">
-        <span class="logo-word w1"></span> <span class="logo-word w2"></span>
-        <span class="logo-word w3"></span>
+        <div class="logo-text">AnotherF**kFarmGame</div>
     </div>
 
     <div class="animation-container">
-        <div class="quadcopter">🚁</div>
+        <div class="drone">🛸</div>
         <div class="tractor">🚜</div>
     </div>
 
@@ -293,14 +224,14 @@
                     <img id="userAvatar" class="avatar" src="" alt="Avatar">
                     <div class="level-badge"><span id="userLevel">1</span> LVL</div>
                 </div>
-                <h2 id="userName" style="margin: 0; color: #fff; font-family: 'Segoe UI', sans-serif;">Агроном</h2>
-                <p class="user-coins"><span id="userCoins">100</span> <span style="font-size:1rem; opacity:0.7;">💰</span></p>
+                <h2 id="userName">Агроном</h2>
+                <p class="user-coins"><span id="userCoins">100</span> 💰</p>
                 
-                <div style="margin-top: 25px;">
-                    <label>Никнейм</label>
-                    <input type="text" id="editName" placeholder="Твое имя в игре">
-                    <label>URL Аватара</label>
-                    <input type="text" id="editPhoto" placeholder="https://image.url/photo.jpg">
+                <div style="text-align: left;">
+                    <label style="font-size: 0.8rem; color: #888;">Никнейм</label>
+                    <input type="text" id="editName">
+                    <label style="font-size: 0.8rem; color: #888;">URL Аватара</label>
+                    <input type="text" id="editPhoto">
                 </div>
 
                 <button class="btn btn-save" onclick="saveProfile()">Сохранить изменения</button>
@@ -319,7 +250,7 @@
             messagingSenderId: "ID",
             appId: "APP_ID"
         };
-        // ===========================================
+        // ========================================
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -327,7 +258,7 @@
 
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(e => console.error(e));
+            auth.signInWithPopup(provider);
         }
 
         function logout() { auth.signOut(); }
@@ -344,28 +275,26 @@
         });
 
         async function loadUserData(user) {
-            try {
-                const doc = await db.collection("players").doc(user.uid).get();
-                if (doc.exists) {
-                    updateUI(doc.data());
-                } else {
-                    const newUser = {
-                        name: user.displayName || "Новый фермер",
-                        photo: user.photoURL || "https://via.placeholder.com/150",
-                        level: 1,
-                        coins: 1000,
-                        exp: 0,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    await db.collection("players").doc(user.uid).set(newUser);
-                    updateUI(newUser);
-                }
-            } catch (e) { console.error("Ошибка загрузки данных:", e); }
+            const doc = await db.collection("players").doc(user.uid).get();
+            if (doc.exists) {
+                const data = doc.data();
+                updateUI(data);
+            } else {
+                const newUser = {
+                    name: user.displayName || "Новый фермер",
+                    photo: user.photoURL || "",
+                    level: 1,
+                    coins: 1000,
+                    exp: 0
+                };
+                await db.collection("players").doc(user.uid).set(newUser);
+                updateUI(newUser);
+            }
         }
 
         function updateUI(data) {
             document.getElementById('userName').innerText = data.name;
-            document.getElementById('userAvatar').src = data.photo;
+            document.getElementById('userAvatar').src = data.photo || "https://via.placeholder.com/150";
             document.getElementById('userLevel').innerText = data.level;
             document.getElementById('userCoins').innerText = data.coins.toLocaleString();
             document.getElementById('editName').value = data.name;
@@ -374,18 +303,13 @@
 
         async function saveProfile() {
             const user = auth.currentUser;
-            const newName = document.getElementById('editName').value;
-            if(!newName) { alert("Имя не может быть пустым!"); return; }
-
             const updates = {
-                name: newName,
+                name: document.getElementById('editName').value,
                 photo: document.getElementById('editPhoto').value
             };
-            try {
-                await db.collection("players").doc(user.uid).update(updates);
-                alert("Профиль обновлен! 🚜");
-                location.reload();
-            } catch (e) { console.error("Ошибка обновления:", e); alert("Ошибка сохранения.");}
+            await db.collection("players").doc(user.uid).update(updates);
+            alert("Обновлено!");
+            location.reload();
         }
     </script>
 </body>
