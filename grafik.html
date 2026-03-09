@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система «Часовой» — Контроль Времени</title>
+    <title>Контроль Смены 24/7 — Активный Обход</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
-            --warning: #f1c40f; --light: #ecf0f1; --dark: #34495e; --danger: #e74c3c;
+            --warning: #f39c12; --light: #ecf0f1; --dark: #34495e; --danger: #e74c3c;
         }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 15px; color: var(--primary); }
         .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
@@ -17,22 +17,32 @@
         
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; }
-        td { padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .active-now { background: #fff9db !important; font-weight: bold; border-left: 5px solid var(--warning); }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.3s; }
+        
+        /* Стили для активной строки и исполнителя */
+        .active-row { background: #fff9db !important; }
+        .active-executor { 
+            background: var(--warning) !important; 
+            color: white !important; 
+            font-weight: bold; 
+            border-radius: 4px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
         
         .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; }
         .walk { background: #d1ecf1; color: #0c5460; }
         .sleep { background: #e2e3e5; color: #383d41; }
         
         .check-container { text-align: center; width: 180px; }
-        .check-box { width: 24px; height: 24px; cursor: pointer; accent-color: var(--success); }
+        .check-box { width: 26px; height: 26px; cursor: pointer; accent-color: var(--success); }
         .log-time { font-size: 0.75em; color: var(--success); display: block; margin-top: 4px; font-family: monospace; }
         .delay-info { font-weight: bold; color: var(--danger); }
 
         .footer { margin-top: 30px; padding: 25px; border-top: 2px solid var(--light); text-align: center; background: #f8f9fa; border-radius: 0 0 15px 15px; }
-        #saveBtn { padding: 18px 60px; font-size: 1.1em; border: none; border-radius: 50px; cursor: pointer; transition: 0.4s; font-weight: bold; text-transform: uppercase; }
-        #saveBtn:disabled { background: #ccc; color: #999; cursor: not-allowed; }
-        #saveBtn:enabled { background: var(--success); color: white; box-shadow: 0 5px 15px rgba(39,174,96,0.3); }
+        #nextShiftBtn { padding: 18px 60px; font-size: 1.1em; border: none; border-radius: 50px; cursor: pointer; transition: 0.4s; font-weight: bold; text-transform: uppercase; }
+        #nextShiftBtn:disabled { background: #ccc; color: #999; cursor: not-allowed; }
+        #nextShiftBtn:enabled { background: var(--accent); color: white; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); }
+        #nextShiftBtn:enabled:hover { transform: scale(1.05); background: #2980b9; }
     </style>
 </head>
 <body>
@@ -40,15 +50,15 @@
 <div class="container">
     <div class="header">
         <div>
-            <h2 style="margin:0;">Оперативный журнал</h2>
-            <small>Фиксация времени прохождения маршрута</small>
+            <h2 style="margin:0;">Оперативный Журнал</h2>
+            <small>Цветовая индикация текущего обхода</small>
         </div>
-        <div id="clock" style="font-size: 1.4em; font-weight: bold; color: var(--accent);">--:--:--</div>
+        <div id="clock" style="font-size: 1.4em; font-weight: bold; color: var(--accent); background: #fff; padding: 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">--:--:--</div>
     </div>
 
     <div class="status-panel">
         <div class="status-card" id="date-info">Дата: --.--.----</div>
-        <div class="status-card" id="shift-info" style="background: var(--accent);">Смена: --</div>
+        <div class="status-card" id="shift-info" style="background: var(--primary);">Смена: --</div>
         <div class="status-card" id="progress-info">Выполнено: 0%</div>
     </div>
 
@@ -57,35 +67,37 @@
             <tr>
                 <th>План</th>
                 <th>Тип</th>
-                <th>Исполнитель</th>
+                <th>ИСПОЛНИТЕЛЬ (ОБХОД)</th>
                 <th>На посту</th>
-                <th style="text-align:center;">Подтверждение (Задержка)</th>
+                <th style="text-align:center;">Подтверждение</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
 
     <div class="footer">
-        <button id="saveBtn" disabled onclick="generateFinalReport()">Скачать отчет с таймингами</button>
+        <button id="nextShiftBtn" disabled onclick="transferShift()">СЛЕДУЮЩАЯ СМЕНА</button>
     </div>
 </div>
 
 <script>
     const s1 = ["Кузнєцов А.", "Драний О.", "Литовченко С."];
     const s2 = ["Щербатюк О.", "Ікальчик К.", "Приведенюк Р."];
+    
+    let currentShiftNum = [1,2,3, 7,8,9, 13,14,15, 19,20,21, 25,26,27, 31].includes(new Date().getDate()) ? 1 : 2;
     let logs = {};
 
-    function getShiftData() {
-        const d = new Date().getDate();
-        const isS1 = [1,2,3, 7,8,9, 13,14,15, 19,20,21, 25,26,27, 31].includes(d);
-        return isS1 ? {id: 1, p: s1} : {id: 2, p: s2};
-    }
-
     function build() {
-        const shift = getShiftData();
-        const names = shift.p;
-        document.getElementById('shift-info').innerText = "СМЕНА №" + shift.id;
+        const names = currentShiftNum === 1 ? s1 : s2;
+        const tbody = document.getElementById('tableBody');
+        
+        document.getElementById('shift-info').innerText = "СМЕНА №" + currentShiftNum;
+        document.getElementById('shift-info').style.background = currentShiftNum === 1 ? "#2c3e50" : "#27ae60";
         document.getElementById('date-info').innerText = new Date().toLocaleDateString();
+        
+        tbody.innerHTML = '';
+        logs = {};
+        updateStatus();
 
         const schedule = [
             {t: "08:20", task: "walk", exec: names[0], post: names[1]+", "+names[2]},
@@ -111,84 +123,74 @@
             {t: "06:20", task: "walk", exec: names[1], post: names[0]}
         ];
 
-        const body = document.getElementById('tableBody');
-        const h = new Date().getHours();
+        const now = new Date();
+        const curH = now.getHours();
 
         schedule.forEach((r, i) => {
-            const tr = body.insertRow();
-            if(parseInt(r.t) === h) tr.className = 'active-now';
+            const tr = tbody.insertRow();
+            const rowHour = parseInt(r.t.split(':')[0]);
+            
+            // Если сейчас час этого обхода - выделяем
+            if(rowHour === curH) {
+                tr.className = 'active-row';
+            }
+
             tr.innerHTML = `
                 <td><strong>${r.t}</strong></td>
                 <td><span class="badge ${r.task}">${r.task==='walk'?'Обход':'Ночь'}</span></td>
-                <td>${r.exec}</td>
+                <td class="${rowHour === curH ? 'active-executor' : ''}">${r.exec}</td>
                 <td style="color:#666">${r.post}</td>
                 <td class="check-container">
-                    <input type="checkbox" class="check-box" onchange="mark(${i}, '${r.t}', '${r.exec}')">
+                    <input type="checkbox" class="check-box" onchange="mark(${i}, '${r.t}')">
                     <span id="log-${i}" class="log-time"></span>
                 </td>
             `;
         });
     }
 
-    function mark(id, schedTime, person) {
+    function mark(id, schedTime) {
         const span = document.getElementById('log-'+id);
         if(!logs[id]) {
             const now = new Date();
             const [sH, sM] = schedTime.split(':').map(Number);
-            
-            // Создаем объект даты для времени по плану (сегодня)
             const schedDate = new Date();
             schedDate.setHours(sH, sM, 0, 0);
-            
-            // Если время ночное (после полуночи), корректируем дату
             if (sH < 8 && now.getHours() >= 20) schedDate.setDate(schedDate.getDate() + 1);
 
-            const diffMs = now - schedDate;
-            const diffMin = Math.floor(diffMs / 60000);
+            const diffMin = Math.floor((now - schedDate) / 60000);
             const delayText = diffMin > 0 ? ` (+${diffMin} мин)` : ` (вовремя)`;
-
-            logs[id] = {
-                realTime: now.toLocaleTimeString(),
-                planTime: schedTime,
-                delay: diffMin,
-                person: person
-            };
             
-            span.innerHTML = `ОК: ${logs[id].realTime}<br><span class="delay-info">${delayText}</span>`;
+            logs[id] = true;
+            span.innerHTML = `ОК: ${now.toLocaleTimeString()}<br><span class="delay-info">${delayText}</span>`;
         } else {
             delete logs[id];
             span.innerHTML = "";
         }
-        update();
+        updateStatus();
     }
 
-    function update() {
+    function updateStatus() {
         const total = document.querySelectorAll('.check-box').length;
         const checked = Object.keys(logs).length;
         document.getElementById('progress-info').innerText = `Выполнено: ${Math.round(checked/total*100)}%`;
-        document.getElementById('saveBtn').disabled = (checked !== total);
+        document.getElementById('nextShiftBtn').disabled = (checked !== total);
     }
 
-    function generateFinalReport() {
-        const s = getShiftData();
-        let report = `ОТЧЕТ СМЕНЫ №${s.id} [${new Date().toLocaleDateString()}]\n`;
-        report += `Состав: ${s.p.join(', ')}\n`;
-        report += `--------------------------------------------------\n`;
-        report += `ПЛАН | ИСПОЛНИТЕЛЬ | ФАКТ | ЗАДЕРЖКА\n`;
-        
-        Object.keys(logs).forEach(k => {
-            const l = logs[k];
-            report += `${l.planTime} | ${l.person.padEnd(15)} | ${l.realTime} | ${l.delay > 0 ? '+'+l.delay+' мин' : '0 мин'}\n`;
-        });
-
-        const blob = new Blob([report], {type: "text/plain"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `Report_Shift_${s.id}_${new Date().toLocaleDateString()}.txt`;
-        a.click();
+    function transferShift() {
+        if(confirm("Передать смену следующей группе?")) {
+            currentShiftNum = currentShiftNum === 1 ? 2 : 1;
+            build();
+            window.scrollTo(0,0);
+        }
     }
 
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    // Обновляем часы и проверяем активность каждую минуту
+    setInterval(() => { 
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        // Раз в час таблица будет перестраиваться для обновления подсветки строк
+        if (new Date().getMinutes() === 0) build(); 
+    }, 1000);
+
     build();
 </script>
 </body>
