@@ -11,50 +11,89 @@
             --warning: #f1c40f; --success: #27ae60; --sleep: #a29bfe;
         }
 
-        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow: hidden; }
+        /* Светлая тема */
+        body.light-theme {
+            --bg: #f0f2f5; --card: #ffffff; --text: #2c3e50;
+            --border: #dcdde1; --active-bg: #f1f2b5; --accent: #2980b9;
+        }
+
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow: hidden; transition: background 0.3s; }
         .main-container { display: flex; flex-direction: column; height: 100vh; padding: 10px; box-sizing: border-box; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 10px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--border); flex-shrink: 0; }
-        .header h1 { margin: 0; font-size: 18px; text-transform: uppercase; }
+        /* Шапка: Лево, Центр, Право */
+        .header { 
+            display: grid; 
+            grid-template-columns: 1fr 1.5fr 1fr; 
+            align-items: center; 
+            background: var(--card); 
+            padding: 10px; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            border: 1px solid var(--border); 
+            flex-shrink: 0; 
+        }
 
-        .table-area { flex-grow: 1; background: var(--card); border-radius: 12px; overflow-y: auto; border: 1px solid var(--border); margin-bottom: 8px; position: relative; }
+        .header-left h1 { margin: 0; font-size: 16px; text-transform: uppercase; }
+        .header-left small { opacity: 0.6; font-size: 11px; }
+
+        .header-center { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+        #clock-display { font-weight: bold; color: var(--accent); font-size: 22px; display: block; line-height: 1; }
+        #timer-display { font-size: 11px; color: var(--warning); margin-top: 4px; font-family: monospace; }
+
+        .header-right { display: flex; justify-content: flex-end; gap: 8px; }
+        
+        /* Кнопки в шапке */
+        .tool-btn {
+            width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--text); cursor: pointer; font-size: 18px;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .tool-btn.active { background: var(--warning); color: black; border-color: var(--warning); }
+
+        /* Таблица */
+        .table-area { flex-grow: 1; background: var(--card); border-radius: 12px; overflow-y: auto; border: 1px solid var(--border); margin-bottom: 8px; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { position: sticky; top: 0; background: #222; z-index: 10; padding: 10px 5px; font-size: 10px; text-transform: uppercase; color: #7f8c8d; border-bottom: 2px solid var(--accent); text-align: left; }
+        th { position: sticky; top: 0; background: var(--card); z-index: 10; padding: 10px 5px; font-size: 10px; text-transform: uppercase; color: #7f8c8d; border-bottom: 2px solid var(--accent); text-align: left; }
         td { padding: 8px 5px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
 
         .active-row { background: var(--active-bg); border-left: 4px solid var(--warning); font-weight: bold; }
-        .past-task-row { opacity: 0.4; }
         
-        select { background: #3d3d3d; color: white; border: 1px solid var(--accent); border-radius: 4px; padding: 4px; width: 100%; font-size: 13px; outline: none; }
-        select:disabled { border-color: #555; color: #aaa; appearance: none; }
+        /* Эффект лампочки (прозрачность прошлых строк) */
+        body.lamp-off .past-task-row { opacity: 0.35; filter: grayscale(0.5); }
         
-        .col-plan { width: 25%; }
-        .col-task { width: 32%; }
+        select { background: var(--bg); color: var(--text); border: 1px solid var(--accent); border-radius: 4px; padding: 4px; width: 100%; font-size: 13px; outline: none; }
+        
+        .col-plan { width: 22%; }
+        .col-task { width: 35%; }
         .col-post { width: 30%; }
         .col-zvit { width: 13%; text-align: center; }
 
-        .archive-section { background: #111; padding: 10px; border-radius: 8px; margin: 10px; border: 1px solid #444; }
-        .archive-item { font-size: 12px; border-bottom: 1px solid #333; padding: 5px 0; display: flex; justify-content: space-between; }
+        .archive-section { background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px; border: 1px solid var(--border); }
+        .archive-item { font-size: 12px; border-bottom: 1px solid var(--border); padding: 5px 0; display: flex; justify-content: space-between; }
 
         .next-btn { width: 100%; height: 50px; border-radius: 12px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; flex-shrink: 0; }
-        .next-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .next-btn:disabled { background: #555; color: #999; cursor: not-allowed; }
         
-        .label-obkhid { font-size: 9px; color: var(--warning); display: block; font-weight: normal; }
-        .label-sleep { font-size: 9px; color: var(--sleep); display: block; font-weight: normal; }
-        input[type="checkbox"] { transform: scale(1.3); accent-color: var(--success); }
+        .label-obkhid { font-size: 9px; color: var(--accent); display: block; }
+        .label-sleep { font-size: 9px; color: var(--sleep); display: block; }
+        input[type="checkbox"] { transform: scale(1.4); accent-color: var(--success); }
     </style>
 </head>
-<body>
-
-<div class="main-container">
+<body class="lamp-on"> <div class="main-container">
     <div class="header">
-        <div>
-            <h1 id="shift-title">Зміна №1</h1>
+        <div class="header-left">
+            <h1>Зміна №1</h1>
             <small id="date-display">--.--.----</small>
         </div>
-        <div style="text-align: right;">
-            <span id="clock-display" style="font-weight: bold; color: var(--accent); font-size: 18px;"></span>
-            <div id="timer-display" style="font-size: 11px; color: var(--warning);"></div>
+        
+        <div class="header-center">
+            <span id="clock-display">00:00:00</span>
+            <div id="timer-display">ОБХІД ЧЕРЕЗ: 00:00:00</div>
+        </div>
+
+        <div class="header-right">
+            <button class="tool-btn" onclick="toggleTheme()" title="Змінити тему">🌓</button>
+            <button class="tool-btn active" id="lamp-btn" onclick="toggleLamp()" title="Ефект минулого">💡</button>
         </div>
     </div>
 
@@ -72,7 +111,7 @@
         </table>
 
         <div class="archive-section">
-            <h3 style="font-size: 14px; margin: 0 0 10px 0; color: var(--accent); border-bottom: 1px solid #444; padding-bottom: 5px;">📜 Архів змін</h3>
+            <h3 style="font-size: 13px; margin: 0 0 8px 0;">📜 Архів останніх змін</h3>
             <div id="archive-list"></div>
         </div>
     </div>
@@ -82,9 +121,9 @@
 
 <script>
     const members = ["Кузнєцов", "Драний", "Литовченко"];
-    let logs = JSON.parse(localStorage.getItem('logs_final_v5')) || {};
-    let selections = JSON.parse(localStorage.getItem('select_final_v5')) || {};
-    let archive = JSON.parse(localStorage.getItem('duty_archive_v5')) || [];
+    let logs = JSON.parse(localStorage.getItem('logs_v6')) || {};
+    let selections = JSON.parse(localStorage.getItem('select_v6')) || {};
+    let archive = JSON.parse(localStorage.getItem('archive_v6')) || [];
 
     const scheduleData = [
         {t: "08:00", h: 8, m: 0, d: 20, type: "Зміна", task: "Зміна чергових", fixedPost: "Всі"},
@@ -112,9 +151,15 @@
         {t: "06:45", h: 6, m: 45, d: 75, type: "Підготовка", task: "Підготовка", fixedPost: "Всі"}
     ];
 
+    function toggleTheme() { document.body.classList.toggle('light-theme'); }
+    function toggleLamp() { 
+        document.body.classList.toggle('lamp-off');
+        document.getElementById('lamp-btn').classList.toggle('active');
+    }
+
     function render() {
         const now = new Date();
-        document.getElementById('clock-display').innerText = now.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        document.getElementById('clock-display').innerText = now.toLocaleTimeString('uk-UA');
         
         let shiftStart = new Date(now);
         if (now.getHours() < 8) shiftStart.setDate(shiftStart.getDate() - 1);
@@ -143,16 +188,13 @@
             if (row.type === "Обхід" || row.type === "Сон") {
                 const selected = selections[idx] || members[idx % 3];
                 const others = members.filter(m => m !== selected);
-                const label = row.type === "Обхід" ? "Обхід: " : "Сон: ";
                 const labelClass = row.type === "Обхід" ? "label-obkhid" : "label-sleep";
 
-                taskCell = `
-                    <span class="${labelClass}">${row.type}</span>
+                taskCell = `<span class="${labelClass}">${row.type}</span>
                     <select onchange="updateSelect(${idx}, this.value)" ${!isActive ? 'disabled' : ''}>
                         ${members.map(m => `<option value="${m}" ${m === selected ? 'selected' : ''}>${m}</option>`).join('')}
-                    </select>
-                `;
-                postCell = others.map(o => `<div>${o}</div>`).join('');
+                    </select>`;
+                postCell = others.join('<br>');
             } else {
                 taskCell = `<span style="color:var(--accent)">${row.task}</span>`;
                 postCell = row.fixedPost;
@@ -167,7 +209,10 @@
             tbody.appendChild(tr);
         });
 
-        if (nextWalk) document.getElementById('timer-display').innerText = "Наст. обхід через: " + new Date(nextWalk - now).toISOString().substr(11, 8);
+        if (nextWalk) {
+            let diff = new Date(nextWalk - now).toISOString().substr(11, 8);
+            document.getElementById('timer-display').innerText = "ОБХІД ЧЕРЕЗ: " + diff;
+        }
         
         const btn = document.getElementById('shift-btn');
         const endShift = new Date(shiftStart); endShift.setDate(endShift.getDate()+1); endShift.setHours(8,0,0,0);
@@ -176,28 +221,23 @@
         renderArchive();
     }
 
-    function updateSelect(id, val) { selections[id] = val; localStorage.setItem('select_final_v5', JSON.stringify(selections)); render(); }
-    function saveLog(id) { logs[id] = !logs[id]; localStorage.setItem('logs_final_v5', JSON.stringify(logs)); render(); }
+    function updateSelect(id, val) { selections[id] = val; localStorage.setItem('select_v6', JSON.stringify(selections)); render(); }
+    function saveLog(id) { logs[id] = !logs[id]; localStorage.setItem('logs_v6', JSON.stringify(logs)); render(); }
 
     function saveToArchive() {
         const dateStr = document.getElementById('date-display').innerText;
         const totalWalks = Object.values(logs).filter(v => v).length;
-        archive.unshift({ date: dateStr, shift: "Зміна №1", walks: totalWalks });
-        localStorage.setItem('duty_archive_v5', JSON.stringify(archive.slice(0, 15)));
+        archive.unshift({ date: dateStr, walks: totalWalks });
+        localStorage.setItem('archive_v6', JSON.stringify(archive.slice(0, 10)));
         logs = {}; selections = {};
-        localStorage.removeItem('logs_final_v5'); localStorage.removeItem('select_final_v5');
-        alert("Дані успішно архівовано!");
+        localStorage.removeItem('logs_v6'); localStorage.removeItem('select_v6');
+        alert("Зміну здано та збережено!");
         render();
     }
 
     function renderArchive() {
         const list = document.getElementById('archive-list');
-        list.innerHTML = archive.map(a => `
-            <div class="archive-item">
-                <span>📅 <b>${a.date}</b></span>
-                <span>Обходів: <b style="color:var(--success)">${a.walks}</b></span>
-            </div>
-        `).join('') || "<small style='color:#666'>Архів поки порожній...</small>";
+        list.innerHTML = archive.map(a => `<div class="archive-item"><span>📅 ${a.date}</span><span>Обходів: <b>${a.walks}</b></span></div>`).join('') || "Порожньо";
     }
 
     setInterval(render, 1000);
