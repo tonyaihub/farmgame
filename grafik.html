@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система «Часовой» — Без чекбоксов на сон</title>
+    <title>Система «Часовой» — Финальный релиз</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -14,21 +14,30 @@
         .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 20px; margin-bottom: 20px; }
         
+        /* Выпадающее меню выбора группы */
+        .selector-panel { display: flex; justify-content: center; margin-bottom: 25px; }
+        .group-select-wrapper { position: relative; width: 250px; }
+        #groupSelect { 
+            width: 100%; padding: 12px 20px; font-size: 1.1em; font-weight: bold; 
+            border: 2px solid var(--primary); border-radius: 10px; cursor: pointer;
+            background: white; color: var(--primary); outline: none; transition: 0.3s;
+            appearance: none; -webkit-appearance: none;
+        }
+        #groupSelect:hover { background: #f8f9fa; border-color: var(--accent); }
+        .group-select-wrapper::after {
+            content: "▼"; position: absolute; right: 15px; top: 15px; pointer-events: none; font-size: 0.8em;
+        }
+
         #alert-container { margin-bottom: 20px; }
-        .alert-box { color: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: center; animation: pulse 2s infinite; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .alert-box { color: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: center; animation: pulse 2s infinite; }
         .alert-box.red { background: var(--danger); }
         .alert-box.orange { background: var(--warning); }
         .alert-box.blue { background: var(--accent); animation: none; }
-        .alert-box.purple { background: #9b59b6; }
         .alert-text { font-size: 1.2em; font-weight: bold; display: block; margin-bottom: 8px; }
         .close-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
         .status-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
         .status-card { background: var(--dark); color: white; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 0.9em; }
-
-        .selector-panel { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        .btn-select { padding: 10px 20px; border: 2px solid var(--primary); background: white; cursor: pointer; border-radius: 8px; font-weight: bold; }
-        .btn-select.active { background: var(--primary); color: white; }
 
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; text-transform: uppercase; }
@@ -42,11 +51,11 @@
         .walk { background: #d1ecf1; color: #0c5460; }
         .sleep { background: #e2e3e5; color: #383d41; }
         
-        .log-time { font-size: 0.8em; color: var(--success); font-weight: bold; font-family: monospace; }
+        .log-time { font-size: 0.8em; color: var(--success); font-weight: bold; }
         .expired-text { color: var(--danger); font-weight: bold; font-size: 0.75em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 4px; border-radius: 3px; }
 
         .footer { margin-top: 30px; padding: 30px; border-top: 2px solid var(--light); text-align: center; }
-        #nextShiftBtn { padding: 20px 45px; font-size: 1.1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+        #nextShiftBtn { padding: 20px 45px; font-size: 1.1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         #nextShiftBtn:disabled { background: #eee; color: #aaa; cursor: not-allowed; }
         #nextShiftBtn:enabled { background: var(--grad); color: white; box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3); animation: readyPulse 2s infinite; }
 
@@ -60,23 +69,27 @@
     <div class="header">
         <div>
             <h2 style="margin:0;">Оперативный Журнал 24/7</h2>
-            <small>Контроль обходов (без отметок на сон)</small>
+            <small>Режим контроля и оповещений</small>
         </div>
         <div id="clock" style="font-size: 1.5em; font-weight: bold; color: var(--accent); background: #f8f9fa; padding: 5px 15px; border-radius: 8px;">--:--:--</div>
     </div>
 
+    <div class="selector-panel">
+        <div class="group-select-wrapper">
+            <select id="groupSelect" onchange="setShift(this.value)">
+                <option value="1">Активна: Группа 1</option>
+                <option value="2">Активна: Группа 2</option>
+            </select>
+        </div>
+    </div>
+
     <div class="status-panel">
         <div class="status-card" id="date-info">--.--.----</div>
-        <div class="status-card" id="shift-display">Смена: --</div>
+        <div class="status-card" id="shift-display">Группа: --</div>
         <div class="status-card" id="progress-info">Готовность: 0%</div>
     </div>
 
     <div id="alert-container"></div>
-
-    <div class="selector-panel">
-        <button id="btnS1" class="btn-select" onclick="setShift(1)">ГРУППА 1</button>
-        <button id="btnS2" class="btn-select" onclick="setShift(2)">ГРУППА 2</button>
-    </div>
 
     <table id="mainTable">
         <thead>
@@ -128,9 +141,8 @@
     ];
 
     function setShift(num) {
-        currentShiftNum = num;
-        document.getElementById('btnS1').classList.toggle('active', num === 1);
-        document.getElementById('btnS2').classList.toggle('active', num === 2);
+        currentShiftNum = parseInt(num);
+        document.getElementById('groupSelect').value = currentShiftNum;
         build();
     }
 
@@ -138,7 +150,7 @@
         const names = currentShiftNum === 1 ? s1 : s2;
         const tbody = document.getElementById('tableBody');
         const now = new Date();
-        document.getElementById('shift-display').innerText = "АКТИВНА: ГРУППА №" + currentShiftNum;
+        document.getElementById('shift-display').innerText = "Группа №" + currentShiftNum;
         document.getElementById('date-info').innerText = now.toLocaleDateString();
         tbody.innerHTML = '';
         const schedule = scheduleData(names);
@@ -160,7 +172,7 @@
                 else if (diff < 0) checkContent = '<small style="color:#ccc">Ожидание</small>';
                 else checkContent = `<input type="checkbox" style="width:25px;height:25px;" onchange="mark(${i})">`;
             } else {
-                checkContent = '<small style="color:#aaa;">—</small>'; // Прочерк для сна
+                checkContent = '<small style="color:#aaa;">—</small>';
             }
 
             tr.innerHTML = `
@@ -180,9 +192,6 @@
         const container = document.getElementById('alert-container');
         let html = '';
 
-        if (curTimeStr === "03:30" && !hiddenAlerts.has('test')) {
-            html += `<div class="alert-box purple"><span class="alert-text">🧪 ТЕСТОВОЕ ОПОВЕЩЕНИЕ</span><button class="close-btn" onclick="closeAlert('test')">ЗАКРЫТЬ</button></div>`;
-        }
         if (["20:15", "06:45"].includes(curTimeStr) && !hiddenAlerts.has('grp_'+curTimeStr)) {
             html += `<div class="alert-box blue"><span class="alert-text">📱 ОТМЕТКА В ГРУППЕ!</span><button class="close-btn" onclick="closeAlert('grp_${curTimeStr}')">ЗАКРЫТЬ</button></div>`;
         }
@@ -219,7 +228,7 @@
     function mark(id) { logs[id] = new Date().toLocaleTimeString().slice(0,5); build(); }
     
     function updateStatus() {
-        const schedule = scheduleData(s1); // Просто для счета
+        const schedule = scheduleData(s1);
         const walkTasks = schedule.filter(r => r.task === 'walk').length;
         const done = Object.keys(logs).length + document.querySelectorAll('.expired-text').length;
         document.getElementById('nextShiftBtn').disabled = (done < walkTasks);
@@ -229,7 +238,8 @@
     function transferShift() {
         if(confirm("Сдать смену? Журнал будет очищен.")) {
             logs = {}; hiddenAlerts.clear();
-            setShift(currentShiftNum === 1 ? 2 : 1);
+            const nextGrp = currentShiftNum === 1 ? 2 : 1;
+            setShift(nextGrp);
             window.scrollTo(0,0);
         }
     }
