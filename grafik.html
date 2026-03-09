@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (24h Shift)</title>
+    <title>Графік чергування (Full Cycle)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -81,8 +81,8 @@
             <thead>
                 <tr>
                     <th style="width: 18%;">План</th>
-                    <th style="width: 30%;">Хто</th>
-                    <th style="width: 34%;">Пост</th>
+                    <th style="width: 32%;">Завдання / Хто</th>
+                    <th style="width: 32%;">На посту</th>
                     <th style="width: 18%; text-align:center;">Звіт</th>
                 </tr>
             </thead>
@@ -106,7 +106,6 @@
     if(localStorage.getItem('dark_theme') === 'true') document.body.classList.add('dark-theme');
     if (Notification.permission !== 'granted') Notification.requestPermission();
 
-    // Звукове сповіщення
     function playSound() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -122,6 +121,7 @@
     }
 
     const scheduleData = (names) => [
+        {t: "08:00", task: "walk", label: "Зміна чергових", exec: "Всі", post: [names[0], names[1], names[2]]},
         {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
         {t: "09:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
         {t: "10:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
@@ -142,7 +142,8 @@
         {t: "02:20", task: "walk", exec: names[2], post: [names[0]]},
         {t: "04:00", task: "sleep", exec: names[2], post: [names[0], names[1]]},
         {t: "04:20", task: "walk", exec: names[0], post: [names[1]]},
-        {t: "06:20", task: "walk", exec: names[1], post: [names[0]]}
+        {t: "06:20", task: "walk", exec: names[1], post: [names[0]]},
+        {t: "06:20", task: "walk", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]]}
     ];
 
     function toggleTheme() {
@@ -161,12 +162,8 @@
         const tbody = document.getElementById('tableBody');
         const schedule = scheduleData(names);
 
-        // ЛОГІКА ЗМІНИ 08:00 - 08:00
         let shiftStart = new Date(now);
-        if (now.getHours() < 8) {
-            // Якщо зараз ніч (00:00 - 07:59), то зміна почалася вчора о 08:00
-            shiftStart.setDate(shiftStart.getDate() - 1);
-        }
+        if (now.getHours() < 8) shiftStart.setDate(shiftStart.getDate() - 1);
         shiftStart.setHours(8, 0, 0, 0);
 
         document.getElementById('current-date').innerText = shiftStart.toLocaleDateString('uk-UA');
@@ -182,31 +179,27 @@
             
             let taskTime = new Date(shiftStart);
             taskTime.setHours(h, m, 0, 0);
-            if (h < 8) {
-                // Завдання 00:00 - 06:20 відносяться до наступної календарної доби від старту зміни
-                taskTime.setDate(taskTime.getDate() + 1);
-            }
+            if (h < 8) taskTime.setDate(taskTime.getDate() + 1);
             
             const diffMin = (now - taskTime) / 60000;
 
-            // Сповіщення
             if (diffMin >= 0 && diffMin < 1 && lastNotifiedIdx !== index) {
                 playSound();
                 if (Notification.permission === "granted") {
-                    new Notification("ЧАС ОБХОДУ", { body: `${row.t} - Виконує ${row.exec}` });
+                    new Notification("УВАГА", { body: `${row.label || 'Обхід'} - ${row.exec}` });
                 }
                 lastNotifiedIdx = index;
             }
 
-            if (diffMin >= 0 && diffMin < 60) tr.className = 'current-task-row';
-            else if (diffMin >= 60) tr.className = 'past-task-row';
+            if (diffMin >= 0 && diffMin < (index === 22 ? 100 : 60)) tr.className = 'current-task-row';
+            else if (diffMin >= (index === 22 ? 100 : 60)) tr.className = 'past-task-row';
 
             let checkHtml = "";
             if (row.task === 'walk') {
                 if (logs[index]) {
                     checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
                     processedCount++;
-                } else if (diffMin > 60) {
+                } else if (diffMin > (index === 22 ? 100 : 60)) {
                     checkHtml = `<small style="color:var(--danger);font-weight:bold">ВТРАЧЕНО</small>`;
                     processedCount++; 
                 } else if (diffMin < 0) {
@@ -218,7 +211,8 @@
                 checkHtml = `<small style="opacity:0.5">сон</small>`;
             }
 
-            tr.innerHTML = `<td><b>${row.t}</b></td><td>${row.exec}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
+            const displayName = row.label ? `<b>${row.label}</b>` : row.exec;
+            tr.innerHTML = `<td><b>${row.t}</b></td><td>${displayName}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
 
         updateNextShiftButton(schedule, processedCount, now);
@@ -228,29 +222,25 @@
         const total = schedule.filter(r => r.task === 'walk').length;
         const btn = document.getElementById('nextShiftBtn');
         const msg = document.getElementById('statusMessage');
-
-        // Кнопка активна тільки якщо настав час наступної зміни (08:00+) 
-        // і всі завдання поточної зміни оброблені
         const isTimeForNext = now.getHours() >= 8;
 
         if (processed < total) {
             btn.disabled = true;
-            msg.innerText = `Не всі пункти заповнені (${processed}/${total})`;
+            msg.innerText = `Заповнення: ${processed}/${total}`;
             msg.style.color = "var(--danger)";
         } else if (!isTimeForNext) {
             btn.disabled = true;
-            msg.innerText = "Здача можлива о 08:00 ранку";
+            msg.innerText = "Здача о 08:00";
             msg.style.color = "#e67e22";
         } else {
             btn.disabled = false;
-            msg.innerText = "Зміну завершено!";
+            msg.innerText = "Можна здавати зміну";
             msg.style.color = "var(--success)";
         }
     }
 
     function mark(id) { 
-        const timeStr = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
-        logs[id] = timeStr; 
+        logs[id] = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}); 
         localStorage.setItem('duty_logs', JSON.stringify(logs)); 
         render(); 
     }
