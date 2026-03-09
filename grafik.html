@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графік чергування (Theme Toggle)</title>
+    <title>Графік чергування (Safe Transfer)</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -13,7 +13,6 @@
             --grad: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
         }
 
-        /* Темна тема */
         body.dark-theme {
             --body-bg: #1a1a1a; --card-bg: #2d2d2d; --text: #ecf0f1;
             --light: #3d3d3d; --active-bg: #4d4520;
@@ -28,32 +27,27 @@
         .time-area { text-align: center; }
         #clock { font-size: 2.5em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
         
-        /* Кнопки вгорі праворуч */
         .top-right-tool { display: flex; justify-content: flex-end; gap: 10px; }
-        .tool-btn { 
-            background: var(--light); width: 45px; height: 45px; border-radius: 10px; font-size: 20px; 
-            cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; 
-            transition: 0.3s; color: var(--text);
-        }
-        .tool-btn.active { background: var(--warning); border-color: #d4ac0d; }
+        .tool-btn { background: var(--light); width: 45px; height: 45px; border-radius: 10px; font-size: 20px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
+        .tool-btn.active { background: var(--warning); }
 
         .top-controls { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 25px; }
         .group-selector { width: 100%; padding: 18px; border: none; border-radius: 0 0 12px 12px; background: var(--grad); color: white; font-size: 1.3em; font-weight: 800; cursor: pointer; text-align: center; outline: none; appearance: none; }
         .personnel-display { background: var(--light); border-radius: 8px; padding: 4px 15px; display: flex; justify-content: space-around; font-weight: bold; align-items: center; min-height: 35px; }
-        .personnel-display span { padding: 1px 12px; }
 
         table { width: 100%; border-collapse: collapse; }
-        th { background: var(--light); padding: 12px 15px; text-align: left; border-bottom: 3px solid var(--accent); font-size: 0.9em; color: var(--text); opacity: 0.8; }
+        th { background: var(--light); padding: 12px 15px; text-align: left; border-bottom: 3px solid var(--accent); color: var(--text); }
         td { padding: 12px 15px; border-bottom: 1px solid var(--light); vertical-align: top; }
 
         @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.2); } 100% { background-color: var(--active-bg); } }
-        .current-task-row { animation: pulse 2s infinite; border-left: 10px solid var(--warning) !important; font-weight: bold; color: var(--text) !important; }
+        .current-task-row { animation: pulse 2s infinite; border-left: 10px solid var(--warning) !important; font-weight: bold; }
         body.dim-past .past-task-row { opacity: 0.35; filter: grayscale(80%); }
 
-        .footer { margin-top: 25px; display: flex; gap: 15px; }
-        .btn { padding: 16px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; flex-grow: 1; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-info { background: var(--dark); color: white; max-width: 200px; }
+        .footer { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
+        .btn { padding: 16px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; width: 100%; }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
+        .btn-success:disabled { background: #95a5a6 !important; opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+        .status-msg { font-size: 0.9em; text-align: center; color: #e67e22; font-weight: bold; }
     </style>
 </head>
 <body class="dim-past">
@@ -63,8 +57,8 @@
         <div class="header-title"><h1>Графік</h1><small>чергувань</small></div>
         <div class="time-area"><span id="current-date">--.--.----</span><div id="clock">00:00:00</div></div>
         <div class="top-right-tool">
-            <button class="tool-btn" id="themeBtn" onclick="toggleTheme()" title="Тема">🌓</button>
-            <button class="tool-btn active" id="lightBtn" onclick="toggleDimming()" title="Лампочка">💡</button>
+            <button class="tool-btn" onclick="toggleTheme()">🌓</button>
+            <button class="tool-btn active" id="lightBtn" onclick="toggleDimming()">💡</button>
         </div>
     </div>
 
@@ -82,8 +76,8 @@
     </table>
 
     <div class="footer">
-        <button class="btn btn-info" onclick="alert('Архів у розробці')">📜 Архів</button>
-        <button id="nextShiftBtn" class="btn btn-success" onclick="transferShift()">↻ Здати чергування</button>
+        <div id="statusMessage" class="status-msg"></div>
+        <button id="nextShiftBtn" class="btn btn-success" disabled onclick="transferShift()">↻ Здати чергування</button>
     </div>
 </div>
 
@@ -92,10 +86,8 @@
     const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
     let logs = JSON.parse(localStorage.getItem('duty_logs')) || {};
     let currentShiftNum = parseInt(localStorage.getItem('active_shift')) || 1;
-    let isDark = localStorage.getItem('dark_theme') === 'true';
 
-    // Ініціалізація теми
-    if(isDark) document.body.classList.add('dark-theme');
+    if(localStorage.getItem('dark_theme') === 'true') document.body.classList.add('dark-theme');
 
     const scheduleData = (names) => [
         {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
@@ -122,8 +114,7 @@
     ];
 
     function toggleTheme() {
-        isDark = !isDark;
-        document.body.classList.toggle('dark-theme', isDark);
+        const isDark = document.body.classList.toggle('dark-theme');
         localStorage.setItem('dark_theme', isDark);
     }
 
@@ -150,12 +141,11 @@
         schedule.forEach((row, index) => {
             const tr = tbody.insertRow();
             const [h, m] = row.t.split(':').map(Number);
-            let taskTime = new Date(shiftStart);
-            taskTime.setHours(h, m, 0, 0);
-            if (h < 8) taskTime.setDate(taskTime.getDate() + 1);
+            let tT = new Date(shiftStart);
+            tT.setHours(h, m, 0, 0);
+            if (h < 8) tT.setDate(tT.getDate() + 1);
             
-            const diffMin = (now - taskTime) / 60000;
-
+            const diffMin = (now - tT) / 60000;
             if (diffMin >= 0 && diffMin < 60) tr.className = 'current-task-row';
             else if (diffMin >= 60) tr.className = 'past-task-row';
 
@@ -166,11 +156,52 @@
 
             tr.innerHTML = `<td>${row.t}</td><td>${row.exec}</td><td>${row.post.join('<br>')}</td><td align="center">${checkHtml}</td>`;
         });
+
+        checkShiftCompletion(schedule, now);
     }
 
-    function mark(id) { logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0, 5); localStorage.setItem('duty_logs', JSON.stringify(logs)); render(); }
-    function changeShift(n) { currentShiftNum = parseInt(n); localStorage.setItem('active_shift', n); render(); }
-    function transferShift() { if(confirm("Здати зміну?")) { logs = {}; localStorage.removeItem('duty_logs'); render(); } }
+    function checkShiftCompletion(schedule, now) {
+        const totalWalks = schedule.filter(r => r.task === 'walk').length;
+        const completedWalks = Object.keys(logs).length;
+        const isAfterEight = now.getHours() >= 8 && (now - (new Date().setHours(8,0,0,0))) >= 0;
+        
+        const btn = document.getElementById('nextShiftBtn');
+        const msg = document.getElementById('statusMessage');
+
+        if (completedWalks < totalWalks) {
+            btn.disabled = true;
+            msg.innerText = `Заповніть всі обходи (${completedWalks}/${totalWalks})`;
+        } else if (now.getHours() < 8) {
+            btn.disabled = true;
+            msg.innerText = "Здача зміни доступна тільки після 08:00";
+        } else {
+            btn.disabled = false;
+            msg.innerText = "Всі умови виконані. Можна здавати зміну.";
+            msg.style.color = "var(--success)";
+        }
+    }
+
+    function mark(id) { 
+        logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0, 5); 
+        localStorage.setItem('duty_logs', JSON.stringify(logs)); 
+        render(); 
+    }
+
+    function changeShift(n) { 
+        currentShiftNum = parseInt(n); 
+        localStorage.setItem('active_shift', n); 
+        render(); 
+    }
+
+    function transferShift() { 
+        if(confirm("Здати зміну? Всі дані будуть очищені.")) { 
+            logs = {}; 
+            localStorage.removeItem('duty_logs'); 
+            currentShiftNum = currentShiftNum === 1 ? 2 : 1;
+            localStorage.setItem('active_shift', currentShiftNum);
+            render(); 
+        } 
+    }
 
     setInterval(() => {
         document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA');
