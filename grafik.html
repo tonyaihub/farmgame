@@ -3,150 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Full Screen Schedule</title>
+    <title>Графік Чергування PRO</title>
     <style>
         :root {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --text-color: #ecf0f1;
+            --bg: #1a1a1a;
+            --card: #2d2d2d;
+            --text: #ecf0f1;
             --accent: #3498db;
             --active-bg: #4d4520;
             --border: #3d3d3d;
             --warning: #f1c40f;
+            --success: #27ae60;
         }
 
-        /* Налаштування для заповнення всього екрана */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Прибираємо зайву прокрутку */
-            background-color: var(--bg-color);
+            overflow: hidden;
+            background-color: var(--bg);
             font-family: 'Segoe UI', sans-serif;
-            color: var(--text-color);
+            color: var(--text);
         }
 
         .main-wrapper {
             display: flex;
             flex-direction: column;
-            height: 100vh; /* 100% висоти пристрою */
-            width: 100vw;  /* 100% ширини пристрою */
+            height: 100vh;
+            width: 100vw;
             padding: 1vh;
         }
 
-        /* Масштабований заголовок */
+        /* Шапка */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             height: 10vh;
-            padding: 0 2vw;
-            background: var(--card-bg);
-            border-radius: 8px;
+            padding: 0 3vw;
+            background: var(--card);
+            border-radius: 12px;
             margin-bottom: 0.5vh;
+            border-bottom: 2px solid var(--border);
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 4vh; /* Розмір залежить від висоти екрана */
-            text-transform: uppercase;
-        }
-
+        .header h1 { margin: 0; font-size: 3.5vh; text-transform: uppercase; letter-spacing: 1px; }
+        
         .status-box {
-            background: rgba(0,0,0,0.3);
-            padding: 0.5vh 2vw;
-            border-radius: 5px;
+            background: rgba(0,0,0,0.4);
+            padding: 0.5vh 3vw;
+            border-radius: 8px;
             text-align: center;
+            border: 1px solid var(--border);
         }
+        .status-box span { display: block; font-size: 1.2vh; color: #95a5a6; text-transform: uppercase; }
+        .status-box b { font-size: 2.2vh; color: var(--warning); font-family: monospace; }
 
-        .status-box span {
-            display: block;
-            font-size: 1.5vh;
-            color: #7f8c8d;
+        .header-right { text-align: right; }
+        .clock { font-size: 2.8vh; font-weight: bold; display: block; color: var(--accent); }
+
+        .btns-row { display: flex; gap: 10px; margin-top: 5px; justify-content: flex-end; }
+        .tool-btn {
+            width: 4vh; height: 4vh; border-radius: 6px; border: none;
+            background: var(--border); color: white; cursor: pointer; font-size: 2vh;
         }
+        .tool-btn.active { background: var(--warning); color: black; }
 
-        .status-box b {
-            font-size: 2.5vh;
-            color: var(--accent);
-            font-family: monospace;
-        }
-
-        /* Контейнер таблиці, що тягнеться */
+        /* Таблиця */
         .table-container {
             flex-grow: 1;
-            background: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            background: var(--card);
+            border-radius: 12px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
         }
 
-        table {
-            width: 100%;
-            height: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        th {
-            height: 4vh;
-            background: #222;
-            font-size: 1.6vh;
-            text-transform: uppercase;
-            color: #95a5a6;
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { 
+            position: sticky; top: 0; background: #222; z-index: 10;
+            height: 4vh; font-size: 1.4vh; text-transform: uppercase; color: #7f8c8d;
             border-bottom: 2px solid var(--accent);
         }
-
-        td {
-            border-bottom: 1px solid var(--border);
-            padding: 0.5vh 1vw;
-            vertical-align: middle;
-            font-size: 1.8vh; /* Автомасштаб тексту */
+        td { 
+            padding: 0.8vh 1vw; border-bottom: 1px solid var(--border); 
+            font-size: 1.7vh; vertical-align: middle; 
         }
 
-        /* Стилі рядків */
-        .active-row {
-            background-color: var(--active-bg);
-            border-left: 5px solid var(--warning);
-        }
+        /* Ефекти рядків */
+        .past-task-row { opacity: 0.35; filter: grayscale(100%); transition: 0.3s; }
+        body.no-transparency .past-task-row { opacity: 1 !important; filter: none !important; }
 
-        .past-row {
-            opacity: 0.4;
-            filter: grayscale(80%);
-        }
+        .active-row { background: var(--active-bg); font-weight: bold; border-left: 5px solid var(--warning); }
 
-        /* Видалення ком: прізвища списком */
-        .names-list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
+        .names-list { margin: 0; padding: 0; list-style: none; }
+        .names-list li { margin-bottom: 2px; }
 
-        .names-list li {
-            margin-bottom: 2px;
-        }
+        /* Колонки */
+        .col-plan { width: 22%; font-weight: bold; color: var(--accent); }
+        .col-task { width: 30%; }
+        .col-post { width: 35%; }
+        .col-check { width: 13%; text-align: center; }
 
-        .time-col { width: 20%; font-weight: bold; color: var(--accent); }
-        .task-col { width: 30%; }
-        .post-col { width: 35%; }
-        .check-col { width: 15%; text-align: center; }
+        input[type="checkbox"] { transform: scale(1.4); accent-color: var(--success); }
 
-        input[type="checkbox"] {
-            transform: scale(1.5); /* Збільшуємо чекбокс для зручності */
-        }
-
-        /* Кнопка внизу */
+        /* Кнопка низу */
         .footer-btn {
-            height: 8vh;
-            margin-top: 0.5vh;
-            background: var(--accent);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 2.5vh;
-            font-weight: bold;
-            cursor: pointer;
+            height: 8vh; margin-top: 0.8vh;
+            background: var(--accent); border: none; border-radius: 12px;
+            color: white; font-size: 2.2vh; font-weight: bold; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
+        .footer-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+        .footer-btn.ready { background: var(--success); animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -155,14 +125,17 @@
     <div class="header">
         <div>
             <h1>ГРАФІК</h1>
-            <small style="font-size: 1.5vh;">09.03.2026</small>
+            <small id="current-date" style="font-size: 1.4vh; opacity: 0.6;">--.--.----</small>
         </div>
         <div class="status-box">
-            <span>ОБХІД ЧЕРЕЗ</span>
-            <b>00:17:21</b>
+            <span id="mon-label">Наступний обхід</span>
+            <b id="mon-timer">00:00:00</b>
         </div>
-        <div style="text-align: right;">
-            <b style="font-size: 3vh; display: block;">08:02</b>
+        <div class="header-right">
+            <span class="clock" id="clock">00:00:00</span>
+            <div class="btns-row">
+                <button class="tool-btn" onclick="toggleLight(this)">💡</button>
+            </div>
         </div>
     </div>
 
@@ -170,78 +143,108 @@
         <table>
             <thead>
                 <tr>
-                    <th class="time-col">План</th>
-                    <th class="task-col">Завдання</th>
-                    <th class="post-col">Пост</th>
-                    <th class="check-col">Звіт</th>
+                    <th class="col-plan">План</th>
+                    <th class="col-task">Завдання</th>
+                    <th class="col-post">Пост</th>
+                    <th class="col-check">Звіт</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr class="active-row">
-                    <td class="time-col">08:00-08:20</td>
-                    <td>Зміна чергових</td>
-                    <td>
-                        <ul class="names-list">
-                            <li>Кузнєцов</li>
-                            <li>Драний</li>
-                            <li>Литовченко</li>
-                        </ul>
-                    </td>
-                    <td class="check-col"><input type="checkbox" checked></td>
-                </tr>
-                <tr>
-                    <td class="time-col">08:20</td>
-                    <td>Кузнєцов</td>
-                    <td>
-                        <ul class="names-list">
-                            <li>Драний</li>
-                            <li>Литовченко</li>
-                        </ul>
-                    </td>
-                    <td class="check-col"><input type="checkbox"></td>
-                </tr>
-                <tr>
-                    <td class="time-col">09:20</td>
-                    <td>Драний</td>
-                    <td>
-                        <ul class="names-list">
-                            <li>Кузнєцов</li>
-                            <li>Литовченко</li>
-                        </ul>
-                    </td>
-                    <td class="check-col"><input type="checkbox"></td>
-                </tr>
-                <tr>
-                    <td class="time-col">10:20</td>
-                    <td>Литовченко</td>
-                    <td>
-                        <ul class="names-list">
-                            <li>Кузнєцов</li>
-                            <li>Драний</li>
-                        </ul>
-                    </td>
-                    <td class="check-col"><input type="checkbox"></td>
-                </tr>
-            </tbody>
+            <tbody id="table-body">
+                </tbody>
         </table>
     </div>
 
-    <button class="footer-btn">Наступна зміна</button>
+    <button id="next-shift-btn" class="footer-btn" disabled>Наступна зміна</button>
 </div>
 
 <script>
-    // Скріпт для автоматичного масштабування, якщо тексту забагато
-    function adjustScale() {
-        const table = document.querySelector('table');
-        const container = document.querySelector('.table-container');
-        if (table.scrollHeight > container.clientHeight) {
-            // Якщо таблиця не влазить, трохи зменшуємо шрифт
-            document.body.style.fontSize = '1.5vh';
+    const s1 = ["Кузнєцов", "Драний", "Литовченко"];
+    let logs = JSON.parse(localStorage.getItem('duty_logs_new')) || {};
+
+    const scheduleData = (names) => [
+        {t: "08:00-08:20", h: 8, m: 0, dur: 20, task: "Зміна чергових", post: [names[0], names[1], names[2]]},
+        {t: "08:20", h: 8, m: 20, dur: 60, task: names[0], post: [names[1], names[2]]},
+        {t: "09:20", h: 9, m: 20, dur: 60, task: names[1], post: [names[0], names[2]]},
+        {t: "10:20", h: 10, m: 20, dur: 60, task: names[2], post: [names[0], names[1]]},
+        {t: "11:20", h: 11, m: 20, dur: 60, task: names[0], post: [names[1], names[2]]},
+        {t: "12:20", h: 12, m: 20, dur: 60, task: names[1], post: [names[0], names[2]]},
+        {t: "13:20", h: 13, m: 20, dur: 60, task: names[2], post: [names[0], names[1]]},
+        {t: "14:20", h: 14, m: 20, dur: 60, task: names[0], post: [names[1], names[2]]},
+        {t: "15:20", h: 15, m: 20, dur: 60, task: names[1], post: [names[0], names[2]]}
+    ];
+
+    function toggleLight(btn) {
+        document.body.classList.toggle('no-transparency');
+        btn.classList.toggle('active');
+    }
+
+    function formatTime(ms) {
+        const s = Math.max(0, Math.floor(ms / 1000));
+        return [Math.floor(s/3600), Math.floor((s%3600)/60), s%60].map(v => v.toString().padStart(2,'0')).join(':');
+    }
+
+    function update() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('uk-UA');
+        
+        let shiftStart = new Date(now);
+        if (now.getHours() < 8) shiftStart.setDate(shiftStart.getDate() - 1);
+        shiftStart.setHours(8, 0, 0, 0);
+        document.getElementById('current-date').innerText = shiftStart.toLocaleDateString('uk-UA');
+
+        const data = scheduleData(s1);
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+
+        let nextTime = null;
+
+        data.forEach((row, idx) => {
+            const tr = document.createElement('tr');
+            const tStart = new Date(shiftStart);
+            tStart.setHours(row.h, row.m, 0, 0);
+            const tEnd = new Date(tStart.getTime() + row.dur * 60000);
+
+            const isPast = now >= tEnd;
+            const isActive = now >= tStart && now < tEnd;
+
+            if (isPast) tr.className = 'past-task-row';
+            if (isActive) tr.className = 'active-row';
+            if (tStart > now && !nextTime) nextTime = tStart;
+
+            tr.innerHTML = `
+                <td class="col-plan">${row.t}</td>
+                <td class="col-task">${row.task}</td>
+                <td class="col-post"><ul class="names-list">${row.post.map(n => `<li>${n}</li>`).join('')}</ul></td>
+                <td class="col-check"><input type="checkbox" ${logs[idx] ? 'checked' : ''} onchange="mark(${idx})"></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Таймер в шапці
+        if (nextTime) {
+            document.getElementById('mon-label').innerText = "Обхід через";
+            document.getElementById('mon-timer').innerText = formatTime(nextTime - now);
+        }
+
+        // Кнопка знизу
+        const btn = document.getElementById('next-shift-btn');
+        const shiftEnd = new Date(shiftStart); shiftEnd.setDate(shiftEnd.getDate() + 1); shiftEnd.setHours(8,0,0,0);
+        
+        if (now >= shiftEnd) {
+            btn.disabled = false; btn.classList.add('ready'); btn.innerText = "Здати зміну";
+        } else {
+            btn.disabled = true; btn.innerText = "До зміни: " + formatTime(shiftEnd - now);
         }
     }
-    window.onload = adjustScale;
-    window.onresize = adjustScale;
-</script>
 
+    function mark(id) {
+        logs[id] = !logs[id];
+        localStorage.setItem('duty_logs_new', JSON.stringify(logs));
+        update();
+    }
+
+    setInterval(update, 1000);
+    update();
+</script>
 </body>
 </html>
