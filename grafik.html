@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графік чергування (Оновлений дизайн)</title>
+    <title>Графік чергування (Прямі кути меню)</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -14,7 +14,6 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--primary); transition: 0.3s; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; }
         
-        /* ОНОВЛЕНА ШАПКА */
         .header { 
             display: grid; 
             grid-template-columns: 1fr auto 1fr; 
@@ -28,10 +27,18 @@
         .top-right-tool { justify-self: end; }
 
         .top-controls { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; margin-bottom: 20px; align-items: center; }
+        
+        /* ВИПРАВЛЕНИЙ СЕЛЕКТОР (БЕЗ ВЕРХНЬОГО РАДІУСУ) */
         .group-selector {
-            width: 100%; padding: 15px; border: 2px solid var(--accent); border-radius: 10px;
+            width: 100%; padding: 15px; 
+            border: 2px solid var(--accent); 
+            border-top-left-radius: 0;   /* Прямий кут зверху зліва */
+            border-top-right-radius: 0;  /* Прямий кут зверху справа */
+            border-bottom-left-radius: 10px; 
+            border-bottom-right-radius: 10px;
             background: var(--accent); color: white; font-size: 1.2em; font-weight: 800;
             cursor: pointer; text-align: center; text-transform: uppercase; outline: none;
+            appearance: none; -webkit-appearance: none; /* Прибираємо стандартну стрілку для чистоти */
         }
 
         .personnel-display { 
@@ -46,14 +53,12 @@
         .current-task-row { background-color: var(--active-bg) !important; border-left: 10px solid var(--warning) !important; font-weight: bold; }
         body.dim-past .past-task-row { opacity: 0.35; filter: grayscale(80%); }
 
-        /* МОДАЛЬНЕ ВІКНО */
         #historyModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
         }
         .modal-content { background: white; width: 95%; max-width: 800px; padding: 25px; border-radius: 15px; max-height: 85vh; overflow-y: auto; }
         
-        /* КНОПКИ */
         .footer { margin-top: 20px; display: flex; gap: 12px; }
         .btn { padding: 14px 25px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.9em; }
         .btn-success { background: var(--success); color: white; flex-grow: 1; }
