@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система «Вартовий» — Оперативний журнал</title>
+    <title>Графік чергування</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -13,76 +13,99 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 15px; color: var(--primary); }
         .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 20px; margin-bottom: 20px; }
+        /* Заголовок */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 15px; margin-bottom: 15px; }
+        .header-title h2 { margin: 0; color: var(--primary); }
+        .header-title #current-date { color: var(--accent); font-weight: 800; }
+        #clock { font-size: 1.4em; font-weight: bold; color: var(--accent); background: #f8f9fa; padding: 5px 15px; border-radius: 8px; border: 1px solid #eee; }
+
+        /* Панель керування */
+        .control-panel { display: flex; align-items: stretch; gap: 15px; margin-bottom: 25px; }
         
-        .status-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
-        .status-card { background: var(--dark); color: white; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; justify-content: center; }
-        
+        .selector-box { flex: 1; position: relative; }
         .group-selector {
-            background: rgba(255,255,255,0.1);
+            width: 100%; height: 100%;
+            background: var(--dark);
             color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 5px;
-            padding: 5px 10px;
+            border: none;
+            border-radius: 10px;
+            padding: 0 20px;
+            font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            outline: none;
-            width: 100%;
+            appearance: none;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.3s;
         }
-        .group-selector option { background: var(--dark); color: white; }
+        .group-selector:hover { background: #2c3e50; transform: translateY(-2px); }
+        
+        .personnel-list { 
+            flex: 1; 
+            background: #f8f9fa; 
+            border: 1px solid var(--light); 
+            border-radius: 10px; 
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+        .person-tag { font-weight: bold; color: var(--dark); font-size: 0.95em; position: relative; padding-left: 15px; }
+        .person-tag::before { content: '•'; position: absolute; left: 0; color: var(--accent); }
 
-        #alert-container { margin-bottom: 20px; }
+        /* Сповіщення */
         .alert-box { color: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: center; animation: pulse 2s infinite; }
         .alert-box.red { background: var(--danger); }
         .alert-box.orange { background: var(--warning); }
         .alert-box.blue { background: var(--accent); animation: none; }
-        .alert-text { font-size: 1.2em; font-weight: bold; display: block; margin-bottom: 8px; }
-        .close-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .alert-text { font-size: 1.1em; font-weight: bold; }
+        .close-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; margin-left: 15px; padding: 3px 10px; border-radius: 5px; cursor: pointer; }
 
+        /* Таблиця */
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; text-transform: uppercase; }
-        td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        th { background: #f8f9fa; padding: 12px 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; text-transform: uppercase; color: #7f8c8d; }
+        td { padding: 10px 15px; border-bottom: 1px solid #eee; }
         
-        .name-list { display: block; line-height: 1.3; font-size: 0.95em; }
-        .active-row { background: #fff9db !important; }
+        .active-row { background: #fffdf2 !important; }
         .active-executor { background: var(--warning) !important; color: white !important; font-weight: bold; border-radius: 4px; padding: 4px 8px; }
         
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7em; font-weight: bold; text-transform: uppercase; }
         .walk { background: #d1ecf1; color: #0c5460; }
         .sleep { background: #e2e3e5; color: #383d41; }
         
-        .log-time { font-size: 0.8em; color: var(--success); font-weight: bold; }
+        .log-time { font-size: 0.9em; color: var(--success); font-weight: bold; }
         .expired-text { color: var(--danger); font-weight: bold; font-size: 0.75em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 4px; border-radius: 3px; }
 
-        .footer { margin-top: 30px; padding: 30px; border-top: 2px solid var(--light); text-align: center; }
-        #nextShiftBtn { padding: 20px 45px; font-size: 1.1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        #nextShiftBtn:disabled { background: #eee; color: #aaa; cursor: not-allowed; }
-        #nextShiftBtn:enabled { background: var(--grad); color: white; box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3); animation: readyPulse 2s infinite; }
+        /* Футер */
+        .footer { margin-top: 25px; padding: 20px; border-top: 2px solid var(--light); text-align: center; }
+        #nextShiftBtn { padding: 15px 40px; font-size: 1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; }
+        #nextShiftBtn:disabled { background: #eee; color: #aaa; }
+        #nextShiftBtn:enabled { background: var(--grad); color: white; box-shadow: 0 8px 15px rgba(52, 152, 219, 0.3); }
 
-        @keyframes readyPulse { 0% {box-shadow: 0 0 0 0 rgba(52,152,219,0.7);} 70% {box-shadow: 0 0 0 15px rgba(52,152,219,0);} 100% {box-shadow: 0 0 0 0 rgba(52,152,219,0);} }
-        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.02);} 100% {transform: scale(1);} }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.01);} 100% {transform: scale(1);} }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div>
-            <h2 style="margin:0;">Оперативний журнал 24/7</h2>
-            <small>Контроль чергової зміни</small>
+        <div class="header-title">
+            <h2>Графік чергування на <span id="current-date">--.--.----</span></h2>
+            <small>Моніторинг виконання завдань</small>
         </div>
-        <div id="clock" style="font-size: 1.5em; font-weight: bold; color: var(--accent); background: #f8f9fa; padding: 5px 15px; border-radius: 8px;">--:--:--</div>
+        <div id="clock">--:--:--</div>
     </div>
 
-    <div class="status-panel">
-        <div class="status-card" id="date-info">--.--.----</div>
-        <div class="status-card">
+    <div class="control-panel">
+        <div class="selector-box">
             <select id="groupSelect" class="group-selector" onchange="setShift(this.value)">
-                <option value="1">Вибір: Зміна 1</option>
-                <option value="2">Вибір: Зміна 2</option>
+                <option value="1">АКТИВНА: ЗМІНА №1</option>
+                <option value="2">АКТИВНА: ЗМІНА №2</option>
             </select>
         </div>
-        <div class="status-card" id="shift-display">Зміна: --</div>
+        
+        <div class="personnel-list" id="personnel-display">
+            </div>
     </div>
 
     <div id="alert-container"></div>
@@ -94,14 +117,14 @@
                 <th>Тип</th>
                 <th>ВИКОНАВЕЦЬ</th>
                 <th>На посту</th>
-                <th style="text-align:center;">Підтвердження</th>
+                <th style="text-align:center;">Звіт</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
 
     <div class="footer">
-        <button id="nextShiftBtn" disabled onclick="transferShift()">↻ НАСТУПНА ЗМІНА</button>
+        <button id="nextShiftBtn" disabled onclick="transferShift()">↻ ЗАВЕРШИТИ ТА ЗДАТИ ЗМІНУ</button>
     </div>
 </div>
 
@@ -139,15 +162,22 @@
     function setShift(num) {
         currentShiftNum = parseInt(num);
         document.getElementById('groupSelect').value = currentShiftNum;
+        updatePersonnelDisplay();
         build();
+    }
+
+    function updatePersonnelDisplay() {
+        const names = currentShiftNum === 1 ? s1 : s2;
+        const display = document.getElementById('personnel-display');
+        display.innerHTML = names.map(n => `<span class="person-tag">${n}</span>`).join('');
     }
 
     function build() {
         const names = currentShiftNum === 1 ? s1 : s2;
         const tbody = document.getElementById('tableBody');
         const now = new Date();
-        document.getElementById('shift-display').innerText = "Зміна: №" + currentShiftNum;
-        document.getElementById('date-info').innerText = now.toLocaleDateString('uk-UA');
+        document.getElementById('current-date').innerText = now.toLocaleDateString('uk-UA');
+        
         tbody.innerHTML = '';
         const schedule = scheduleData(names);
 
@@ -164,9 +194,9 @@
             let checkContent = '';
             if (r.task === 'walk') {
                 if (logs[i]) checkContent = `<span class="log-time">✓ ${logs[i]}</span>`;
-                else if (diff > 60) checkContent = '<span class="expired-text">Прострочено</span>';
-                else if (diff < 0) checkContent = '<small style="color:#ccc">Очікування</small>';
-                else checkContent = `<input type="checkbox" style="width:25px;height:25px;" onchange="mark(${i})">`;
+                else if (diff > 60) checkContent = '<span class="expired-text">Пропущено</span>';
+                else if (diff < 0) checkContent = '<small style="color:#ccc">---</small>';
+                else checkContent = `<input type="checkbox" style="width:22px;height:22px;" onchange="mark(${i})">`;
             } else {
                 checkContent = '<small style="color:#aaa;">—</small>';
             }
@@ -174,8 +204,8 @@
             tr.innerHTML = `
                 <td><strong>${r.t}</strong></td>
                 <td><span class="badge ${r.task}">${r.task==='walk'?'Обхід':'Сон'}</span></td>
-                <td class="${isAct ? 'active-executor' : ''}">${r.exec}${r.task==='sleep'?'<br><small style="color:#777">(Сон)</small>':''}</td>
-                <td style="color:#666">${r.post.map(n=>`<span class="name-list">${n}</span>`).join('')}</td>
+                <td class="${isAct ? 'active-executor' : ''}">${r.exec}</td>
+                <td style="color:#666; font-size:0.9em">${r.post.join(', ')}</td>
                 <td style="text-align:center;">${checkContent}</td>
             `;
         });
@@ -189,7 +219,7 @@
         let html = '';
 
         if (["20:15", "06:45"].includes(curTimeStr) && !hiddenAlerts.has('grp_'+curTimeStr)) {
-            html += `<div class="alert-box blue"><span class="alert-text">📱 ВІДМІТКА В ГРУПІ!</span><button class="close-btn" onclick="closeAlert('grp_${curTimeStr}')">ЗАКРИТИ</button></div>`;
+            html += `<div class="alert-box blue"><span class="alert-text">📱 ЧАС ВІДМІТКИ У ГРУПІ!</span><button class="close-btn" onclick="closeAlert('grp_${curTimeStr}')">OK</button></div>`;
         }
 
         const names = currentShiftNum === 1 ? s1 : s2;
@@ -201,20 +231,7 @@
             else if (now.getHours() >= 8 && sH < 8) sDate.setDate(sDate.getDate() + 1);
             const diff = (sDate - now) / 60000;
             if (r.task === 'walk' && diff > 0 && diff <= 5 && !hiddenAlerts.has('w_'+i)) {
-                html += `<div class="alert-box orange"><span class="alert-text">🚶 На обхід через 5 хвилин! (${r.t})</span><button class="close-btn" onclick="closeAlert('w_${i}')">ЗАКРИТИ</button></div>`;
-            }
-            if (r.task === 'sleep' && diff < 0 && diff > -120) {
-                const nxt = schedule[i+1];
-                if (nxt) {
-                    const [nH, nM] = nxt.t.split(':').map(Number);
-                    let nDate = new Date(); nDate.setHours(nH, nM, 0, 0);
-                    if (now.getHours() < 8 && nH >= 8) nDate.setDate(nDate.getDate() - 1);
-                    else if (now.getHours() >= 8 && nH < 8) nDate.setDate(nDate.getDate() + 1);
-                    const diffW = (nDate - now) / 60000;
-                    if (diffW > 0 && diffW <= 5 && !hiddenAlerts.has('wake_'+i)) {
-                        html += `<div class="alert-box red"><span class="alert-text">⏰ Розбуди колегу! (${nxt.exec})</span><button class="close-btn" onclick="closeAlert('wake_${i}')">ЗАКРИТИ</button></div>`;
-                    }
-                }
+                html += `<div class="alert-box orange"><span class="alert-text">🚶 Підготовка до обходу через 5 хв (${r.t})</span><button class="close-btn" onclick="closeAlert('w_${i}')">OK</button></div>`;
             }
         });
         container.innerHTML = html;
@@ -231,7 +248,7 @@
     }
 
     function transferShift() {
-        if(confirm("Здати зміну? Журнал буде очищено.")) {
+        if(confirm("Підтвердити здачу чергування?")) {
             logs = {}; hiddenAlerts.clear();
             const nextGrp = currentShiftNum === 1 ? 2 : 1;
             setShift(nextGrp);
