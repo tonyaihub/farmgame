@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система «Часовой» — Финальный релиз</title>
+    <title>Графік чергування 24/7</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -12,21 +12,28 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 15px; color: var(--primary); }
         .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 20px; margin-bottom: 20px; }
         
-        /* Выпадающее меню выбора группы */
-        .selector-panel { display: flex; justify-content: center; margin-bottom: 25px; }
-        .group-select-wrapper { position: relative; width: 250px; }
-        #groupSelect { 
-            width: 100%; padding: 12px 20px; font-size: 1.1em; font-weight: bold; 
-            border: 2px solid var(--primary); border-radius: 10px; cursor: pointer;
-            background: white; color: var(--primary); outline: none; transition: 0.3s;
-            appearance: none; -webkit-appearance: none;
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 20px; margin-bottom: 20px; }
+        .time-box { text-align: right; }
+        #date-top { display: block; font-size: 0.9em; color: var(--dark); font-weight: bold; margin-bottom: 4px; }
+        #clock { font-size: 1.5em; font-weight: bold; color: var(--accent); background: #f8f9fa; padding: 5px 15px; border-radius: 8px; border: 1px solid var(--light); }
+
+        .status-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+        .status-card { background: var(--dark); color: white; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 1em; display: flex; align-items: center; justify-content: center; }
+        
+        .group-selector {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            padding: 8px 15px;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+            font-size: 0.95em;
         }
-        #groupSelect:hover { background: #f8f9fa; border-color: var(--accent); }
-        .group-select-wrapper::after {
-            content: "▼"; position: absolute; right: 15px; top: 15px; pointer-events: none; font-size: 0.8em;
-        }
+        .group-selector option { background: var(--dark); color: white; }
 
         #alert-container { margin-bottom: 20px; }
         .alert-box { color: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: center; animation: pulse 2s infinite; }
@@ -36,11 +43,8 @@
         .alert-text { font-size: 1.2em; font-weight: bold; display: block; margin-bottom: 8px; }
         .close-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        .status-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
-        .status-card { background: var(--dark); color: white; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 0.9em; }
-
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; text-transform: uppercase; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; text-transform: uppercase; color: #7f8c8d; }
         td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
         .name-list { display: block; line-height: 1.3; font-size: 0.95em; }
@@ -51,11 +55,11 @@
         .walk { background: #d1ecf1; color: #0c5460; }
         .sleep { background: #e2e3e5; color: #383d41; }
         
-        .log-time { font-size: 0.8em; color: var(--success); font-weight: bold; }
+        .log-time { font-size: 0.9em; color: var(--success); font-weight: bold; font-family: monospace; }
         .expired-text { color: var(--danger); font-weight: bold; font-size: 0.75em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 4px; border-radius: 3px; }
 
         .footer { margin-top: 30px; padding: 30px; border-top: 2px solid var(--light); text-align: center; }
-        #nextShiftBtn { padding: 20px 45px; font-size: 1.1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        #nextShiftBtn { padding: 20px 45px; font-size: 1.1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
         #nextShiftBtn:disabled { background: #eee; color: #aaa; cursor: not-allowed; }
         #nextShiftBtn:enabled { background: var(--grad); color: white; box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3); animation: readyPulse 2s infinite; }
 
@@ -68,25 +72,23 @@
 <div class="container">
     <div class="header">
         <div>
-            <h2 style="margin:0;">Оперативный Журнал 24/7</h2>
-            <small>Режим контроля и оповещений</small>
+            <h2 style="margin:0;">Графік чергування</h2>
+            <small>Контроль чергової зміни</small>
         </div>
-        <div id="clock" style="font-size: 1.5em; font-weight: bold; color: var(--accent); background: #f8f9fa; padding: 5px 15px; border-radius: 8px;">--:--:--</div>
-    </div>
-
-    <div class="selector-panel">
-        <div class="group-select-wrapper">
-            <select id="groupSelect" onchange="setShift(this.value)">
-                <option value="1">Активна: Группа 1</option>
-                <option value="2">Активна: Группа 2</option>
-            </select>
+        <div class="time-box">
+            <span id="date-top">--.--.----</span>
+            <div id="clock">--:--:--</div>
         </div>
     </div>
 
     <div class="status-panel">
-        <div class="status-card" id="date-info">--.--.----</div>
-        <div class="status-card" id="shift-display">Группа: --</div>
-        <div class="status-card" id="progress-info">Готовность: 0%</div>
+        <div class="status-card">
+            <select id="groupSelect" class="group-selector" onchange="setShift(this.value)">
+                <option value="1">Активна: Зміна №1</option>
+                <option value="2">Активна: Зміна №2</option>
+            </select>
+        </div>
+        <div class="status-card" id="shift-display">Зміна: №--</div>
     </div>
 
     <div id="alert-container"></div>
@@ -96,16 +98,16 @@
             <tr>
                 <th>План</th>
                 <th>Тип</th>
-                <th>ИСПОЛНИТЕЛЬ</th>
+                <th>ВИКОНАВЕЦЬ</th>
                 <th>На посту</th>
-                <th style="text-align:center;">Подтверждение</th>
+                <th style="text-align:center;">Підтвердження</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
 
     <div class="footer">
-        <button id="nextShiftBtn" disabled onclick="transferShift()">↻ СЛЕДУЮЩАЯ СМЕНА</button>
+        <button id="nextShiftBtn" disabled onclick="transferShift()">↻ НАСТУПНА ЗМІНА</button>
     </div>
 </div>
 
@@ -150,8 +152,9 @@
         const names = currentShiftNum === 1 ? s1 : s2;
         const tbody = document.getElementById('tableBody');
         const now = new Date();
-        document.getElementById('shift-display').innerText = "Группа №" + currentShiftNum;
-        document.getElementById('date-info').innerText = now.toLocaleDateString();
+        document.getElementById('shift-display').innerText = "Зміна: №" + currentShiftNum;
+        document.getElementById('date-top').innerText = now.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        
         tbody.innerHTML = '';
         const schedule = scheduleData(names);
 
@@ -168,8 +171,8 @@
             let checkContent = '';
             if (r.task === 'walk') {
                 if (logs[i]) checkContent = `<span class="log-time">✓ ${logs[i]}</span>`;
-                else if (diff > 60) checkContent = '<span class="expired-text">Просрочено</span>';
-                else if (diff < 0) checkContent = '<small style="color:#ccc">Ожидание</small>';
+                else if (diff > 60) checkContent = '<span class="expired-text">Прострочено</span>';
+                else if (diff < 0) checkContent = '<small style="color:#ccc">Очікування</small>';
                 else checkContent = `<input type="checkbox" style="width:25px;height:25px;" onchange="mark(${i})">`;
             } else {
                 checkContent = '<small style="color:#aaa;">—</small>';
@@ -177,7 +180,7 @@
 
             tr.innerHTML = `
                 <td><strong>${r.t}</strong></td>
-                <td><span class="badge ${r.task}">${r.task==='walk'?'Обход':'Сон'}</span></td>
+                <td><span class="badge ${r.task}">${r.task==='walk'?'Обхід':'Сон'}</span></td>
                 <td class="${isAct ? 'active-executor' : ''}">${r.exec}${r.task==='sleep'?'<br><small style="color:#777">(Сон)</small>':''}</td>
                 <td style="color:#666">${r.post.map(n=>`<span class="name-list">${n}</span>`).join('')}</td>
                 <td style="text-align:center;">${checkContent}</td>
@@ -193,7 +196,7 @@
         let html = '';
 
         if (["20:15", "06:45"].includes(curTimeStr) && !hiddenAlerts.has('grp_'+curTimeStr)) {
-            html += `<div class="alert-box blue"><span class="alert-text">📱 ОТМЕТКА В ГРУППЕ!</span><button class="close-btn" onclick="closeAlert('grp_${curTimeStr}')">ЗАКРЫТЬ</button></div>`;
+            html += `<div class="alert-box blue"><span class="alert-text">📱 ВІДМІТКА В ГРУПІ!</span><button class="close-btn" onclick="closeAlert('grp_${curTimeStr}')">ЗАКРИТИ</button></div>`;
         }
 
         const names = currentShiftNum === 1 ? s1 : s2;
@@ -205,7 +208,7 @@
             else if (now.getHours() >= 8 && sH < 8) sDate.setDate(sDate.getDate() + 1);
             const diff = (sDate - now) / 60000;
             if (r.task === 'walk' && diff > 0 && diff <= 5 && !hiddenAlerts.has('w_'+i)) {
-                html += `<div class="alert-box orange"><span class="alert-text">🚶 На обход через 5 минут! (${r.t})</span><button class="close-btn" onclick="closeAlert('w_${i}')">ЗАКРЫТЬ</button></div>`;
+                html += `<div class="alert-box orange"><span class="alert-text">🚶 На обхід через 5 хвилин! (${r.t})</span><button class="close-btn" onclick="closeAlert('w_${i}')">ЗАКРИТИ</button></div>`;
             }
             if (r.task === 'sleep' && diff < 0 && diff > -120) {
                 const nxt = schedule[i+1];
@@ -216,7 +219,7 @@
                     else if (now.getHours() >= 8 && nH < 8) nDate.setDate(nDate.getDate() + 1);
                     const diffW = (nDate - now) / 60000;
                     if (diffW > 0 && diffW <= 5 && !hiddenAlerts.has('wake_'+i)) {
-                        html += `<div class="alert-box red"><span class="alert-text">⏰ Разбуди коллегу! (${nxt.exec})</span><button class="close-btn" onclick="closeAlert('wake_${i}')">ЗАКРЫТЬ</button></div>`;
+                        html += `<div class="alert-box red"><span class="alert-text">⏰ Розбуди колегу! (${nxt.exec})</span><button class="close-btn" onclick="closeAlert('wake_${i}')">ЗАКРИТИ</button></div>`;
                     }
                 }
             }
@@ -225,18 +228,17 @@
     }
 
     function closeAlert(id) { hiddenAlerts.add(id); checkAlerts(); }
-    function mark(id) { logs[id] = new Date().toLocaleTimeString().slice(0,5); build(); }
+    function mark(id) { logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0,5); build(); }
     
     function updateStatus() {
         const schedule = scheduleData(s1);
         const walkTasks = schedule.filter(r => r.task === 'walk').length;
         const done = Object.keys(logs).length + document.querySelectorAll('.expired-text').length;
         document.getElementById('nextShiftBtn').disabled = (done < walkTasks);
-        document.getElementById('progress-info').innerText = `Готовность: ${Math.round(done/walkTasks*100)}%`;
     }
 
     function transferShift() {
-        if(confirm("Сдать смену? Журнал будет очищен.")) {
+        if(confirm("Здати зміну? Журнал буде очищено.")) {
             logs = {}; hiddenAlerts.clear();
             const nextGrp = currentShiftNum === 1 ? 2 : 1;
             setShift(nextGrp);
@@ -245,7 +247,7 @@
     }
 
     setInterval(() => { 
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA');
         checkAlerts();
         if (new Date().getSeconds() === 0) build();
     }, 1000);
