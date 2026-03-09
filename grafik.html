@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графік чергування 24/7</title>
+    <title>Система «Вартовий» — Оперативний журнал</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -14,24 +14,20 @@
         .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 20px; margin-bottom: 20px; }
-        .time-box { text-align: right; }
-        #date-top { display: block; font-size: 0.9em; color: var(--dark); font-weight: bold; margin-bottom: 4px; }
-        #clock { font-size: 1.5em; font-weight: bold; color: var(--accent); background: #f8f9fa; padding: 5px 15px; border-radius: 8px; border: 1px solid var(--light); }
-
-        .status-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
-        .status-card { background: var(--dark); color: white; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 1em; display: flex; align-items: center; justify-content: center; }
+        
+        .status-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .status-card { background: var(--dark); color: white; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; justify-content: center; }
         
         .group-selector {
             background: rgba(255,255,255,0.1);
             color: white;
             border: 1px solid rgba(255,255,255,0.3);
             border-radius: 5px;
-            padding: 8px 15px;
+            padding: 5px 10px;
             font-weight: bold;
             cursor: pointer;
             outline: none;
             width: 100%;
-            font-size: 0.95em;
         }
         .group-selector option { background: var(--dark); color: white; }
 
@@ -44,7 +40,7 @@
         .close-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; text-transform: uppercase; color: #7f8c8d; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
         .name-list { display: block; line-height: 1.3; font-size: 0.95em; }
@@ -55,11 +51,11 @@
         .walk { background: #d1ecf1; color: #0c5460; }
         .sleep { background: #e2e3e5; color: #383d41; }
         
-        .log-time { font-size: 0.9em; color: var(--success); font-weight: bold; font-family: monospace; }
+        .log-time { font-size: 0.8em; color: var(--success); font-weight: bold; }
         .expired-text { color: var(--danger); font-weight: bold; font-size: 0.75em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 4px; border-radius: 3px; }
 
         .footer { margin-top: 30px; padding: 30px; border-top: 2px solid var(--light); text-align: center; }
-        #nextShiftBtn { padding: 20px 45px; font-size: 1.1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        #nextShiftBtn { padding: 20px 45px; font-size: 1.1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         #nextShiftBtn:disabled { background: #eee; color: #aaa; cursor: not-allowed; }
         #nextShiftBtn:enabled { background: var(--grad); color: white; box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3); animation: readyPulse 2s infinite; }
 
@@ -72,23 +68,21 @@
 <div class="container">
     <div class="header">
         <div>
-            <h2 style="margin:0;">Графік чергування</h2>
+            <h2 style="margin:0;">Оперативний журнал 24/7</h2>
             <small>Контроль чергової зміни</small>
         </div>
-        <div class="time-box">
-            <span id="date-top">--.--.----</span>
-            <div id="clock">--:--:--</div>
-        </div>
+        <div id="clock" style="font-size: 1.5em; font-weight: bold; color: var(--accent); background: #f8f9fa; padding: 5px 15px; border-radius: 8px;">--:--:--</div>
     </div>
 
     <div class="status-panel">
+        <div class="status-card" id="date-info">--.--.----</div>
         <div class="status-card">
             <select id="groupSelect" class="group-selector" onchange="setShift(this.value)">
-                <option value="1">Активна: Зміна №1</option>
-                <option value="2">Активна: Зміна №2</option>
+                <option value="1">Вибір: Зміна 1</option>
+                <option value="2">Вибір: Зміна 2</option>
             </select>
         </div>
-        <div class="status-card" id="shift-display">Зміна: №--</div>
+        <div class="status-card" id="shift-display">Зміна: --</div>
     </div>
 
     <div id="alert-container"></div>
@@ -153,8 +147,7 @@
         const tbody = document.getElementById('tableBody');
         const now = new Date();
         document.getElementById('shift-display').innerText = "Зміна: №" + currentShiftNum;
-        document.getElementById('date-top').innerText = now.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        
+        document.getElementById('date-info').innerText = now.toLocaleDateString('uk-UA');
         tbody.innerHTML = '';
         const schedule = scheduleData(names);
 
