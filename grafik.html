@@ -2,9 +2,8 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графік чергування — Система</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Графік чергування — Мобільна версія</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -18,37 +17,52 @@
             --light: #3d3d3d; --active-bg: #4d4520;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--body-bg); margin: 0; padding: 10px; color: var(--text); transition: 0.3s; }
-        .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--body-bg); margin: 0; padding: 5px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
         
-        .header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--light); padding-bottom: 15px; }
-        .header-title h1 { margin: 0; font-size: 2.5em; font-weight: 800; line-height: 1; }
-        .header-title small { display: block; color: #7f8c8d; font-size: 1.1em; font-weight: bold; }
-        .time-area { text-align: center; }
-        #clock { font-size: 2.5em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
+        .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         
-        .top-right-tool { display: flex; justify-content: flex-end; gap: 10px; }
-        .tool-btn { background: var(--light); width: 45px; height: 45px; border-radius: 10px; font-size: 20px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); transition: 0.2s; }
-        .tool-btn:hover { filter: brightness(1.1); }
-        .tool-btn.active { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
+        /* АДАПТИВНА ШАПКА */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--light); padding-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+        .header-title h1 { margin: 0; font-size: 1.8em; font-weight: 800; line-height: 1; }
+        .header-title small { font-size: 0.8em; color: #7f8c8d; font-weight: bold; }
+        
+        .time-area { text-align: center; flex-grow: 1; }
+        #clock { font-size: 1.8em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+        #current-date { font-size: 0.9em; font-weight: bold; display: block; }
 
-        .top-controls { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 25px; }
-        .group-selector { width: 100%; padding: 18px; border: none; border-radius: 0 0 12px 12px; background: var(--grad); color: white; font-size: 1.3em; font-weight: 800; cursor: pointer; text-align: center; outline: none; appearance: none; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
-        .personnel-display { background: var(--light); border-radius: 8px; padding: 4px 15px; display: flex; justify-content: space-around; font-weight: bold; align-items: center; min-height: 35px; }
+        .top-right-tool { display: flex; gap: 5px; }
+        .tool-btn { background: var(--light); width: 40px; height: 40px; border-radius: 8px; font-size: 18px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
+        .tool-btn.active { background: var(--warning); }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { background: var(--light); padding: 12px 15px; text-align: left; border-bottom: 3px solid var(--accent); color: var(--text); font-size: 0.9em; text-transform: uppercase; }
-        td { padding: 12px 15px; border-bottom: 1px solid var(--light); vertical-align: top; }
+        /* СЕЛЕКТОР ТА ПРІЗВИЩА */
+        .top-controls { margin-bottom: 15px; }
+        .group-selector { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--grad); color: white; font-size: 1.1em; font-weight: 800; text-align: center; appearance: none; margin-bottom: 8px; }
+        .personnel-display { background: var(--light); border-radius: 8px; padding: 8px; display: flex; justify-content: space-around; font-weight: bold; font-size: 0.85em; flex-wrap: wrap; gap: 5px; }
 
-        @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.15); } 100% { background-color: var(--active-bg); } }
-        .current-task-row { animation: pulse 2s infinite; border-left: 10px solid var(--warning) !important; font-weight: bold; }
-        body.dim-past .past-task-row { opacity: 0.35; filter: grayscale(80%); }
+        /* ТАБЛИЦЯ (АДАПТИВНІСТЬ) */
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 320px; }
+        th { background: var(--light); padding: 8px 5px; text-align: left; border-bottom: 2px solid var(--accent); font-size: 0.75em; text-transform: uppercase; }
+        td { padding: 10px 5px; border-bottom: 1px solid var(--light); vertical-align: middle; font-size: 0.85em; }
 
-        .footer { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
-        .btn { padding: 18px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; width: 100%; font-size: 1.1em; }
-        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
-        .btn-success:disabled { background: #95a5a6 !important; opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
-        .status-msg { font-size: 0.95em; text-align: center; font-weight: bold; min-height: 20px; }
+        .current-task-row { animation: pulse 2s infinite; border-left: 5px solid var(--warning) !important; background-color: var(--active-bg); }
+        body.dim-past .past-task-row { opacity: 0.4; filter: grayscale(50%); }
+
+        /* КНОПКА ТА СТАТУС */
+        .footer { margin-top: 15px; text-align: center; }
+        .btn { padding: 15px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 100%; font-size: 1em; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:disabled { background: #ccc !important; opacity: 0.6; }
+        .status-msg { font-size: 0.8em; margin-bottom: 8px; font-weight: bold; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+
+        /* Мобільні виправлення для дуже малих екранів */
+        @media (max-width: 380px) {
+            .header-title h1 { font-size: 1.4em; }
+            #clock { font-size: 1.5em; }
+            td, th { font-size: 0.75em; padding: 8px 3px; }
+        }
     </style>
 </head>
 <body class="dim-past">
@@ -56,10 +70,13 @@
 <div class="container">
     <div class="header">
         <div class="header-title"><h1>Графік</h1><small>чергувань</small></div>
-        <div class="time-area"><span id="current-date">--.--.----</span><div id="clock">00:00:00</div></div>
+        <div class="time-area">
+            <span id="current-date">--.--.----</span>
+            <div id="clock">00:00:00</div>
+        </div>
         <div class="top-right-tool">
-            <button class="tool-btn" onclick="toggleTheme()" title="Змінити тему">🌓</button>
-            <button class="tool-btn active" id="lightBtn" onclick="toggleDimming()" title="Затемнення минулого">💡</button>
+            <button class="tool-btn" onclick="toggleTheme()">🌓</button>
+            <button class="tool-btn active" id="lightBtn" onclick="toggleDimming()">💡</button>
         </div>
     </div>
 
@@ -71,10 +88,19 @@
         <div class="personnel-display" id="names-box"></div>
     </div>
 
-    <table id="mainTable">
-        <thead><tr><th>План</th><th>Виконавець</th><th>На посту</th><th style="text-align:center;">Звіт</th></tr></thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+    <div class="table-wrapper">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th style="width: 15%;">План</th>
+                    <th style="width: 30%;">Хто</th>
+                    <th style="width: 35%;">Пост</th>
+                    <th style="width: 20%; text-align:center;">Звіт</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
 
     <div class="footer">
         <div id="statusMessage" class="status-msg"></div>
@@ -91,20 +117,6 @@
 
     if(localStorage.getItem('dark_theme') === 'true') document.body.classList.add('dark-theme');
     if (Notification.permission !== 'granted') Notification.requestPermission();
-
-    function playSound() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            [600, 800].forEach((freq, i) => {
-                const o = ctx.createOscillator(); const g = ctx.createGain();
-                o.connect(g); g.connect(ctx.destination);
-                o.frequency.value = freq;
-                g.gain.setValueAtTime(0.1, ctx.currentTime + i*0.3);
-                g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i*0.3 + 0.2);
-                o.start(ctx.currentTime + i*0.3); o.stop(ctx.currentTime + i*0.3 + 0.2);
-            });
-        } catch(e) { console.log("Audio play blocked"); }
-    }
 
     const scheduleData = (names) => [
         {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
@@ -166,11 +178,9 @@
             
             const diffMin = (now - tT) / 60000;
 
-            // Логіка сповіщень (активне вікно 1 хвилина)
             if (diffMin >= 0 && diffMin < 1 && lastNotifiedIdx !== index) {
-                playSound();
                 if (Notification.permission === "granted") {
-                    new Notification("ЧАС ОБХОДУ!", { body: `Виконавець: ${row.exec}`, icon: "https://cdn-icons-png.flaticon.com/512/311/311081.png" });
+                    new Notification("ЧАС ОБХОДУ!", { body: `Виконавець: ${row.exec}` });
                 }
                 lastNotifiedIdx = index;
             }
@@ -184,47 +194,41 @@
                     checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
                     processedCount++;
                 } else if (diffMin > 60) {
-                    checkHtml = `<small style="color:var(--danger); font-weight:bold;">ВТРАЧЕНО</small>`;
+                    checkHtml = `<small style="color:var(--danger)">ВТРАЧЕНО</small>`;
                     processedCount++; 
                 } else if (diffMin < 0) {
-                    checkHtml = `<span style="opacity:0.3">---</span>`;
+                    checkHtml = `<span style="opacity:0.3">...</span>`;
                 } else {
-                    checkHtml = `<input type="checkbox" style="width:20px; height:20px; cursor:pointer;" onchange="mark(${index})">`;
+                    checkHtml = `<input type="checkbox" style="transform: scale(1.2);" onchange="mark(${index})">`;
                 }
             } else {
-                checkHtml = `<small style="opacity:0.6">сон</small>`;
+                checkHtml = `<small>сон</small>`;
             }
 
-            tr.innerHTML = `<td><b>${row.t}</b></td><td>${row.exec}</td><td>${row.post.join('<br>')}</td><td align="center">${checkHtml}</td>`;
+            tr.innerHTML = `<td>${row.t}</td><td>${row.exec}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
 
-        checkShiftCompletion(schedule, processedCount, now);
-    }
-
-    function checkShiftCompletion(schedule, processedCount, now) {
         const totalWalks = schedule.filter(r => r.task === 'walk').length;
         const btn = document.getElementById('nextShiftBtn');
         const msg = document.getElementById('statusMessage');
 
-        const isAfterEight = now.getHours() >= 8;
-
         if (processedCount < totalWalks) {
             btn.disabled = true;
-            msg.innerText = `Оброблено: ${processedCount} з ${totalWalks} обходів`;
+            msg.innerText = `Оброблено: ${processedCount}/${totalWalks}`;
             msg.style.color = "var(--danger)";
-        } else if (!isAfterEight) {
+        } else if (now.getHours() < 8 && now.getHours() >= 0) {
             btn.disabled = true;
-            msg.innerText = "Здача зміни стане доступною о 08:00";
+            msg.innerText = "Здача можлива після 08:00";
             msg.style.color = "#e67e22";
         } else {
             btn.disabled = false;
-            msg.innerText = "Зміну завершено. Готово до перемикання.";
+            msg.innerText = "Готово до зміни!";
             msg.style.color = "var(--success)";
         }
     }
 
     function mark(id) { 
-        logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0, 5); 
+        logs[id] = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}); 
         localStorage.setItem('duty_logs', JSON.stringify(logs)); 
         render(); 
     }
@@ -236,7 +240,7 @@
     }
 
     function transferShift() { 
-        if(confirm("Перейти до наступної зміни? Поточні відмітки будуть видалені.")) { 
+        if(confirm("Перейти до наступної зміни?")) { 
             logs = {}; 
             localStorage.removeItem('duty_logs'); 
             currentShiftNum = currentShiftNum === 1 ? 2 : 1;
