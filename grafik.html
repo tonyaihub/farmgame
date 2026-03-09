@@ -199,4 +199,76 @@
             let checkHtml = row.task === 'walk' ? 
                 (logs[index] ? `<b style="color:var(--success)">✓ ${logs[index]}</b>` : 
                 (diffMin > 60 ? `<small style="color:var(--danger)">ПРОПУЩЕНО</small>` : 
-                (diffMin < 0 ? `---` : `
+                (diffMin < 0 ? `---` : `<input type="checkbox" onchange="mark(${index})">`))) : `<small>сон</small>`;
+
+            tr.innerHTML = `<td>${row.t}</td><td>${row.exec}</td><td>${row.post.join('<br>')}</td><td align="center">${checkHtml}</td>`;
+        });
+        
+        if (currentIdx !== -1 && currentIdx !== lastActiveTask) {
+            if (lastActiveTask !== null) { 
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const o = ctx.createOscillator(); const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination); o.frequency.value = 600;
+                g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+                o.start(); o.stop(ctx.currentTime + 0.5);
+            }
+            lastActiveTask = currentIdx;
+        }
+        document.getElementById('nextShiftBtn').disabled = Object.keys(logs).length < schedule.filter(r => r.task === 'walk').length;
+    }
+
+    function mark(id) {
+        logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0, 5);
+        localStorage.setItem('duty_logs', JSON.stringify(logs));
+        render();
+    }
+
+    function transferShift() {
+        if(!confirm("Здати зміну та заархівувати?")) return;
+        shiftHistory.unshift({
+            date: new Date().toLocaleString('uk-UA'),
+            shift: currentShiftNum,
+            personnel: currentShiftNum === 1 ? s1.join(', ') : s2.join(', '),
+            marks: Object.values(logs).join(', '),
+            count: Object.keys(logs).length
+        });
+        localStorage.setItem('shift_history', JSON.stringify(shiftHistory));
+        logs = {}; localStorage.removeItem('duty_logs');
+        currentShiftNum = currentShiftNum === 1 ? 2 : 1;
+        localStorage.setItem('active_shift', currentShiftNum);
+        render();
+    }
+
+    function showHistory() {
+        document.getElementById('historyModal').style.display = 'flex';
+        const list = document.getElementById('historyList');
+        list.innerHTML = shiftHistory.length ? shiftHistory.map(h => `
+            <div style="border-bottom:1px solid #eee; padding:10px 0;">
+                <b>${h.date} — Зміна №${h.shift}</b><br>
+                <small>Чергові: ${h.personnel}</small><br>
+                <span>Відмітки (${h.count}): ${h.marks || 'відсутні'}</span>
+            </div>
+        `).join('') : '<p style="text-align:center;">Порожньо</p>';
+    }
+
+    function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
+
+    function downloadExcel() {
+        if (!shiftHistory.length) return alert("Порожньо");
+        const ws = XLSX.utils.json_to_sheet(shiftHistory.map(h => ({
+            "Дата": h.date, "Зміна": h.shift, "Склад": h.personnel, "К-ть": h.count, "Час": h.marks
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "History");
+        XLSX.writeFile(wb, `duty_log.xlsx`);
+    }
+
+    setInterval(() => {
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA');
+        if (new Date().getSeconds() === 0) render();
+    }, 1000);
+
+    render();
+</script>
+</body>
+</html>
