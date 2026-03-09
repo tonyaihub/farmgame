@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Flashlight Contrast)</title>
+    <title>Графік чергування (Classic Mode)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -32,38 +32,29 @@
         .status-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 6px 8px; border-radius: 8px; min-width: 160px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
         .status-monitor-top .label { font-size: 0.65em; text-transform: uppercase; font-weight: 800; color: #7f8c8d; display: block; margin-bottom: -2px; }
         .status-monitor-top .timer { font-family: 'Consolas', monospace; font-size: 1.2em; font-weight: 900; color: var(--accent); display: block; white-space: nowrap; }
-        
-        .status-monitor-top.active-sleep { background: var(--sleep-bg); border-color: var(--accent); }
-        .status-monitor-top.status-prep { background: #e8f4fd; border-color: #3498db; }
-        .status-monitor-top.status-shift { background: #eafaf1; border-color: #27ae60; }
 
         .header-right { flex: 1; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
         #clock { font-size: 1.4em; font-weight: 800; color: var(--dark); display: block; line-height: 1; font-variant-numeric: tabular-nums; }
         
         .header-btns { display: flex; gap: 5px; margin-top: 6px; }
-        .tool-btn { background: var(--light); width: 42px; height: 42px; border-radius: 8px; font-size: 22px; cursor: pointer; border: none; color: var(--text); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .tool-btn { background: var(--light); width: 42px; height: 42px; border-radius: 8px; font-size: 22px; cursor: pointer; border: none; color: var(--text); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s; }
+        .tool-btn:active { transform: scale(0.9); }
+        .tool-btn.active { background: var(--warning); color: black; }
 
-        /* ЭФФЕКТ ПРОЗРАЧНОСТИ ПРОШЛЫХ СТРОК */
-        .past-task-row { opacity: 0.4; filter: grayscale(100%); transition: 0.2s; }
+        /* ЕФЕКТ ПРОЗОРОСТІ */
+        .past-task-row { opacity: 0.4; filter: grayscale(100%); transition: 0.3s; }
         
-        /* ОТКЛЮЧЕНИЕ ПРОЗРАЧНОСТИ ПРИ ВКЛЮЧЕННОМ ФОНАРИКЕ */
-        body.flashlight-active .past-task-row { 
+        /* РЕЖИМ ПІДСВІТКИ (ЛАМПОЧКА) */
+        body.high-contrast .past-task-row { 
             opacity: 1 !important; 
             filter: none !important; 
-            font-weight: bold;
         }
 
         .current-task-row { background-color: var(--active-bg); font-weight: bold; border-left: 4px solid var(--warning) !important; animation: pulse 2s infinite; }
         .sleep-row { color: var(--sleep-text); background-color: var(--sleep-bg); }
         
-        #flashlight-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: white; z-index: 9999; display: none; 
-            flex-direction: column; justify-content: center; align-items: center; 
-        }
-
         .top-controls { margin-bottom: 12px; }
-        .group-selector { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--grad); color: white; font-size: 1.1em; font-weight: 800; text-align: center; }
+        .group-selector { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--grad); color: white; font-size: 1.1em; font-weight: 800; text-align: center; appearance: none; }
         
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { background: var(--light); padding: 8px 4px; text-align: left; font-size: 0.75em; border-bottom: 2px solid var(--accent); }
@@ -74,16 +65,9 @@
         .footer { margin-top: 15px; text-align: center; }
         .btn { padding: 16px; border-radius: 25px; border: none; font-weight: bold; width: 100%; font-size: 1em; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-success { background: var(--success); color: white; }
-        .btn:disabled { background: #dcdde1; color: #7f8c8d; }
     </style>
 </head>
 <body>
-
-<div id="flashlight-overlay" onclick="toggleFlashlight()">
-    <span style="color: black; font-size: 50px;">🔦</span>
-    <span style="color: #666; font-size: 20px; font-weight: bold; margin-top: 20px;">ЕКРАННИЙ ЛІХТАРИК УВІМКНЕНО</span>
-    <span style="color: #999; font-size: 14px; margin-top: 10px;">Натисніть будь-де, щоб вимкнути</span>
-</div>
 
 <div class="container">
     <div class="header">
@@ -100,7 +84,7 @@
         <div class="header-right">
             <span id="clock">00:00:00</span>
             <div class="header-btns">
-                <button class="tool-btn" onclick="toggleFlashlight()" title="Ліхтарик">🔦</button>
+                <button id="lightBtn" class="tool-btn" onclick="toggleContrast()" title="Підсвітка">💡</button>
                 <button class="tool-btn" onclick="toggleTheme()" title="Тема">🌓</button>
             </div>
         </div>
@@ -237,27 +221,18 @@
         const monitor = document.getElementById('statusMonitor');
         const labelText = document.getElementById('monitorLabel');
         const timerText = document.getElementById('topTimer');
-        const h = now.getHours(), m = now.getMinutes();
-        const cur = h * 60 + m;
+        const cur = now.getHours() * 60 + now.getMinutes();
 
         if (cur >= (6*60+45) && cur < (8*60)) {
-            monitor.className = "status-monitor-top status-prep";
-            labelText.innerText = "Статус"; timerText.innerText = "Підготовка до зміни";
+            monitor.className = "status-monitor-top"; labelText.innerText = "Підготовка"; timerText.innerText = "До зміни";
         } 
-        else if (cur >= (8*60) && cur < (8*60+20)) {
-            monitor.className = "status-monitor-top status-shift";
-            labelText.innerText = "Статус"; timerText.innerText = "Прийняття зміни";
-        }
         else if (activeSleep) {
-            monitor.className = "status-monitor-top active-sleep";
-            labelText.innerText = "Відпочинок"; timerText.innerText = activeSleep.name + ": " + formatCountdown(activeSleep.end - now);
+            monitor.className = "status-monitor-top"; labelText.innerText = "Відпочинок"; timerText.innerText = activeSleep.name + ": " + formatCountdown(activeSleep.end - now);
         } 
-        else if (nextWalkTime && h >= 8 && h < 20) {
-            monitor.className = "status-monitor-top";
-            labelText.innerText = "Наступний обхід через"; timerText.innerText = formatCountdown(nextWalkTime - now);
+        else if (nextWalkTime) {
+            monitor.className = "status-monitor-top"; labelText.innerText = "Наступний обхід"; timerText.innerText = formatCountdown(nextWalkTime - now);
         } else {
-            monitor.className = "status-monitor-top";
-            labelText.innerText = "Статус"; timerText.innerText = "--:--:--";
+            monitor.className = "status-monitor-top"; labelText.innerText = "Статус"; timerText.innerText = "--:--:--";
         }
     }
 
@@ -266,17 +241,10 @@
         localStorage.setItem('dark_theme', isDark);
     }
 
-    function toggleFlashlight() {
-        const overlay = document.getElementById('flashlight-overlay');
-        const isVisible = overlay.style.display === 'flex';
-        
-        if (!isVisible) {
-            overlay.style.display = 'flex';
-            document.body.classList.add('flashlight-active'); // Убирает прозрачность прошлых строк
-        } else {
-            overlay.style.display = 'none';
-            document.body.classList.remove('flashlight-active'); // Возвращает прозрачность
-        }
+    function toggleContrast() {
+        const btn = document.getElementById('lightBtn');
+        const isContrast = document.body.classList.toggle('high-contrast');
+        btn.classList.toggle('active');
     }
 
     function updateStatus(processed, total, now, shiftStart) {
@@ -287,11 +255,9 @@
 
         if (processed >= total && now >= target) {
             btn.disabled = false; btn.classList.add('btn-success'); btn.innerText = "↻ Здати зміну";
-            msg.innerText = "ГОТОВО!"; msg.style.color = "var(--success)";
         } else {
             btn.disabled = true; btn.classList.remove('btn-success');
-            msg.innerText = "ПЕРЕЗМІНКА О 08:00"; msg.style.color = "var(--primary)";
-            btn.innerText = (now >= new Date(target - 4500000)) ? "До перезмінки: " + formatCountdown(target - now) : "Наступна зміна";
+            btn.innerText = "Наступна зміна";
         }
     }
 
