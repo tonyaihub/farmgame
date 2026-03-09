@@ -3,291 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Countdown Edition)</title>
+    <title>Виправлений Графік</title>
     <style>
         :root {
-            --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
-            --warning: #f1c40f; --light: #ecf0f1; --dark: #34495e; --danger: #e74c3c;
-            --active-bg: #fff9db; --body-bg: #f0f2f5; --card-bg: white; --text: #2c3e50;
-            --grad: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            --sleep-bg: #e3f2fd; --sleep-text: #1565c0;
-            --next-bg: #f8f9fa;
+            /* Базові кольори з фото */
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --header-dark: #2c3e50;
+            --active-row-bg: #fff3cd; /* Жовтий фон для активного рядка */
+            --border-color: #dee2e6;
+            --accent: #3498db;
         }
 
-        body.dark-theme {
-            --body-bg: #1a1a1a; --card-bg: #2d2d2d; --text: #ecf0f1;
-            --light: #3d3d3d; --active-bg: #4d4520;
-            --sleep-bg: #0d47a1; --sleep-text: #bbdefb;
-            --next-bg: #252525;
+        /* Темна тема (опціонально, активується автоматично, якщо увімкнено на телефоні) */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1a;
+                --text-color: #e0e0e0;
+                --header-dark: #121212;
+                --active-row-bg: #4d4520;
+                --border-color: #333;
+            }
+            input[type="checkbox"] { filter: invert(1); }
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--body-bg); margin: 0; padding: 5px; color: var(--text); transition: 0.3s; overflow-x: hidden; font-size: 18px; }
-        .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--light); padding-bottom: 8px; gap: 8px; }
-        .header-left { flex: 1; }
-        .header-left h1 { margin: 0; font-size: 1.3em; font-weight: 800; line-height: 1; letter-spacing: 1px; }
-        .header-left small { font-size: 0.8em; color: #7f8c8d; font-weight: bold; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* Прибирає синій спалах при натисканні на мобільних */
+        }
 
-        .status-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 6px 8px; border-radius: 8px; min-width: 160px; border: 1px solid rgba(0,0,0,0.05); }
-        .status-monitor-top .label { font-size: 0.65em; text-transform: uppercase; font-weight: 800; color: #7f8c8d; display: block; margin-bottom: -2px; }
-        .status-monitor-top .timer { font-family: 'Consolas', monospace; font-size: 1.2em; font-weight: 900; color: var(--accent); display: block; white-space: nowrap; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.4;
+            font-size: 16px; /* Базовий розмір для телефонів */
+        }
 
-        .header-right { flex: 1; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
-        #clock { font-size: 1.4em; font-weight: 800; color: var(--dark); display: block; line-height: 1; font-variant-numeric: tabular-nums; }
-        
-        .header-btns { display: flex; gap: 5px; margin-top: 6px; }
-        .tool-btn { background: var(--light); width: 42px; height: 42px; border-radius: 8px; font-size: 22px; cursor: pointer; border: none; color: var(--text); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .tool-btn.active { background: var(--warning); color: black; }
+        .container {
+            width: 100%;
+            max-width: 600px; /* Обмежуємо ширину для великих екранів, щоб не розтягувалося */
+            margin: 0 auto;
+            padding: 10px;
+        }
 
-        /* Прозрачность прошлых строк */
-        .past-task-row { opacity: 0.4; filter: grayscale(100%); transition: 0.3s; }
-        body.high-contrast .past-task-row { opacity: 1 !important; filter: none !important; font-weight: bold; }
+        /* Верхня панель (Заголовок та таймери) */
+        .header-panel {
+            background-color: var(--header-dark);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
-        .current-task-row { background-color: var(--active-bg); font-weight: bold; border-left: 4px solid var(--warning) !important; animation: pulse 2s infinite; }
-        .sleep-row { color: var(--sleep-text); background-color: var(--sleep-bg); }
-        
-        .top-controls { margin-bottom: 12px; }
-        .group-selector { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--grad); color: white; font-size: 1.1em; font-weight: 800; text-align: center; appearance: none; }
-        
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background: var(--light); padding: 8px 4px; text-align: left; font-size: 0.75em; border-bottom: 2px solid var(--accent); }
-        td { padding: 10px 4px; border-bottom: 1px solid var(--light); font-size: 0.85em; }
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-        @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.05); } 100% { background-color: var(--active-bg); } }
+        .header-date {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .header-countdown {
+            background-color: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .countdown-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .countdown-time {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffc107; /* Жовтий час */
+            font-family: monospace;
+        }
+
+        .header-clock {
+            text-align: right;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Панель інструментів (квадратики зліва) */
+        .toolbar-panel {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .tool-btn {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        /* Вибір групи зміни */
+        .group-selector {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: white;
+            color: var(--text-color);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* Темна тема для селектора */
+        @media (prefers-color-scheme: dark) {
+            .group-selector {
+                background-color: #2c2c2c;
+                border-color: #444;
+            }
+        }
+
+        /* Таблиця */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        /* Чітке визначення ширини колонок для запобігання накладанню */
+        .schedule-table th, .schedule-table td {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        /* Заголовки таблиці */
+        .schedule-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            padding-top: 0;
+            padding-bottom: 10px;
+        }
+
+        /* Окремі колонки */
+        .col-plan { width: 18%; }  /* Час */
+        .col-zadannya { width: 35%; } /* Прізвище (Хто обходить) */
+        .col-post { width: 35%; }  /* Прізвища на посту */
+        .col-zvit { width: 12%; text-align: center; } /* Чекбокс */
+
+        /* Активний рядок (Жовтий) */
+        .schedule-table tr.active {
+            background-color: var(--active-row-bg);
+            font-weight: 500;
+        }
+
+        /* Стилізація часу (План) */
+        .time-display {
+            font-weight: 600;
+            color: var(--accent);
+            white-space: nowrap; /* Щоб час не переносився */
+        }
+
+        /* Стилізація прізвищ (Завдання та Пост) */
+        .person-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
         
-        .footer { margin-top: 15px; text-align: center; }
-        .btn { padding: 16px; border-radius: 25px; border: none; font-weight: bold; width: 100%; font-size: 1em; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
-        .btn-success { background: var(--success); color: white; }
-        .btn:disabled { background: #dcdde1; color: #7f8c8d; cursor: not-allowed; font-family: 'Consolas', monospace; }
-        body.dark-theme .btn:disabled { background: #353b48; color: #718093; }
+        /* Видалено кому, прізвища відображаються як окремі блоки */
+        .person-list li {
+            display: block; 
+            margin-bottom: 3px;
+        }
+
+        /* Чекбокс */
+        .zvit-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: var(--accent);
+        }
+
+        /* Адаптація для дуже малих екранів */
+        @media (max-width: 360px) {
+            body { font-size: 14px; }
+            .schedule-table th, .schedule-table td { padding: 10px 5px; }
+            .col-plan { width: 22%; }
+            .col-zvit { width: 10%; }
+        }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
+    <div class="header-panel">
         <div class="header-left">
             <h1>ГРАФІК</h1>
-            <small id="current-date">--.--.----</small>
+            <div class="header-date">09.03.2026</div>
         </div>
-        
-        <div id="statusMonitor" class="status-monitor-top">
-            <span id="monitorLabel" class="label">Завантаження</span>
-            <span id="topTimer" class="timer">--:--:--</span>
+        <div class="header-countdown">
+            <span class="countdown-label">Обхід через</span>
+            <span class="countdown-time">00:17:21</span>
         </div>
-
-        <div class="header-right">
-            <span id="clock">00:00:00</span>
-            <div class="header-btns">
-                <button id="lightBtn" class="tool-btn" onclick="toggleContrast()" title="Підсвітка">💡</button>
-                <button class="tool-btn" onclick="toggleTheme()" title="Тема">🌓</button>
-            </div>
+        <div class="header-clock">
+            08:02:37
         </div>
     </div>
 
-    <div class="top-controls">
-        <select id="groupSelect" class="group-selector" onchange="changeShift(this.value)">
-            <option value="1">Зміна №1</option>
-            <option value="2">Зміна №2</option>
-        </select>
+    <div class="toolbar-panel">
+        <div class="tool-btn"></div>
+        <div class="tool-btn"></div>
     </div>
 
-    <div style="overflow-x:auto">
-        <table id="mainTable">
-            <thead>
-                <tr>
-                    <th style="width: 25%;">План</th>
-                    <th style="width: 32%;">Завдання</th>
-                    <th style="width: 23%;">Пост</th>
-                    <th style="width: 20%; text-align:center;">Звіт</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+    <select class="group-selector">
+        <option value="1">Зміна №1 (Кузнєцов, Драний...)</option>
+        <option value="2">Зміна №2</option>
+        <option value="3">Зміна №3</option>
+    </select>
 
-    <div class="footer">
-        <div id="statusMessage" style="font-size: 0.95em; font-weight: 800; margin-bottom: 10px; color: var(--primary);"></div>
-        <button id="nextShiftBtn" class="btn" disabled onclick="transferShift()">Наступна зміна</button>
-    </div>
+    <table class="schedule-table">
+        <thead>
+            <tr>
+                <th class="col-plan">План</th>
+                <th class="col-zadannya">Завдання</th>
+                <th class="col-post">Пост</th>
+                <th class="col-zvit">Звіт</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="active">
+                <td>
+                    <div class="time-display">08:00–</div>
+                    <div class="time-display">08:20</div>
+                </td>
+                <td>
+                    Зміна<br>чергових
+                </td>
+                <td>
+                    <ul class="person-list">
+                        <li>Кузнєцов</li>
+                        <li>Драний</li>
+                        <li>Литовченко</li>
+                    </ul>
+                </td>
+                <td class="col-zvit">
+                    <input type="checkbox" class="zvit-checkbox" checked>
+                </td>
+            </tr>
+
+            <tr>
+                <td><div class="time-display">08:20</div></td>
+                <td>Кузнєцов</td>
+                <td>
+                    <ul class="person-list">
+                        <li>Драний</li>
+                        <li>Литовченко</li>
+                    </ul>
+                </td>
+                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
+            </tr>
+
+            <tr>
+                <td><div class="time-display">09:20</div></td>
+                <td>Драний</td>
+                <td>
+                    <ul class="person-list">
+                        <li>Кузнєцов</li>
+                        <li>Литовченко</li>
+                    </ul>
+                </td>
+                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
+            </tr>
+
+            <tr>
+                <td><div class="time-display">10:20</div></td>
+                <td>Литовченко</td>
+                <td>
+                    <ul class="person-list">
+                        <li>Кузнєцов</li>
+                        <li>Драний</li>
+                    </ul>
+                </td>
+                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
+            </tr>
+
+            <tr>
+                <td><div class="time-display">11:20</div></td>
+                <td>Кузнєцов</td>
+                <td>
+                    <ul class="person-list">
+                        <li>Драний</li>
+                        <li>Литовченко</li>
+                    </ul>
+                </td>
+                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
+            </tr>
+
+            <tr>
+                <td><div class="time-display">12:20</div></td>
+                <td>Драний</td>
+                <td>
+                    <ul class="person-list">
+                        <li>Кузнєцов</li>
+                        <li>Литовченко</li>
+                    </ul>
+                </td>
+                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
+            </tr>
+            
+            <tr>
+                <td><div class="time-display">13:20</div></td>
+                <td>Литовченко</td>
+                <td>
+                    <ul class="person-list">
+                        <li>Кузнєцов</li>
+                        <li>Драний</li>
+                    </ul>
+                </td>
+                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
+            </tr>
+            
+            <tr>
+                <td><div class="time-display">14:20</div></td>
+                <td>Кузнєцов</td>
+                <td>
+                    <ul class="person-list">
+                        <li>Драний</li>
+                        <li>Литовченко</li>
+                    </ul>
+                </td>
+                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
+            </tr>
+            
+             <tr>
+                <td><div class="time-display">15:20</div></td>
+                <td>Драний</td>
+                <td>
+                    <ul class="person-list">
+                        <li>Кузнєцов</li>
+                        <li>Литовченко</li>
+                    </ul>
+                </td>
+                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
+            </tr>
+            
+        </tbody>
+    </table>
 </div>
 
-<script>
-    const s1 = ["Кузнєцов", "Драний", "Литовченко"];
-    const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
-    let logs = JSON.parse(localStorage.getItem('duty_logs')) || {};
-    let currentShiftNum = parseInt(localStorage.getItem('active_shift')) || 1;
-
-    if(localStorage.getItem('dark_theme') === 'true') document.body.classList.add('dark-theme');
-
-    const scheduleData = (names) => [
-        {t: "08:00-08:20", startH: 8, startM: 0, task: "walk", label: "Зміна чергових", exec: "Всі", post: [names[0], names[1], names[2]], dur: 20},
-        {t: "08:20", startH: 8, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
-        {t: "09:20", startH: 9, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
-        {t: "10:20", startH: 10, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
-        {t: "11:20", startH: 11, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
-        {t: "12:20", startH: 12, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
-        {t: "13:20", startH: 13, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
-        {t: "14:20", startH: 14, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
-        {t: "15:20", startH: 15, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
-        {t: "16:20", startH: 16, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
-        {t: "17:20", startH: 17, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
-        {t: "18:20", startH: 18, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
-        {t: "19:20", startH: 19, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
-        {t: "20:00", startH: 20, startM: 0, task: "sleep", exec: names[0], post: [names[1], names[2]], dur: 120},
-        {t: "20:20", startH: 20, startM: 20, task: "walk", exec: names[1], post: [names[2]], dur: 120},
-        {t: "22:20", startH: 22, startM: 20, task: "walk", exec: names[2], post: [names[1]], dur: 100},
-        {t: "00:00", startH: 0, startM: 0, task: "sleep", exec: names[1], post: [names[0], names[2]], dur: 120},
-        {t: "00:20", startH: 0, startM: 20, task: "walk", exec: names[0], post: [names[2]], dur: 120},
-        {t: "02:20", startH: 2, startM: 20, task: "walk", exec: names[2], post: [names[0]], dur: 100},
-        {t: "04:00", startH: 4, startM: 0, task: "sleep", exec: names[2], post: [names[0], names[1]], dur: 120},
-        {t: "04:20", startH: 4, startM: 20, task: "walk", exec: names[0], post: [names[1]], dur: 120},
-        {t: "06:20", startH: 6, startM: 20, task: "walk", exec: names[1], post: [names[0]], dur: 25},
-        {t: "06:45-08:00", startH: 6, startM: 45, task: "prep", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]], dur: 75}
-    ];
-
-    function formatCountdown(ms) {
-        if (ms < 0) return "00:00:00";
-        const s = Math.floor(ms / 1000);
-        return [Math.floor(s/3600), Math.floor((s%3600)/60), s%60].map(v => v.toString().padStart(2,'0')).join(':');
-    }
-
-    function render() {
-        const now = new Date();
-        const names = currentShiftNum === 1 ? s1 : s2;
-        const tbody = document.getElementById('tableBody');
-        const schedule = scheduleData(names);
-
-        let shiftStart = new Date(now);
-        if (now.getHours() < 8) shiftStart.setDate(shiftStart.getDate() - 1);
-        shiftStart.setHours(8, 0, 0, 0);
-
-        document.getElementById('current-date').innerText = shiftStart.toLocaleDateString('uk-UA');
-        tbody.innerHTML = '';
-
-        let activeSleep = null, nextWalkTime = null, processed = 0, total = 0;
-
-        schedule.forEach((row, index) => {
-            const tr = tbody.insertRow();
-            let tS = new Date(shiftStart);
-            tS.setHours(row.startH, row.startM, 0, 0);
-            if (row.startH < 8) tS.setDate(tS.getDate() + 1);
-            const tE = new Date(tS.getTime() + row.dur * 60000);
-            const isActive = (now >= tS && now < tE);
-
-            if (row.task === 'walk' && tS > now && !nextWalkTime) nextWalkTime = tS;
-
-            let checkHtml = "";
-            if (row.task === 'sleep') {
-                tr.classList.add('sleep-row');
-                if (isActive) {
-                    tr.classList.add('current-task-row');
-                    activeSleep = { name: row.exec, end: tE };
-                    checkHtml = `<b>${formatCountdown(tE - now)}</b>`;
-                } else {
-                    checkHtml = `<small>${now >= tE ? 'завершено' : 'сон'}</small>`;
-                    if (now >= tE) tr.classList.add('past-task-row');
-                }
-            } else {
-                if (row.task !== 'prep') total++;
-                if (isActive) tr.classList.add('current-task-row');
-                else if (now >= tE) tr.classList.add('past-task-row');
-
-                if (logs[index]) {
-                    checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
-                    if (row.task !== 'prep') processed++;
-                } else if (now >= tE) {
-                    checkHtml = `<small style="color:var(--danger)">ВТРАЧЕНО</small>`;
-                    if (row.task !== 'prep') processed++;
-                } else if (now < tS) {
-                    checkHtml = `<span style="opacity:0.3">...</span>`;
-                } else {
-                    checkHtml = `<input type="checkbox" style="width:24px;height:24px" onchange="mark(${index})">`;
-                }
-            }
-            tr.innerHTML = `<td><b>${row.t}</b></td><td>${row.label || row.exec}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
-        });
-
-        updateTopMonitor(now, activeSleep, nextWalkTime);
-        updateStatus(processed, total, now, shiftStart);
-    }
-
-    function updateTopMonitor(now, activeSleep, nextWalkTime) {
-        const monitor = document.getElementById('statusMonitor');
-        const labelText = document.getElementById('monitorLabel');
-        const timerText = document.getElementById('topTimer');
-        const h = now.getHours(), m = now.getMinutes();
-        const cur = h * 60 + m;
-
-        if (cur >= (6*60+45) && cur < (8*60)) {
-            labelText.innerText = "Підготовка"; timerText.innerText = "До зміни";
-        } 
-        else if (activeSleep) {
-            labelText.innerText = "Відпочинок"; timerText.innerText = activeSleep.name + ": " + formatCountdown(activeSleep.end - now);
-        } 
-        else if (nextWalkTime) {
-            labelText.innerText = "Обхід через"; timerText.innerText = formatCountdown(nextWalkTime - now);
-        } else {
-            labelText.innerText = "Статус"; timerText.innerText = "--:--:--";
-        }
-    }
-
-    function toggleTheme() {
-        const isDark = document.body.classList.toggle('dark-theme');
-        localStorage.setItem('dark_theme', isDark);
-    }
-
-    function toggleContrast() {
-        const btn = document.getElementById('lightBtn');
-        document.body.classList.toggle('high-contrast');
-        btn.classList.toggle('active');
-    }
-
-    function updateStatus(processed, total, now, shiftStart) {
-        const btn = document.getElementById('nextShiftBtn');
-        const msg = document.getElementById('statusMessage');
-        const target = new Date(shiftStart);
-        target.setDate(target.getDate() + 1); target.setHours(8, 0, 0, 0);
-
-        const countdownThreshold = new Date(target.getTime() - 75 * 60000); 
-
-        if (processed >= total && now >= target) {
-            btn.disabled = false; btn.classList.add('btn-success'); btn.innerText = "↻ Здати зміну";
-            msg.innerText = "ГОТОВО ДО ПЕРЕЗМІНКИ!"; msg.style.color = "var(--success)";
-        } else {
-            btn.disabled = true; btn.classList.remove('btn-success');
-            msg.innerText = "ПЕРЕЗМІНКА О 08:00"; msg.style.color = "var(--primary)";
-            
-            if (now >= countdownThreshold && now < target) {
-                btn.innerText = "До зміни: " + formatCountdown(target - now);
-            } else {
-                btn.innerText = "Наступна зміна";
-            }
-        }
-    }
-
-    function mark(id) { 
-        logs[id] = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}); 
-        localStorage.setItem('duty_logs', JSON.stringify(logs)); render(); 
-    }
-
-    function changeShift(n) { currentShiftNum = parseInt(n); localStorage.setItem('active_shift', n); render(); }
-
-    function transferShift() { 
-        if(confirm("Здати зміну? Усі записи буде очищено.")) { 
-            logs = {}; localStorage.removeItem('duty_logs'); 
-            currentShiftNum = (currentShiftNum === 1) ? 2 : 1;
-            localStorage.setItem('active_shift', currentShiftNum); render(); 
-        } 
-    }
-
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA');
-        render();
-    }, 1000);
-
-    render();
-</script>
 </body>
 </html>
