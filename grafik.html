@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графік чергування з архівом</title>
+    <title>Графік чергування (Оновлений дизайн)</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -13,15 +14,24 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--primary); transition: 0.3s; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; }
         
-        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 2px solid var(--light); padding-bottom: 10px; }
-        .date-area { font-size: 1.1em; font-weight: bold; color: var(--dark); }
-        #clock { font-size: 1.8em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+        /* ОНОВЛЕНА ШАПКА */
+        .header { 
+            display: grid; 
+            grid-template-columns: 1fr auto 1fr; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid var(--light); 
+            padding-bottom: 15px; 
+        }
+        .date-area { font-size: 1em; font-weight: bold; color: var(--dark); }
+        #clock { font-size: 2.2em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; text-align: center; }
+        .top-right-tool { justify-self: end; }
 
         .top-controls { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; margin-bottom: 20px; align-items: center; }
         .group-selector {
             width: 100%; padding: 15px; border: 2px solid var(--accent); border-radius: 10px;
             background: var(--accent); color: white; font-size: 1.2em; font-weight: 800;
-            cursor: pointer; text-align: center; text-transform: uppercase;
+            cursor: pointer; text-align: center; text-transform: uppercase; outline: none;
         }
 
         .personnel-display { 
@@ -31,27 +41,32 @@
 
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-size: 0.9em; color: #666; }
-        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; transition: 0.3s; }
 
         .current-task-row { background-color: var(--active-bg) !important; border-left: 10px solid var(--warning) !important; font-weight: bold; }
         body.dim-past .past-task-row { opacity: 0.35; filter: grayscale(80%); }
 
-        /* Модальне вікно історії */
+        /* МОДАЛЬНЕ ВІКНО */
         #historyModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
         }
-        .modal-content { background: white; width: 90%; max-width: 700px; padding: 25px; border-radius: 15px; max-height: 80vh; overflow-y: auto; }
-        .history-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9em; }
-
-        /* Кнопки */
-        .footer { margin-top: 20px; display: flex; gap: 10px; align-items: center; }
-        .btn { padding: 12px 25px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .modal-content { background: white; width: 95%; max-width: 800px; padding: 25px; border-radius: 15px; max-height: 85vh; overflow-y: auto; }
+        
+        /* КНОПКИ */
+        .footer { margin-top: 20px; display: flex; gap: 12px; }
+        .btn { padding: 14px 25px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.9em; }
         .btn-success { background: var(--success); color: white; flex-grow: 1; }
         .btn-info { background: var(--dark); color: white; }
-        .light-toggle { background: #eee; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; cursor: pointer; border: none; }
-        .light-toggle.active { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-excel { background: #1D6F42; color: white; }
+        
+        .light-toggle { 
+            background: #eee; width: 45px; height: 45px; border-radius: 10px; font-size: 20px; 
+            cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; 
+            transition: 0.3s;
+        }
+        .light-toggle.active { background: var(--warning); border-color: #d4ac0d; box-shadow: 0 0 10px var(--warning); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.7; }
     </style>
 </head>
 <body class="dim-past">
@@ -59,10 +74,13 @@
 <div class="container">
     <div class="header">
         <div class="date-area">
-            <div>Графік чергування</div>
+            <div>Графік</div>
             <div id="current-date">--.--.----</div>
         </div>
         <div id="clock">00:00:00</div>
+        <div class="top-right-tool">
+            <button class="light-toggle active" id="lightBtn" onclick="toggleDimming()" title="Затемнення минулого">💡</button>
+        </div>
     </div>
 
     <div class="top-controls">
@@ -86,16 +104,17 @@
     </table>
 
     <div class="footer">
-        <button class="light-toggle active" id="lightBtn" onclick="toggleDimming()">💡</button>
-        <button class="btn btn-info" onclick="showHistory()">📜 Історія</button>
+        <button class="btn btn-info" onclick="showHistory()">📜 Архів</button>
         <button id="nextShiftBtn" class="btn btn-success" disabled onclick="transferShift()">Здати чергування</button>
     </div>
 </div>
 
 <div id="historyModal">
     <div class="modal-content">
-        <h3>📜 Архів попередніх змін</h3>
-        <button class="btn btn-info" onclick="downloadHistory()" style="margin-bottom:15px; width:100%">⬇ Скачати .txt базу</button>
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin:0;">📜 Архів змін</h2>
+            <button class="btn btn-excel" onclick="downloadExcel()">⬇ Excel (.xlsx)</button>
+        </div>
         <div id="historyList"></div>
         <button class="btn" style="background:#eee; width:100%; margin-top:15px;" onclick="closeHistory()">Закрити</button>
     </div>
@@ -108,6 +127,7 @@
     let logs = JSON.parse(localStorage.getItem('duty_logs')) || {};
     let shiftHistory = JSON.parse(localStorage.getItem('shift_history')) || [];
     let currentShiftNum = parseInt(localStorage.getItem('active_shift')) || 1;
+    let lastActiveTask = null;
 
     const scheduleData = (names) => [
         {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
@@ -155,16 +175,17 @@
         document.getElementById('groupSelect').value = currentShiftNum;
 
         tbody.innerHTML = '';
+        let currentIdx = -1;
+
         schedule.forEach((row, index) => {
             const tr = tbody.insertRow();
             const [h, m] = row.t.split(':').map(Number);
-            let taskTime = new Date(); taskTime.setHours(h, m, 0, 0);
+            let tT = new Date(); tT.setHours(h, m, 0, 0);
+            if (now.getHours() < 8 && h >= 8) tT.setDate(tT.getDate() - 1);
+            else if (now.getHours() >= 8 && h < 8) tT.setDate(tT.getDate() + 1);
             
-            if (now.getHours() < 8 && h >= 8) taskTime.setDate(taskTime.getDate() - 1);
-            else if (now.getHours() >= 8 && h < 8) taskTime.setDate(taskTime.getDate() + 1);
-            
-            const diffMin = (now - taskTime) / 60000;
-            if (diffMin >= 0 && diffMin < 60) tr.className = 'current-task-row';
+            const diffMin = (now - tT) / 60000;
+            if (diffMin >= 0 && diffMin < 60) { tr.className = 'current-task-row'; currentIdx = index; }
             else if (diffMin >= 60) tr.className = 'past-task-row';
 
             let checkHtml = row.task === 'walk' ? 
@@ -174,6 +195,17 @@
 
             tr.innerHTML = `<td>${row.t}</td><td>${row.exec}</td><td>${row.post.join('<br>')}</td><td align="center">${checkHtml}</td>`;
         });
+        
+        if (currentIdx !== -1 && currentIdx !== lastActiveTask) {
+            if (lastActiveTask !== null) { 
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const o = ctx.createOscillator(); const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination); o.frequency.value = 600;
+                g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+                o.start(); o.stop(ctx.currentTime + 0.5);
+            }
+            lastActiveTask = currentIdx;
+        }
         document.getElementById('nextShiftBtn').disabled = Object.keys(logs).length < schedule.filter(r => r.task === 'walk').length;
     }
 
@@ -184,50 +216,43 @@
     }
 
     function transferShift() {
-        if(!confirm("Здати зміну та зберегти в архів?")) return;
-        
-        const shiftReport = {
+        if(!confirm("Здати зміну та заархівувати?")) return;
+        shiftHistory.unshift({
             date: new Date().toLocaleString('uk-UA'),
             shift: currentShiftNum,
             personnel: currentShiftNum === 1 ? s1.join(', ') : s2.join(', '),
-            details: logs
-        };
-        
-        shiftHistory.unshift(shiftReport);
+            marks: Object.values(logs).join(', '),
+            count: Object.keys(logs).length
+        });
         localStorage.setItem('shift_history', JSON.stringify(shiftHistory));
-        
-        logs = {};
-        localStorage.removeItem('duty_logs');
+        logs = {}; localStorage.removeItem('duty_logs');
         currentShiftNum = currentShiftNum === 1 ? 2 : 1;
         localStorage.setItem('active_shift', currentShiftNum);
         render();
-        alert("Зміну збережено в архів!");
     }
 
     function showHistory() {
         document.getElementById('historyModal').style.display = 'flex';
         const list = document.getElementById('historyList');
         list.innerHTML = shiftHistory.length ? shiftHistory.map(h => `
-            <div class="history-item">
-                <b>${h.date} (Зміна №${h.shift})</b><br>
-                <small>Склад: ${h.personnel}</small><br>
-                <span>Відмітки: ${Object.values(h.details).join(', ') || 'немає'}</span>
+            <div style="border-bottom:1px solid #eee; padding:10px 0;">
+                <b>${h.date} — Зміна №${h.shift}</b><br>
+                <small>Чергові: ${h.personnel}</small><br>
+                <span>Відмітки (${h.count}): ${h.marks || 'відсутні'}</span>
             </div>
-        `).join('') : '<p>Архів порожній</p>';
+        `).join('') : '<p style="text-align:center;">Порожньо</p>';
     }
 
     function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
 
-    function downloadHistory() {
-        let text = "БАЗА ДАНИХ ЧЕРГУВАНЬ\n====================\n\n";
-        shiftHistory.forEach(h => {
-            text += `Дата: ${h.date}\nЗміна: №${h.shift}\nСклад: ${h.personnel}\nЧас обходів: ${Object.values(h.details).join(', ')}\n--------------------\n`;
-        });
-        const blob = new Blob([text], {type: 'text/plain'});
-        const anchor = document.createElement('a');
-        anchor.download = 'duty_history.txt';
-        anchor.href = (window.webkitURL || window.URL).createObjectURL(blob);
-        anchor.click();
+    function downloadExcel() {
+        if (!shiftHistory.length) return alert("Порожньо");
+        const ws = XLSX.utils.json_to_sheet(shiftHistory.map(h => ({
+            "Дата": h.date, "Зміна": h.shift, "Склад": h.personnel, "К-ть": h.count, "Час": h.marks
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "History");
+        XLSX.writeFile(wb, `duty_log.xlsx`);
     }
 
     setInterval(() => {
