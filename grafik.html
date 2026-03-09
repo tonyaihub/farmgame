@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Full Cycle)</title>
+    <title>Графік чергування (Info Rows)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -37,11 +37,12 @@
         .personnel-display { background: var(--light); border-radius: 8px; padding: 6px; display: flex; justify-content: space-around; font-weight: bold; font-size: 0.8em; flex-wrap: wrap; gap: 4px; }
 
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 290px; table-layout: fixed; }
-        th { background: var(--light); padding: 6px 4px; text-align: left; border-bottom: 2px solid var(--accent); font-size: 0.7em; text-transform: uppercase; }
-        td { padding: 8px 4px; border-bottom: 1px solid var(--light); vertical-align: middle; font-size: 0.8em; word-wrap: break-word; }
+        table { width: 100%; border-collapse: collapse; min-width: 300px; table-layout: fixed; }
+        th { background: var(--light); padding: 6px 4px; text-align: left; border-bottom: 2px solid var(--accent); font-size: 0.65em; text-transform: uppercase; }
+        td { padding: 8px 4px; border-bottom: 1px solid var(--light); vertical-align: middle; font-size: 0.75em; word-wrap: break-word; }
 
         .current-task-row { animation: pulse 2s infinite; border-left: 4px solid var(--warning) !important; background-color: var(--active-bg); }
+        .info-row { font-style: italic; color: var(--accent); }
         body.dim-past .past-task-row { opacity: 0.45; filter: grayscale(40%); }
 
         .footer { margin-top: 15px; text-align: center; }
@@ -80,9 +81,9 @@
         <table id="mainTable">
             <thead>
                 <tr>
-                    <th style="width: 18%;">План</th>
-                    <th style="width: 32%;">Завдання / Хто</th>
-                    <th style="width: 32%;">На посту</th>
+                    <th style="width: 24%;">План</th>
+                    <th style="width: 29%;">Завдання</th>
+                    <th style="width: 29%;">На посту</th>
                     <th style="width: 18%; text-align:center;">Звіт</th>
                 </tr>
             </thead>
@@ -106,44 +107,30 @@
     if(localStorage.getItem('dark_theme') === 'true') document.body.classList.add('dark-theme');
     if (Notification.permission !== 'granted') Notification.requestPermission();
 
-    function playSound() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            [523.25, 659.25].forEach((freq, i) => {
-                const o = ctx.createOscillator(); const g = ctx.createGain();
-                o.connect(g); g.connect(ctx.destination);
-                o.frequency.value = freq;
-                g.gain.setValueAtTime(0.1, ctx.currentTime + i*0.2);
-                g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i*0.2 + 0.15);
-                o.start(ctx.currentTime + i*0.2); o.stop(ctx.currentTime + i*0.2 + 0.15);
-            });
-        } catch(e) {}
-    }
-
     const scheduleData = (names) => [
-        {t: "08:00", task: "walk", label: "Зміна чергових", exec: "Всі", post: [names[0], names[1], names[2]]},
-        {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
-        {t: "09:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
-        {t: "10:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
-        {t: "11:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
-        {t: "12:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
-        {t: "13:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
-        {t: "14:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
-        {t: "15:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
-        {t: "16:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
-        {t: "17:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
-        {t: "18:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
-        {t: "19:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
-        {t: "20:00", task: "sleep", exec: names[0], post: [names[1], names[2]]},
-        {t: "20:20", task: "walk", exec: names[1], post: [names[2]]},
-        {t: "22:20", task: "walk", exec: names[2], post: [names[1]]},
-        {t: "00:00", task: "sleep", exec: names[1], post: [names[0], names[2]]},
-        {t: "00:20", task: "walk", exec: names[0], post: [names[2]]},
-        {t: "02:20", task: "walk", exec: names[2], post: [names[0]]},
-        {t: "04:00", task: "sleep", exec: names[2], post: [names[0], names[1]]},
-        {t: "04:20", task: "walk", exec: names[0], post: [names[1]]},
-        {t: "06:20", task: "walk", exec: names[1], post: [names[0]]},
-        {t: "06:20", task: "walk", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]]}
+        {t: "08:00-08:20", startH: 8, startM: 0, task: "info", label: "Зміна чергових", exec: "Всі", post: [names[0], names[1], names[2]], dur: 20},
+        {t: "08:20", startH: 8, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
+        {t: "09:20", startH: 9, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
+        {t: "10:20", startH: 10, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
+        {t: "11:20", startH: 11, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
+        {t: "12:20", startH: 12, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
+        {t: "13:20", startH: 13, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
+        {t: "14:20", startH: 14, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
+        {t: "15:20", startH: 15, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
+        {t: "16:20", startH: 16, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
+        {t: "17:20", startH: 17, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
+        {t: "18:20", startH: 18, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
+        {t: "19:20", startH: 19, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
+        {t: "20:00", startH: 20, startM: 0, task: "sleep", exec: names[0], post: [names[1], names[2]], dur: 120},
+        {t: "20:20", startH: 20, startM: 20, task: "walk", exec: names[1], post: [names[2]], dur: 120},
+        {t: "22:20", startH: 22, startM: 20, task: "walk", exec: names[2], post: [names[1]], dur: 100},
+        {t: "00:00", startH: 0, startM: 0, task: "sleep", exec: names[1], post: [names[0], names[2]], dur: 120},
+        {t: "00:20", startH: 0, startM: 20, task: "walk", exec: names[0], post: [names[2]], dur: 120},
+        {t: "02:20", startH: 2, startM: 20, task: "walk", exec: names[2], post: [names[0]], dur: 100},
+        {t: "04:00", startH: 4, startM: 0, task: "sleep", exec: names[2], post: [names[0], names[1]], dur: 120},
+        {t: "04:20", startH: 4, startM: 20, task: "walk", exec: names[0], post: [names[1]], dur: 120},
+        {t: "06:20", startH: 6, startM: 20, task: "walk", exec: names[1], post: [names[0]], dur: 100},
+        {t: "06:20-08:00", startH: 6, startM: 20, task: "info", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]], dur: 100}
     ];
 
     function toggleTheme() {
@@ -172,34 +159,33 @@
         tbody.innerHTML = '';
 
         let processedCount = 0;
+        let totalWalks = 0;
 
         schedule.forEach((row, index) => {
             const tr = tbody.insertRow();
-            const [h, m] = row.t.split(':').map(Number);
-            
             let taskTime = new Date(shiftStart);
-            taskTime.setHours(h, m, 0, 0);
-            if (h < 8) taskTime.setDate(taskTime.getDate() + 1);
+            taskTime.setHours(row.startH, row.startM, 0, 0);
+            if (row.startH < 8) taskTime.setDate(taskTime.getDate() + 1);
             
             const diffMin = (now - taskTime) / 60000;
 
             if (diffMin >= 0 && diffMin < 1 && lastNotifiedIdx !== index) {
-                playSound();
                 if (Notification.permission === "granted") {
-                    new Notification("УВАГА", { body: `${row.label || 'Обхід'} - ${row.exec}` });
+                    new Notification("УВАГА", { body: `${row.label || row.exec}` });
                 }
                 lastNotifiedIdx = index;
             }
 
-            if (diffMin >= 0 && diffMin < (index === 22 ? 100 : 60)) tr.className = 'current-task-row';
-            else if (diffMin >= (index === 22 ? 100 : 60)) tr.className = 'past-task-row';
+            if (diffMin >= 0 && diffMin < row.dur) tr.className = 'current-task-row';
+            else if (diffMin >= row.dur) tr.className = 'past-task-row';
 
             let checkHtml = "";
             if (row.task === 'walk') {
+                totalWalks++;
                 if (logs[index]) {
                     checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
                     processedCount++;
-                } else if (diffMin > (index === 22 ? 100 : 60)) {
+                } else if (diffMin > row.dur) {
                     checkHtml = `<small style="color:var(--danger);font-weight:bold">ВТРАЧЕНО</small>`;
                     processedCount++; 
                 } else if (diffMin < 0) {
@@ -207,34 +193,36 @@
                 } else {
                     checkHtml = `<input type="checkbox" style="width:18px;height:18px" onchange="mark(${index})">`;
                 }
+            } else if (row.task === 'info') {
+                tr.classList.add('info-row');
+                checkHtml = `<small>—</small>`;
             } else {
                 checkHtml = `<small style="opacity:0.5">сон</small>`;
             }
 
-            const displayName = row.label ? `<b>${row.label}</b>` : row.exec;
-            tr.innerHTML = `<td><b>${row.t}</b></td><td>${displayName}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
+            const displayLabel = row.label ? `<b>${row.label}</b>` : row.exec;
+            tr.innerHTML = `<td><b>${row.t}</b></td><td>${displayLabel}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
 
-        updateNextShiftButton(schedule, processedCount, now);
+        updateStatus(processedCount, totalWalks, now);
     }
 
-    function updateNextShiftButton(schedule, processed, now) {
-        const total = schedule.filter(r => r.task === 'walk').length;
+    function updateStatus(processed, total, now) {
         const btn = document.getElementById('nextShiftBtn');
         const msg = document.getElementById('statusMessage');
         const isTimeForNext = now.getHours() >= 8;
 
         if (processed < total) {
             btn.disabled = true;
-            msg.innerText = `Заповнення: ${processed}/${total}`;
+            msg.innerText = `Заповнено: ${processed}/${total}`;
             msg.style.color = "var(--danger)";
         } else if (!isTimeForNext) {
             btn.disabled = true;
-            msg.innerText = "Здача о 08:00";
+            msg.innerText = "Здача о 08:00 ранку";
             msg.style.color = "#e67e22";
         } else {
             btn.disabled = false;
-            msg.innerText = "Можна здавати зміну";
+            msg.innerText = "Готово до зміни!";
             msg.style.color = "var(--success)";
         }
     }
