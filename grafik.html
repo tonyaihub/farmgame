@@ -8,94 +8,93 @@
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
             --warning: #f39c12; --light: #ecf0f1; --dark: #34495e; --danger: #e74c3c;
-            --grad: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            --active-bg: #fff9db;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 15px; color: var(--primary); }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--primary); }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 15px; margin-bottom: 15px; }
-        .header-title h2 { margin: 0; color: var(--primary); }
-        .header-title #current-date { color: var(--accent); font-weight: 800; }
-        #clock { font-size: 1.4em; font-weight: bold; color: var(--accent); background: #f8f9fa; padding: 5px 15px; border-radius: 8px; border: 1px solid #eee; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 2px solid var(--light); padding-bottom: 10px; }
+        .date-area { font-size: 1.1em; font-weight: bold; color: var(--dark); }
+        #clock { font-size: 1.8em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
 
-        .control-panel { display: flex; align-items: stretch; gap: 15px; margin-bottom: 25px; }
-        .selector-box { flex: 1; }
+        .top-controls { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; margin-bottom: 20px; align-items: center; }
+        
+        .shift-btn-container { position: relative; }
         .group-selector {
-            width: 100%; height: 100%; background: var(--dark); color: white; border: none; border-radius: 10px;
-            padding: 12px 20px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.3s;
+            width: 100%; padding: 15px; border: 2px solid var(--accent); border-radius: 10px;
+            background: var(--accent); color: white; font-size: 1.2em; font-weight: 800;
+            cursor: pointer; text-align: center; transition: 0.3s; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+            text-transform: uppercase; letter-spacing: 1px; outline: none;
         }
-        .group-selector:hover { background: #2c3e50; }
-        
-        .personnel-list { 
-            flex: 1; background: #f8f9fa; border: 1px solid var(--light); border-radius: 10px; 
-            padding: 10px 20px; display: flex; align-items: center; justify-content: space-around;
-        }
-        .person-tag { font-weight: bold; color: var(--dark); font-size: 0.95em; position: relative; padding-left: 15px; }
-        .person-tag::before { content: '•'; position: absolute; left: 0; color: var(--accent); }
+        .group-selector:hover { background: #2980b9; }
 
-        /* ВИДІЛЕННЯ ПОТОЧНОГО ПУНКТУ */
-        .active-row { 
-            background: #fffdf2 !important; 
-            border-left: 5px solid var(--accent) !important;
-            box-shadow: inset 0 0 10px rgba(52, 152, 219, 0.1);
+        .personnel-display { 
+            background: #f8f9fa; border: 1px solid #ddd; border-radius: 10px; padding: 12px;
+            display: flex; justify-content: space-around; font-weight: bold; font-size: 1.1em;
         }
-        .active-row td { font-weight: 500; }
-        .active-executor { background: var(--warning) !important; color: white !important; font-weight: bold; border-radius: 4px; padding: 4px 8px; }
+
+        .alert-area { margin-bottom: 15px; }
+        .alert-toast { 
+            background: var(--danger); color: white; padding: 15px; border-radius: 8px; 
+            text-align: center; font-weight: bold; margin-bottom: 10px; animation: slideIn 0.3s ease;
+        }
 
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f9fa; padding: 12px 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; text-transform: uppercase; color: #7f8c8d; }
-        td { padding: 12px 15px; border-bottom: 1px solid #eee; }
-        
-        /* Список на посту */
-        .post-names { display: block; line-height: 1.4; color: #555; }
-        
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7em; font-weight: bold; text-transform: uppercase; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-size: 0.9em; color: #666; }
+        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+
+        .current-task-row { 
+            background-color: var(--active-bg) !important;
+            outline: 3px solid var(--warning);
+            position: relative; z-index: 1;
+        }
+        .current-task-row td:first-child { border-left: 8px solid var(--warning); }
+
+        .post-item { display: block; margin-bottom: 3px; }
+        .badge { padding: 4px 8px; border-radius: 5px; font-size: 0.75em; font-weight: bold; }
         .walk { background: #d1ecf1; color: #0c5460; }
         .sleep { background: #e2e3e5; color: #383d41; }
-        
-        .log-time { font-size: 0.9em; color: var(--success); font-weight: bold; }
-        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.75em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 4px; border-radius: 3px; }
 
-        .footer { margin-top: 25px; padding: 20px; border-top: 2px solid var(--light); text-align: center; }
-        #nextShiftBtn { padding: 15px 40px; font-size: 1em; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        #nextShiftBtn:disabled { background: #eee; color: #aaa; }
-        #nextShiftBtn:enabled { background: var(--grad); color: white; box-shadow: 0 8px 15px rgba(52, 152, 219, 0.3); }
+        .footer { margin-top: 20px; text-align: center; }
+        #nextShiftBtn { 
+            padding: 15px 50px; border-radius: 30px; border: none; font-weight: bold; 
+            cursor: pointer; transition: 0.3s; text-transform: uppercase;
+        }
+        #nextShiftBtn:disabled { background: #ddd; color: #999; }
+        #nextShiftBtn:enabled { background: var(--success); color: white; }
 
-        .alert-box { color: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: center; animation: pulse 2s infinite; }
-        .alert-box.orange { background: var(--warning); }
-        .alert-box.blue { background: var(--accent); animation: none; }
-        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.01);} 100% {transform: scale(1);} }
+        @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div class="header-title">
-            <h2>Графік чергування на <span id="current-date">--.--.----</span></h2>
-            <small>Поточний контроль виконання плану</small>
+        <div class="date-area">
+            <div>Графік чергування</div>
+            <div id="current-date">--.--.----</div>
         </div>
-        <div id="clock">--:--:--</div>
+        <div id="clock">00:00:00</div>
     </div>
 
-    <div class="control-panel">
-        <div class="selector-box">
-            <select id="groupSelect" class="group-selector" onchange="setShift(this.value)">
-                <option value="1">АКТИВНА: ЗМІНА №1</option>
-                <option value="2">АКТИВНА: ЗМІНА №2</option>
+    <div class="top-controls">
+        <div class="shift-btn-container">
+            <select id="groupSelect" class="group-selector" onchange="changeShift(this.value)">
+                <option value="1">Зміна №1 (Активна)</option>
+                <option value="2">Зміна №2 (Активна)</option>
             </select>
         </div>
-        <div class="personnel-list" id="personnel-display"></div>
+        <div class="personnel-display" id="names-box"></div>
     </div>
 
-    <div id="alert-container"></div>
+    <div id="alert-area" class="alert-area"></div>
 
     <table id="mainTable">
         <thead>
             <tr>
                 <th>План</th>
                 <th>Тип</th>
-                <th>ВИКОНАВЕЦЬ</th>
+                <th>Виконавець</th>
                 <th>На посту</th>
                 <th style="text-align:center;">Звіт</th>
             </tr>
@@ -104,7 +103,7 @@
     </table>
 
     <div class="footer">
-        <button id="nextShiftBtn" disabled onclick="transferShift()">↻ ЗАВЕРШИТИ ТА ЗДАТИ ЗМІНУ</button>
+        <button id="nextShiftBtn" disabled onclick="transferShift()">Здати чергування</button>
     </div>
 </div>
 
@@ -113,7 +112,8 @@
     const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
     let currentShiftNum = [1,2,3, 7,8,9, 13,14,15, 19,20,21, 25,26,27, 31].includes(new Date().getDate()) ? 1 : 2;
     let logs = {};
-    let hiddenAlerts = new Set();
+    let activeAlerts = new Set();
+    let lastActiveTask = null;
 
     const scheduleData = (names) => [
         {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
@@ -139,103 +139,128 @@
         {t: "06:20", task: "walk", exec: names[1], post: [names[0]]}
     ];
 
-    function setShift(num) {
+    // Функція генерації звуку
+    function playSound(type = 'beep') {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = type === 'alert' ? 'sawtooth' : 'sine';
+        osc.frequency.setValueAtTime(type === 'alert' ? 440 : 880, ctx.currentTime);
+        
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+    }
+
+    function changeShift(num) {
         currentShiftNum = parseInt(num);
-        document.getElementById('groupSelect').value = currentShiftNum;
-        updatePersonnelDisplay();
-        build();
+        render();
     }
 
-    function updatePersonnelDisplay() {
-        const names = currentShiftNum === 1 ? s1 : s2;
-        const display = document.getElementById('personnel-display');
-        display.innerHTML = names.map(n => `<span class="person-tag">${n}</span>`).join('');
-    }
-
-    function build() {
+    function render() {
+        const now = new Date();
         const names = currentShiftNum === 1 ? s1 : s2;
         const tbody = document.getElementById('tableBody');
-        const now = new Date();
-        document.getElementById('current-date').innerText = now.toLocaleDateString('uk-UA');
-        
-        tbody.innerHTML = '';
         const schedule = scheduleData(names);
+        
+        document.getElementById('current-date').innerText = now.toLocaleDateString('uk-UA');
+        document.getElementById('names-box').innerHTML = names.map(n => `<span>${n}</span>`).join('');
+        document.getElementById('groupSelect').value = currentShiftNum;
 
-        schedule.forEach((r, i) => {
+        tbody.innerHTML = '';
+        let currentTaskId = null;
+
+        schedule.forEach((row, index) => {
             const tr = tbody.insertRow();
-            const [sH, sM] = r.t.split(':').map(Number);
-            let sDate = new Date(); sDate.setHours(sH, sM, 0, 0);
+            const [h, m] = row.t.split(':').map(Number);
+            let taskTime = new Date();
+            taskTime.setHours(h, m, 0, 0);
             
-            // Логіка переходу доби
-            if (now.getHours() < 8 && sH >= 8) sDate.setDate(sDate.getDate() - 1);
-            else if (now.getHours() >= 8 && sH < 8) sDate.setDate(sDate.getDate() + 1);
+            if (now.getHours() < 8 && h >= 8) taskTime.setDate(taskTime.getDate() - 1);
+            else if (now.getHours() >= 8 && h < 8) taskTime.setDate(taskTime.getDate() + 1);
             
-            const diff = (now - sDate) / 60000;
-            const isAct = diff >= 0 && diff <= 60; // Активний 60 хв від початку
-            if (isAct) tr.className = 'active-row';
+            const diffMin = (now - taskTime) / 60000;
+            const isCurrent = diffMin >= 0 && diffMin < 60;
 
-            let checkContent = '';
-            if (r.task === 'walk') {
-                if (logs[i]) checkContent = `<span class="log-time">✓ ${logs[i]}</span>`;
-                else if (diff > 60) checkContent = '<span class="expired-text">Пропущено</span>';
-                else if (diff < 0) checkContent = '<small style="color:#ccc">---</small>';
-                else checkContent = `<input type="checkbox" style="width:22px;height:22px;" onchange="mark(${i})">`;
-            } else {
-                checkContent = '<small style="color:#aaa;">—</small>';
+            if (isCurrent) {
+                tr.className = 'current-task-row';
+                currentTaskId = index;
             }
 
-            // Форматування колонки "На посту" - кожне ім'я з нового рядка
-            const postDisplay = r.post.map(p => `<span class="post-names">${p}</span>`).join('');
+            let checkHtml = '';
+            if (row.task === 'walk') {
+                if (logs[index]) checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
+                else if (diffMin > 60) checkHtml = `<span style="color:var(--danger); font-size:0.8em">ПРОПУЩЕНО</span>`;
+                else if (diffMin < 0) checkHtml = `<span style="color:#ccc">---</span>`;
+                else checkHtml = `<input type="checkbox" style="transform:scale(1.5); cursor:pointer" onchange="mark(${index})">`;
+            } else {
+                checkHtml = `<small style="color:#aaa">сон</small>`;
+            }
 
             tr.innerHTML = `
-                <td><strong>${r.t}</strong></td>
-                <td><span class="badge ${r.task}">${r.task==='walk'?'Обхід':'Сон'}</span></td>
-                <td class="${isAct ? 'active-executor' : ''}">${r.exec}</td>
-                <td>${postDisplay}</td>
-                <td style="text-align:center;">${checkContent}</td>
+                <td>${row.t}</td>
+                <td><span class="badge ${row.task}">${row.task === 'walk' ? 'ОБХІД' : 'СОН'}</span></td>
+                <td>${row.exec}</td>
+                <td>${row.post.map(p => `<span class="post-item">${p}</span>`).join('')}</td>
+                <td style="text-align:center">${checkHtml}</td>
             `;
         });
-        updateStatus();
-    }
 
-    function checkAlerts() {
-        const now = new Date();
-        const curTimeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        const container = document.getElementById('alert-container');
-        let html = '';
-
-        if (["20:15", "06:45"].includes(curTimeStr) && !hiddenAlerts.has('grp_'+curTimeStr)) {
-            html += `<div class="alert-box blue"><span class="alert-text">📱 ЧАС ВІДМІТКИ У ГРУПІ!</span><button onclick="closeAlert('grp_${curTimeStr}')" style="margin-left:10px;cursor:pointer">OK</button></div>`;
+        // Перевірка на зміну активного ряду для звуку
+        if (currentTaskId !== null && currentTaskId !== lastActiveTask) {
+            if (lastActiveTask !== null) playSound('beep');
+            lastActiveTask = currentTaskId;
         }
-        container.innerHTML = html;
+
+        checkSystemAlerts(now);
+        updateBtn();
     }
 
-    function closeAlert(id) { hiddenAlerts.add(id); checkAlerts(); }
-    function mark(id) { logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0,5); build(); }
-    
-    function updateStatus() {
-        const schedule = scheduleData(s1);
-        const walkTasks = schedule.filter(r => r.task === 'walk').length;
-        const done = Object.keys(logs).length + document.querySelectorAll('.expired-text').length;
-        document.getElementById('nextShiftBtn').disabled = (done < walkTasks);
+    function checkSystemAlerts(now) {
+        const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        const alertArea = document.getElementById('alert-area');
+        
+        // Час для відмітки в Телеграм/Рацію
+        if (["20:15", "06:45"].includes(timeStr) && !activeAlerts.has(timeStr)) {
+            alertArea.innerHTML = `<div class="alert-toast">📱 ЧАС ВІДМІТКИ В ГРУПІ (${timeStr})</div>`;
+            playSound('alert');
+            activeAlerts.add(timeStr);
+            setTimeout(() => { alertArea.innerHTML = ''; }, 60000);
+        }
+    }
+
+    function mark(id) {
+        logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0, 5);
+        render();
+    }
+
+    function updateBtn() {
+        const walkCount = scheduleData(s1).filter(r => r.task === 'walk').length;
+        const loggedCount = Object.keys(logs).length;
+        document.getElementById('nextShiftBtn').disabled = loggedCount < walkCount;
     }
 
     function transferShift() {
-        if(confirm("Підтвердити здачу чергування?")) {
-            logs = {}; hiddenAlerts.clear();
-            const nextGrp = currentShiftNum === 1 ? 2 : 1;
-            setShift(nextGrp);
-            window.scrollTo(0,0);
+        if(confirm("Здати чергування?")) {
+            logs = {};
+            activeAlerts.clear();
+            currentShiftNum = currentShiftNum === 1 ? 2 : 1;
+            render();
         }
     }
 
-    setInterval(() => { 
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA');
-        checkAlerts();
-        if (new Date().getSeconds() === 0) build();
+    setInterval(() => {
+        const d = new Date();
+        document.getElementById('clock').innerText = d.toLocaleTimeString('uk-UA');
+        if (d.getSeconds() === 0) render();
     }, 1000);
 
-    setShift(currentShiftNum);
+    render();
 </script>
 </body>
 </html>
