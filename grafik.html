@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графік чергування (Компактний)</title>
+    <title>Графік чергування</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -15,60 +15,69 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--primary); transition: 0.3s; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; }
         
-        .header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--light); padding-bottom: 15px; }
-        .header-title h1 { margin: 0; font-size: 2.5em; color: var(--primary); font-weight: 800; line-height: 1; }
-        .header-title small { display: block; color: #7f8c8d; font-size: 1.1em; font-weight: bold; margin-top: 5px; }
+        .header { 
+            display: grid; 
+            grid-template-columns: 1fr auto 1fr; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid var(--light); 
+            padding-bottom: 15px; 
+        }
         
+        .header-title { text-align: left; }
+        .header-title h1 { margin: 0; font-size: 2.5em; color: var(--primary); font-weight: 800; letter-spacing: -1px; line-height: 1; }
+        .header-title small { display: block; color: #7f8c8d; font-size: 1.1em; font-weight: bold; margin-top: 5px; }
+
         .time-area { text-align: center; }
         #current-date { display: block; font-size: 1.1em; color: var(--dark); font-weight: bold; }
         #clock { font-size: 2.5em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
-        
+
         .top-right-tool { display: flex; justify-content: flex-end; }
-        .light-toggle { background: #eee; width: 45px; height: 45px; border-radius: 10px; font-size: 20px; cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .light-toggle.active { background: var(--warning); border-color: #d4ac0d; }
+        .light-toggle { 
+            background: #eee; width: 45px; height: 45px; border-radius: 10px; font-size: 20px; 
+            cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; 
+            transition: 0.3s;
+        }
+        .light-toggle.active { background: var(--warning); border-color: #d4ac0d; box-shadow: 0 0 10px var(--warning); }
 
         .top-controls { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 25px; }
         
         .group-selector {
-            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            width: 100%; padding: 18px; border: none; 
+            border-top-left-radius: 0; border-top-right-radius: 0;
+            border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
             background: var(--grad); color: white; font-size: 1.3em; font-weight: 800;
-            cursor: pointer; text-align: center; text-transform: uppercase; outline: none;
+            cursor: pointer; text-align: center; text-transform: uppercase; outline: none; transition: 0.3s;
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); appearance: none;
         }
 
-        /* МАКСИМАЛЬНО КОМПАКТНИЙ БЛОК ПРІЗВИЩ */
         .personnel-display { 
-            background: #f8f9fa; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            padding: 4px 15px; /* Мінімальні відступи зверху/знизу */
-            display: flex; 
-            justify-content: space-around; 
-            font-weight: bold; 
-            font-size: 1.05em; 
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03); 
-            align-items: center;
-            line-height: 1.2;
+            background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; padding: 4px 15px;
+            display: flex; justify-content: space-around; font-weight: bold; font-size: 1.05em;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03); align-items: center; line-height: 1.2;
         }
-        .personnel-display span { 
-            background: rgba(52, 152, 219, 0.08); 
-            padding: 1px 12px; 
-            border-radius: 4px; 
-            color: var(--dark); 
-        }
+        .personnel-display span { background: rgba(52, 152, 219, 0.08); padding: 1px 12px; border-radius: 4px; color: var(--dark); }
 
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; padding: 12px 15px; text-align: left; border-bottom: 3px solid #dee2e6; font-size: 0.9em; color: #666; text-transform: uppercase; }
-        td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: top; }
 
         @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { background-color: #fff2b3; } 100% { background-color: var(--active-bg); } }
         .current-task-row { animation: pulse 2s infinite; border-left: 10px solid var(--warning) !important; font-weight: bold; }
         body.dim-past .past-task-row { opacity: 0.35; filter: grayscale(80%); }
 
-        .footer { margin-top: 25px; display: flex; gap: 15px; }
-        .btn { padding: 16px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        #historyModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal-content { background: white; width: 95%; max-width: 800px; padding: 25px; border-radius: 15px; max-height: 85vh; overflow-y: auto; }
+        
+        .footer { margin-top: 25px; display: flex; gap: 15px; align-items: center; }
+        .btn { padding: 16px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-success { background: var(--success); color: white; flex-grow: 1; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.2); }
         .btn-info { background: var(--dark); color: white; }
+        .btn-excel { background: #1D6F42; color: white; }
+        .btn:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.7; transform: none !important; box-shadow: none !important; }
     </style>
 </head>
 <body class="dim-past">
@@ -114,10 +123,21 @@
     </div>
 </div>
 
+<div id="historyModal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin:0;">📜 Архів змін</h2>
+            <button class="btn btn-excel" onclick="downloadExcel()">⬇ Excel (.xlsx)</button>
+        </div>
+        <div id="historyList"></div>
+        <button class="btn" style="background:#eee; width:100%; margin-top:15px;" onclick="closeHistory()">Закрити</button>
+    </div>
+</div>
+
 <script>
-    // Скрипти залишаються без змін, оскільки логіка працює коректно
     const s1 = ["Кузнєцов", "Драний", "Литовченко"];
     const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
+    
     let logs = JSON.parse(localStorage.getItem('duty_logs')) || {};
     let shiftHistory = JSON.parse(localStorage.getItem('shift_history')) || [];
     let currentShiftNum = parseInt(localStorage.getItem('active_shift')) || 1;
@@ -161,16 +181,28 @@
         {t: "06:20", task: "walk", exec: names[1], post: [names[0]]}
     ];
 
+    function toggleDimming() {
+        document.body.classList.toggle('dim-past');
+        document.getElementById('lightBtn').classList.toggle('active');
+    }
+
+    function changeShift(num) {
+        currentShiftNum = parseInt(num);
+        localStorage.setItem('active_shift', currentShiftNum);
+        render();
+    }
+
     function render() {
         const now = new Date();
         const names = currentShiftNum === 1 ? s1 : s2;
         const tbody = document.getElementById('tableBody');
         const schedule = scheduleData(names);
         let currentIdx = -1;
-
+        
         document.getElementById('current-date').innerText = now.toLocaleDateString('uk-UA');
         document.getElementById('names-box').innerHTML = names.map(n => `<span>${n}</span>`).join('');
         document.getElementById('groupSelect').value = currentShiftNum;
+
         tbody.innerHTML = '';
 
         schedule.forEach((row, index) => {
@@ -200,13 +232,56 @@
 
             tr.innerHTML = `<td>${row.t}</td><td>${row.exec}</td><td>${row.post.join('<br>')}</td><td align="center">${checkHtml}</td>`;
         });
+        
         document.getElementById('nextShiftBtn').disabled = Object.keys(logs).length < schedule.filter(r => r.task === 'walk').length;
     }
 
-    function mark(id) { logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0, 5); localStorage.setItem('duty_logs', JSON.stringify(logs)); render(); }
-    function changeShift(num) { currentShiftNum = parseInt(num); localStorage.setItem('active_shift', currentShiftNum); render(); }
-    function toggleDimming() { document.body.classList.toggle('dim-past'); document.getElementById('lightBtn').classList.toggle('active'); }
-    
+    function mark(id) {
+        logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0, 5);
+        localStorage.setItem('duty_logs', JSON.stringify(logs));
+        render();
+    }
+
+    function transferShift() {
+        if(!confirm("Здати зміну та заархівувати?")) return;
+        shiftHistory.unshift({
+            date: new Date().toLocaleString('uk-UA'),
+            shift: currentShiftNum,
+            personnel: currentShiftNum === 1 ? s1.join(', ') : s2.join(', '),
+            marks: Object.values(logs).join(', '),
+            count: Object.keys(logs).length
+        });
+        localStorage.setItem('shift_history', JSON.stringify(shiftHistory));
+        logs = {}; localStorage.removeItem('duty_logs');
+        currentShiftNum = currentShiftNum === 1 ? 2 : 1;
+        localStorage.setItem('active_shift', currentShiftNum);
+        render();
+    }
+
+    function showHistory() {
+        document.getElementById('historyModal').style.display = 'flex';
+        const list = document.getElementById('historyList');
+        list.innerHTML = shiftHistory.length ? shiftHistory.map(h => `
+            <div style="border-bottom:1px solid #eee; padding:10px 0;">
+                <b>${h.date} — Зміна №${h.shift}</b><br>
+                <small>Чергові: ${h.personnel}</small><br>
+                <span>Відмітки (${h.count}): ${h.marks || 'відсутні'}</span>
+            </div>
+        `).join('') : '<p style="text-align:center;">Порожньо</p>';
+    }
+
+    function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
+
+    function downloadExcel() {
+        if (!shiftHistory.length) return alert("Порожньо");
+        const ws = XLSX.utils.json_to_sheet(shiftHistory.map(h => ({
+            "Дата": h.date, "Зміна": h.shift, "Склад": h.personnel, "К-ть": h.count, "Час": h.marks
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "History");
+        XLSX.writeFile(wb, `duty_log.xlsx`);
+    }
+
     setInterval(() => {
         document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA');
         if (new Date().getSeconds() === 0) render();
