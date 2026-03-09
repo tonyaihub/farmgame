@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Info Rows)</title>
+    <title>Графік чергування (Final)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -81,9 +81,9 @@
         <table id="mainTable">
             <thead>
                 <tr>
-                    <th style="width: 24%;">План</th>
-                    <th style="width: 29%;">Завдання</th>
-                    <th style="width: 29%;">На посту</th>
+                    <th style="width: 26%;">План</th>
+                    <th style="width: 28%;">Завдання</th>
+                    <th style="width: 28%;">На посту</th>
                     <th style="width: 18%; text-align:center;">Звіт</th>
                 </tr>
             </thead>
@@ -129,8 +129,8 @@
         {t: "02:20", startH: 2, startM: 20, task: "walk", exec: names[2], post: [names[0]], dur: 100},
         {t: "04:00", startH: 4, startM: 0, task: "sleep", exec: names[2], post: [names[0], names[1]], dur: 120},
         {t: "04:20", startH: 4, startM: 20, task: "walk", exec: names[0], post: [names[1]], dur: 120},
-        {t: "06:20", startH: 6, startM: 20, task: "walk", exec: names[1], post: [names[0]], dur: 100},
-        {t: "06:20-08:00", startH: 6, startM: 20, task: "info", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]], dur: 100}
+        {t: "06:20", startH: 6, startM: 20, task: "walk", exec: names[1], post: [names[0]], dur: 25},
+        {t: "06:45-08:00", startH: 6, startM: 45, task: "info", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]], dur: 75}
     ];
 
     function toggleTheme() {
