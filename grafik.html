@@ -3,374 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Виправлений Графік</title>
+    <title>Full Screen Schedule</title>
     <style>
         :root {
-            /* Базові кольори з фото */
-            --bg-color: #f8f9fa;
-            --text-color: #333;
-            --header-dark: #2c3e50;
-            --active-row-bg: #fff3cd; /* Жовтий фон для активного рядка */
-            --border-color: #dee2e6;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ecf0f1;
             --accent: #3498db;
+            --active-bg: #4d4520;
+            --border: #3d3d3d;
+            --warning: #f1c40f;
         }
 
-        /* Темна тема (опціонально, активується автоматично, якщо увімкнено на телефоні) */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #1a1a1a;
-                --text-color: #e0e0e0;
-                --header-dark: #121212;
-                --active-row-bg: #4d4520;
-                --border-color: #333;
-            }
-            input[type="checkbox"] { filter: invert(1); }
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* Прибирає синій спалах при натисканні на мобільних */
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        /* Налаштування для заповнення всього екрана */
+        html, body {
+            height: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden; /* Прибираємо зайву прокрутку */
             background-color: var(--bg-color);
+            font-family: 'Segoe UI', sans-serif;
             color: var(--text-color);
-            line-height: 1.4;
-            font-size: 16px; /* Базовий розмір для телефонів */
         }
 
-        .container {
-            width: 100%;
-            max-width: 600px; /* Обмежуємо ширину для великих екранів, щоб не розтягувалося */
-            margin: 0 auto;
-            padding: 10px;
+        .main-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 100% висоти пристрою */
+            width: 100vw;  /* 100% ширини пристрою */
+            padding: 1vh;
         }
 
-        /* Верхня панель (Заголовок та таймери) */
-        .header-panel {
-            background-color: var(--header-dark);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
+        /* Масштабований заголовок */
+        .header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: 10vh;
+            padding: 0 2vw;
+            background: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 0.5vh;
         }
 
-        .header-title h1 {
+        .header h1 {
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 4vh; /* Розмір залежить від висоти екрана */
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .header-date {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .header-countdown {
-            background-color: rgba(255,255,255,0.1);
-            padding: 10px 15px;
-            border-radius: 6px;
+        .status-box {
+            background: rgba(0,0,0,0.3);
+            padding: 0.5vh 2vw;
+            border-radius: 5px;
             text-align: center;
         }
 
-        .countdown-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            opacity: 0.8;
+        .status-box span {
             display: block;
+            font-size: 1.5vh;
+            color: #7f8c8d;
         }
 
-        .countdown-time {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #ffc107; /* Жовтий час */
+        .status-box b {
+            font-size: 2.5vh;
+            color: var(--accent);
             font-family: monospace;
         }
 
-        .header-clock {
-            text-align: right;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        /* Панель інструментів (квадратики зліва) */
-        .toolbar-panel {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .tool-btn {
-            width: 30px;
-            height: 30px;
-            background-color: rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-        }
-
-        /* Вибір групи зміни */
-        .group-selector {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
+        /* Контейнер таблиці, що тягнеться */
+        .table-container {
+            flex-grow: 1;
+            background: var(--card-bg);
             border-radius: 8px;
-            background-color: white;
-            color: var(--text-color);
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Темна тема для селектора */
-        @media (prefers-color-scheme: dark) {
-            .group-selector {
-                background-color: #2c2c2c;
-                border-color: #444;
-            }
-        }
-
-        /* Таблиця */
-        .schedule-table {
+        table {
             width: 100%;
+            height: 100%;
             border-collapse: collapse;
-            font-size: 0.95rem;
+            table-layout: fixed;
         }
 
-        /* Чітке визначення ширини колонок для запобігання накладанню */
-        .schedule-table th, .schedule-table td {
-            text-align: left;
-            padding: 12px 8px;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: top;
-        }
-
-        /* Заголовки таблиці */
-        .schedule-table th {
-            font-weight: 600;
+        th {
+            height: 4vh;
+            background: #222;
+            font-size: 1.6vh;
             text-transform: uppercase;
-            font-size: 0.75rem;
-            color: #7f8c8d;
-            padding-top: 0;
-            padding-bottom: 10px;
+            color: #95a5a6;
+            border-bottom: 2px solid var(--accent);
         }
 
-        /* Окремі колонки */
-        .col-plan { width: 18%; }  /* Час */
-        .col-zadannya { width: 35%; } /* Прізвище (Хто обходить) */
-        .col-post { width: 35%; }  /* Прізвища на посту */
-        .col-zvit { width: 12%; text-align: center; } /* Чекбокс */
-
-        /* Активний рядок (Жовтий) */
-        .schedule-table tr.active {
-            background-color: var(--active-row-bg);
-            font-weight: 500;
+        td {
+            border-bottom: 1px solid var(--border);
+            padding: 0.5vh 1vw;
+            vertical-align: middle;
+            font-size: 1.8vh; /* Автомасштаб тексту */
         }
 
-        /* Стилізація часу (План) */
-        .time-display {
-            font-weight: 600;
-            color: var(--accent);
-            white-space: nowrap; /* Щоб час не переносився */
+        /* Стилі рядків */
+        .active-row {
+            background-color: var(--active-bg);
+            border-left: 5px solid var(--warning);
         }
 
-        /* Стилізація прізвищ (Завдання та Пост) */
-        .person-list {
+        .past-row {
+            opacity: 0.4;
+            filter: grayscale(80%);
+        }
+
+        /* Видалення ком: прізвища списком */
+        .names-list {
             margin: 0;
             padding: 0;
             list-style: none;
         }
-        
-        /* Видалено кому, прізвища відображаються як окремі блоки */
-        .person-list li {
-            display: block; 
-            margin-bottom: 3px;
+
+        .names-list li {
+            margin-bottom: 2px;
         }
 
-        /* Чекбокс */
-        .zvit-checkbox {
-            width: 20px;
-            height: 20px;
-            margin-top: 2px;
-            accent-color: var(--accent);
+        .time-col { width: 20%; font-weight: bold; color: var(--accent); }
+        .task-col { width: 30%; }
+        .post-col { width: 35%; }
+        .check-col { width: 15%; text-align: center; }
+
+        input[type="checkbox"] {
+            transform: scale(1.5); /* Збільшуємо чекбокс для зручності */
         }
 
-        /* Адаптація для дуже малих екранів */
-        @media (max-width: 360px) {
-            body { font-size: 14px; }
-            .schedule-table th, .schedule-table td { padding: 10px 5px; }
-            .col-plan { width: 22%; }
-            .col-zvit { width: 10%; }
+        /* Кнопка внизу */
+        .footer-btn {
+            height: 8vh;
+            margin-top: 0.5vh;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 2.5vh;
+            font-weight: bold;
+            cursor: pointer;
         }
-
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-panel">
-        <div class="header-left">
+<div class="main-wrapper">
+    <div class="header">
+        <div>
             <h1>ГРАФІК</h1>
-            <div class="header-date">09.03.2026</div>
+            <small style="font-size: 1.5vh;">09.03.2026</small>
         </div>
-        <div class="header-countdown">
-            <span class="countdown-label">Обхід через</span>
-            <span class="countdown-time">00:17:21</span>
+        <div class="status-box">
+            <span>ОБХІД ЧЕРЕЗ</span>
+            <b>00:17:21</b>
         </div>
-        <div class="header-clock">
-            08:02:37
+        <div style="text-align: right;">
+            <b style="font-size: 3vh; display: block;">08:02</b>
         </div>
     </div>
 
-    <div class="toolbar-panel">
-        <div class="tool-btn"></div>
-        <div class="tool-btn"></div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="time-col">План</th>
+                    <th class="task-col">Завдання</th>
+                    <th class="post-col">Пост</th>
+                    <th class="check-col">Звіт</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="active-row">
+                    <td class="time-col">08:00-08:20</td>
+                    <td>Зміна чергових</td>
+                    <td>
+                        <ul class="names-list">
+                            <li>Кузнєцов</li>
+                            <li>Драний</li>
+                            <li>Литовченко</li>
+                        </ul>
+                    </td>
+                    <td class="check-col"><input type="checkbox" checked></td>
+                </tr>
+                <tr>
+                    <td class="time-col">08:20</td>
+                    <td>Кузнєцов</td>
+                    <td>
+                        <ul class="names-list">
+                            <li>Драний</li>
+                            <li>Литовченко</li>
+                        </ul>
+                    </td>
+                    <td class="check-col"><input type="checkbox"></td>
+                </tr>
+                <tr>
+                    <td class="time-col">09:20</td>
+                    <td>Драний</td>
+                    <td>
+                        <ul class="names-list">
+                            <li>Кузнєцов</li>
+                            <li>Литовченко</li>
+                        </ul>
+                    </td>
+                    <td class="check-col"><input type="checkbox"></td>
+                </tr>
+                <tr>
+                    <td class="time-col">10:20</td>
+                    <td>Литовченко</td>
+                    <td>
+                        <ul class="names-list">
+                            <li>Кузнєцов</li>
+                            <li>Драний</li>
+                        </ul>
+                    </td>
+                    <td class="check-col"><input type="checkbox"></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <select class="group-selector">
-        <option value="1">Зміна №1 (Кузнєцов, Драний...)</option>
-        <option value="2">Зміна №2</option>
-        <option value="3">Зміна №3</option>
-    </select>
-
-    <table class="schedule-table">
-        <thead>
-            <tr>
-                <th class="col-plan">План</th>
-                <th class="col-zadannya">Завдання</th>
-                <th class="col-post">Пост</th>
-                <th class="col-zvit">Звіт</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="active">
-                <td>
-                    <div class="time-display">08:00–</div>
-                    <div class="time-display">08:20</div>
-                </td>
-                <td>
-                    Зміна<br>чергових
-                </td>
-                <td>
-                    <ul class="person-list">
-                        <li>Кузнєцов</li>
-                        <li>Драний</li>
-                        <li>Литовченко</li>
-                    </ul>
-                </td>
-                <td class="col-zvit">
-                    <input type="checkbox" class="zvit-checkbox" checked>
-                </td>
-            </tr>
-
-            <tr>
-                <td><div class="time-display">08:20</div></td>
-                <td>Кузнєцов</td>
-                <td>
-                    <ul class="person-list">
-                        <li>Драний</li>
-                        <li>Литовченко</li>
-                    </ul>
-                </td>
-                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
-            </tr>
-
-            <tr>
-                <td><div class="time-display">09:20</div></td>
-                <td>Драний</td>
-                <td>
-                    <ul class="person-list">
-                        <li>Кузнєцов</li>
-                        <li>Литовченко</li>
-                    </ul>
-                </td>
-                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
-            </tr>
-
-            <tr>
-                <td><div class="time-display">10:20</div></td>
-                <td>Литовченко</td>
-                <td>
-                    <ul class="person-list">
-                        <li>Кузнєцов</li>
-                        <li>Драний</li>
-                    </ul>
-                </td>
-                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
-            </tr>
-
-            <tr>
-                <td><div class="time-display">11:20</div></td>
-                <td>Кузнєцов</td>
-                <td>
-                    <ul class="person-list">
-                        <li>Драний</li>
-                        <li>Литовченко</li>
-                    </ul>
-                </td>
-                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
-            </tr>
-
-            <tr>
-                <td><div class="time-display">12:20</div></td>
-                <td>Драний</td>
-                <td>
-                    <ul class="person-list">
-                        <li>Кузнєцов</li>
-                        <li>Литовченко</li>
-                    </ul>
-                </td>
-                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
-            </tr>
-            
-            <tr>
-                <td><div class="time-display">13:20</div></td>
-                <td>Литовченко</td>
-                <td>
-                    <ul class="person-list">
-                        <li>Кузнєцов</li>
-                        <li>Драний</li>
-                    </ul>
-                </td>
-                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
-            </tr>
-            
-            <tr>
-                <td><div class="time-display">14:20</div></td>
-                <td>Кузнєцов</td>
-                <td>
-                    <ul class="person-list">
-                        <li>Драний</li>
-                        <li>Литовченко</li>
-                    </ul>
-                </td>
-                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
-            </tr>
-            
-             <tr>
-                <td><div class="time-display">15:20</div></td>
-                <td>Драний</td>
-                <td>
-                    <ul class="person-list">
-                        <li>Кузнєцов</li>
-                        <li>Литовченко</li>
-                    </ul>
-                </td>
-                <td class="col-zvit"><input type="checkbox" class="zvit-checkbox"></td>
-            </tr>
-            
-        </tbody>
-    </table>
+    <button class="footer-btn">Наступна зміна</button>
 </div>
+
+<script>
+    // Скріпт для автоматичного масштабування, якщо тексту забагато
+    function adjustScale() {
+        const table = document.querySelector('table');
+        const container = document.querySelector('.table-container');
+        if (table.scrollHeight > container.clientHeight) {
+            // Якщо таблиця не влазить, трохи зменшуємо шрифт
+            document.body.style.fontSize = '1.5vh';
+        }
+    }
+    window.onload = adjustScale;
+    window.onresize = adjustScale;
+</script>
 
 </body>
 </html>
