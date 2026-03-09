@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Button Timer)</title>
+    <title>Графік чергування (Status Pro)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -29,11 +29,14 @@
         .header-left h1 { margin: 0; font-size: 1.1em; font-weight: 800; line-height: 1; letter-spacing: 1px; }
         .header-left small { font-size: 0.7em; color: #7f8c8d; font-weight: bold; }
 
-        .status-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 4px 8px; border-radius: 8px; min-width: 145px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
+        .status-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 4px 8px; border-radius: 8px; min-width: 155px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
         .status-monitor-top .label { font-size: 0.55em; text-transform: uppercase; font-weight: 800; color: #7f8c8d; display: block; margin-bottom: -2px; }
         .status-monitor-top .timer { font-family: 'Consolas', monospace; font-size: 1.1em; font-weight: 900; color: var(--accent); display: block; white-space: nowrap; }
         
         .status-monitor-top.active-sleep { background: var(--sleep-bg); border-color: var(--accent); }
+        .status-monitor-top.status-prep { background: #e8f4fd; border-color: #3498db; }
+        .status-monitor-top.status-shift { background: #eafaf1; border-color: #27ae60; }
+        
         .status-monitor-top.warning .timer { color: var(--danger); animation: blink 1s infinite; }
         .status-monitor-top.soon .timer { color: #e67e22; }
 
@@ -59,7 +62,7 @@
         .footer { margin-top: 15px; text-align: center; }
         .btn { padding: 14px; border-radius: 25px; border: none; font-weight: bold; width: 100%; font-size: 0.9em; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-success { background: var(--success); color: white; }
-        .btn:disabled { background: #dcdde1; color: #7f8c8d; cursor: not-allowed; box-shadow: none; font-family: 'Consolas', monospace; }
+        .btn:disabled { background: #dcdde1; color: #7f8c8d; cursor: not-allowed; font-family: 'Consolas', monospace; }
         body.dark-theme .btn:disabled { background: #353b48; color: #718093; }
     </style>
 </head>
@@ -141,7 +144,7 @@
         {t: "04:00", startH: 4, startM: 0, task: "sleep", exec: names[2], post: [names[0], names[1]], dur: 120},
         {t: "04:20", startH: 4, startM: 20, task: "walk", exec: names[0], post: [names[1]], dur: 120},
         {t: "06:20", startH: 6, startM: 20, task: "walk", exec: names[1], post: [names[0]], dur: 25},
-        {t: "06:45-08:00", startH: 6, startM: 45, task: "walk", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]], dur: 75}
+        {t: "06:45-08:00", startH: 6, startM: 45, task: "prep", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]], dur: 75}
     ];
 
     function formatCountdown(ms) {
@@ -173,62 +176,80 @@
 
         schedule.forEach((row, index) => {
             const tr = tbody.insertRow();
-            let taskStartTime = new Date(shiftStart);
-            taskStartTime.setHours(row.startH, row.startM, 0, 0);
-            if (row.startH < 8) taskStartTime.setDate(taskStartTime.getDate() + 1);
-            
-            const taskEndTime = new Date(taskStartTime.getTime() + row.dur * 60000);
-            const isCurrentlyActive = (now >= taskStartTime && now < taskEndTime);
+            let tStart = new Date(shiftStart);
+            tStart.setHours(row.startH, row.startM, 0, 0);
+            if (row.startH < 8) tStart.setDate(tStart.getDate() + 1);
+            const tEnd = new Date(tStart.getTime() + row.dur * 60000);
+            const isActive = (now >= tStart && now < tEnd);
 
-            if (row.task === 'walk' && taskStartTime > now && !nextWalkTime) {
-                nextWalkTime = taskStartTime;
-            }
+            if (row.task === 'walk' && tStart > now && !nextWalkTime) nextWalkTime = tStart;
 
             let checkHtml = "";
-
             if (row.task === 'sleep') {
                 tr.classList.add('sleep-row');
-                if (isCurrentlyActive) {
+                if (isActive) {
                     tr.classList.add('current-task-row');
-                    activeSleep = { name: row.exec, end: taskEndTime };
-                    checkHtml = `<b>${formatCountdown(taskEndTime - now)}</b>`;
+                    activeSleep = { name: row.exec, end: tEnd };
+                    checkHtml = `<b>${formatCountdown(tEnd - now)}</b>`;
                 } else {
-                    checkHtml = `<small>${now >= taskEndTime ? 'завершено' : 'сон'}</small>`;
-                    if (now >= taskEndTime) tr.classList.add('past-task-row');
+                    checkHtml = `<small>${now >= tEnd ? 'завершено' : 'сон'}</small>`;
+                    if (now >= tEnd) tr.classList.add('past-task-row');
                 }
             } else {
-                totalWalks++;
-                if (isCurrentlyActive) tr.classList.add('current-task-row');
-                else if (now >= taskEndTime) tr.classList.add('past-task-row');
+                if (row.task !== 'prep') totalWalks++;
+                if (isActive) tr.classList.add('current-task-row');
+                else if (now >= tEnd) tr.classList.add('past-task-row');
 
                 if (logs[index]) {
                     checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
-                    processedCount++;
-                } else if (now >= taskEndTime) {
+                    if (row.task !== 'prep') processedCount++;
+                } else if (now >= tEnd) {
                     checkHtml = `<small style="color:var(--danger)">ВТРАЧЕНО</small>`;
-                    processedCount++;
-                } else if (now < taskStartTime) {
+                    if (row.task !== 'prep') processedCount++;
+                } else if (now < tStart) {
                     checkHtml = `<span style="opacity:0.3">...</span>`;
                 } else {
                     checkHtml = `<input type="checkbox" style="width:18px;height:18px" onchange="mark(${index})">`;
                 }
             }
-
             const label = row.label ? `<b>${row.label}</b>` : row.exec;
             tr.innerHTML = `<td><b>${row.t}</b></td><td>${label}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
 
-        // МОНИТОР В ШАПКЕ
+        updateTopMonitor(now, activeSleep, nextWalkTime, shiftStart);
+        updateStatus(processedCount, totalWalks, now, shiftStart);
+    }
+
+    function updateTopMonitor(now, activeSleep, nextWalkTime, shiftStart) {
         const monitor = document.getElementById('statusMonitor');
         const labelText = document.getElementById('monitorLabel');
         const timerText = document.getElementById('topTimer');
+        
+        const h = now.getHours();
+        const m = now.getMinutes();
+        const currentTimeVal = h * 60 + m;
 
-        if (activeSleep) {
-            const remaining = activeSleep.end - now;
-            monitor.className = "status-monitor-top active-sleep" + (remaining < 600000 ? " warning" : "");
+        // 1. ПІДГОТОВКА (06:45 - 08:00)
+        if (currentTimeVal >= (6*60+45) && currentTimeVal < (8*60)) {
+            monitor.className = "status-monitor-top status-prep";
+            labelText.innerText = "Статус";
+            timerText.innerText = "Підготовка до зміни";
+        } 
+        // 2. ПРИЙНЯТТЯ (08:00 - 08:20)
+        else if (currentTimeVal >= (8*60) && currentTimeVal < (8*60+20)) {
+            monitor.className = "status-monitor-top status-shift";
+            labelText.innerText = "Статус";
+            timerText.innerText = "Прийняття зміни";
+        }
+        // 3. ВІДПОЧИНОК
+        else if (activeSleep) {
+            const rem = activeSleep.end - now;
+            monitor.className = "status-monitor-top active-sleep" + (rem < 600000 ? " warning" : "");
             labelText.innerText = "Відпочинок";
-            timerText.innerText = activeSleep.name + ": " + formatCountdown(remaining);
-        } else if (nextWalkTime && now.getHours() >= 8 && now.getHours() < 20) {
+            timerText.innerText = activeSleep.name + ": " + formatCountdown(rem);
+        } 
+        // 4. НАСТУПНИЙ ОБХІД
+        else if (nextWalkTime && h >= 8 && h < 20) {
             const toNext = nextWalkTime - now;
             monitor.className = "status-monitor-top" + (toNext < 300000 ? " soon" : "");
             labelText.innerText = "Наступний обхід через";
@@ -238,8 +259,6 @@
             labelText.innerText = "Статус";
             timerText.innerText = "--:--:--";
         }
-
-        updateStatus(processedCount, totalWalks, now, shiftStart);
     }
 
     function toggleTheme() {
@@ -250,20 +269,17 @@
     function updateStatus(processed, total, now, shiftStart) {
         const btn = document.getElementById('nextShiftBtn');
         const msg = document.getElementById('statusMessage');
-        
-        // Время пересменки (08:00 следующего дня относительно начала смены)
         const targetTime = new Date(shiftStart);
         targetTime.setDate(targetTime.getDate() + 1);
         targetTime.setHours(8, 0, 0, 0);
 
-        // Начало отсчета на кнопке (06:45)
-        const countdownStartTime = new Date(targetTime);
-        countdownStartTime.setMinutes(-75); 
+        const countdownStart = new Date(targetTime);
+        countdownStart.setMinutes(-75); 
 
         const allDone = processed >= total;
-        const isPastTarget = now >= targetTime;
+        const isPast = now >= targetTime;
 
-        if (allDone && isPastTarget) {
+        if (allDone && isPast) {
             btn.disabled = false;
             btn.classList.add('btn-success');
             btn.innerText = "↻ Здати зміну";
@@ -274,11 +290,8 @@
             btn.classList.remove('btn-success');
             msg.innerText = "ПЕРЕЗМІНКА О 08:00";
             msg.style.color = "var(--primary)";
-
-            // Если время между 06:45 и 08:00, показываем таймер на кнопке
-            if (now >= countdownStartTime && now < targetTime) {
-                const diff = targetTime - now;
-                btn.innerText = "До перезмінки: " + formatCountdown(diff);
+            if (now >= countdownStart && now < targetTime) {
+                btn.innerText = "До перезмінки: " + formatCountdown(targetTime - now);
             } else {
                 btn.innerText = "Наступна зміна";
             }
