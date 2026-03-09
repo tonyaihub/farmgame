@@ -3,167 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outrank Personal | AI Content Autopilot</title>
+    <title>Outrank Personal | AI Content Sovereignty 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
         
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
             color: #f1f5f9;
             scroll-behavior: smooth;
+            overflow-x: hidden;
         }
 
+        /* Glassmorphism utility */
         .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .gradient-text {
-            background: linear-gradient(90deg, #818cf8, #c084fc);
+            background: linear-gradient(135deg, #a5b4fc, #e9d5ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .hero-glow {
-            position: absolute;
-            top: -10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        .gradient-border {
+            border: 2px solid;
+            border-image-source: linear-gradient(135deg, #6366f1, #a855f7);
+            border-image-slice: 1;
+        }
+
+        /* Background Canvas Animation Styling */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* Image Placeholder styling */
+        .img-placeholder {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            font-weight: bold;
+            border-radius: 1rem;
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <nav class="fixed w-full z-50 glass top-0">
+    <canvas id="bgCanvas"></canvas>
+
+    <nav class="fixed w-full z-50 glass top-0 border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="text-2xl font-800 tracking-tighter gradient-text">OUTRANK <span class="text-white">PERSONAL</span></div>
-            <div class="flex items-center gap-8">
-                <div class="hidden md:flex gap-6 text-sm font-medium">
-                    <a href="#features" data-i18n="nav-features" class="hover:text-indigo-400 transition">Features</a>
-                    <a href="#roadmap" data-i18n="nav-roadmap" class="hover:text-indigo-400 transition">Roadmap</a>
-                    <a href="#pricing" data-i18n="nav-pricing" class="hover:text-indigo-400 transition">Pricing</a>
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex gap-8 text-sm font-medium text-slate-300">
+                    <a href="#problem" data-i18n="nav-problem" class="hover:text-white transition">The Pain</a>
+                    <a href="#features" data-i18n="nav-features" class="hover:text-white transition">Solution</a>
+                    <a href="#pricing" data-i18n="nav-pricing" class="hover:text-white transition">Pricing</a>
                 </div>
-                <button onclick="toggleLanguage()" id="langBtn" class="bg-indigo-600/20 border border-indigo-500/50 px-3 py-1 rounded text-xs font-bold hover:bg-indigo-600 transition">UA</button>
+                <button onclick="toggleLanguage()" id="langBtn" class="bg-indigo-600/10 border border-indigo-500/30 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-indigo-600/30 transition text-indigo-300">UA</button>
             </div>
         </div>
     </nav>
 
-    <section class="relative pt-32 pb-20 px-6 overflow-hidden">
-        <div class="hero-glow"></div>
-        <div class="max-w-5xl mx-auto text-center">
-            <h1 class="text-5xl md:text-7xl font-800 mb-6 leading-tight" data-i18n="hero-title">
-                One Click. 7+ Platforms. <br><span class="gradient-text">Total Dominance.</span>
+    <section class="relative pt-40 pb-24 px-6 text-center">
+        <div class="max-w-5xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-indigo-500/30 text-indigo-300 text-sm mb-6 shadow-lg shadow-indigo-500/10">
+                <i class="fas fa-robot text-xs"></i>
+                <span data-i18n="hero-tag">Self-Hosted AI Workstation 2026</span>
+            </div>
+            <h1 class="text-6xl md:text-7xl font-800 mb-8 leading-tight tracking-tighter" data-i18n="hero-title">
+                One Click. 7+ Platforms. <br><span class="gradient-text">Zero Compromise.</span>
             </h1>
-            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto" data-i18n="hero-subtitle">
-                The first all-in-one AI content workstation. Turn a single niche idea into viral SEO articles, Reels, and TikToks — published automatically while you sleep.
+            <p class="text-xl md:text-2xl text-slate-400 mb-12 max-w-3xl mx-auto leading-relaxed" data-i18n="hero-subtitle">
+                Stop chasing the algorithm. Outrank Personal turns one niche idea into viral SEO articles, Reels, and TikToks — created, optimized, and published automatically on your terms.
             </p>
-            <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <a href="#" class="bg-indigo-600 hover:bg-indigo-500 px-8 py-4 rounded-full font-bold transition shadow-lg shadow-indigo-500/20" data-i18n="btn-start">Get Started for Free</a>
-                <a href="#" class="bg-slate-800 hover:bg-slate-700 px-8 py-4 rounded-full font-bold border border-slate-700 transition" data-i18n="btn-github"><i class="fab fa-github mr-2"></i>View on GitHub</a>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <a href="https://github.com/your-repo" class="bg-indigo-600 hover:bg-indigo-500 px-10 py-5 rounded-xl font-bold transition shadow-lg shadow-indigo-500/30 text-lg w-full sm:w-auto" data-i18n="btn-start">Start My Growth Engine</a>
+                <a href="#features" class="text-slate-300 hover:text-white px-8 py-5 rounded-xl font-bold transition flex items-center gap-2" data-i18n="btn-more">How it works <i class="fas fa-arrow-right text-sm"></i></a>
             </div>
         </div>
     </section>
 
-    <section id="features" class="py-20 px-6 max-w-7xl mx-auto">
+    <section id="problem" class="py-24 px-6 glass border-y border-white/5">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <h2 class="text-4xl md:text-5xl font-800 tracking-tighter mb-8 leading-tight" data-i18n="prob-title">The Content Creator's Nightmare</h2>
+                <div class="space-y-6 text-lg text-slate-400 leading-relaxed">
+                    <p data-i18n="prob-p1">The algorithms of 2026 are ruthless. To stay visible, you need consistent, high-quality, omnichannel presence. But creation is a full-time job.</p>
+                    <p data-i18n="prob-p2">You're drowning in tools: one for keywords, one for scheduling, five for generation, and another for analytics. It's expensive, fragmented, and exhausting.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="glass p-6 rounded-2xl border border-red-500/20 text-center">
+                    <i class="fas fa-hourglass-half text-4xl text-red-400 mb-4"></i>
+                    <p class="text-sm font-semibold" data-i18n="prob-stat-1">Time Drained</p>
+                </div>
+                <div class="glass p-6 rounded-2xl border border-red-500/20 text-center">
+                    <i class="fas fa-money-bill-wave text-4xl text-red-400 mb-4"></i>
+                    <p class="text-sm font-semibold" data-i18n="prob-stat-2">Expensive Subscriptions</p>
+                </div>
+                <div class="glass p-6 rounded-2xl border border-red-500/20 text-center">
+                    <i class="fas fa-brain text-4xl text-red-400 mb-4"></i>
+                    <p class="text-sm font-semibold" data-i18n="prob-stat-3">Creative Burnout</p>
+                </div>
+                <div class="glass p-6 rounded-2xl border border-red-500/20 text-center">
+                    <i class="fas fa-chart-line-down text-4xl text-red-400 mb-4"></i>
+                    <p class="text-sm font-semibold" data-i18n="prob-stat-4">Algorithm Volatility</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-24 px-6 max-w-7xl mx-auto space-y-24">
+        
+        <div class="img-placeholder w-full aspect-[16/7]">
+             <i class="fas fa-project-diagram mr-3 text-4xl"></i> [PLACEHOLDER: A unified dashboard showing trend research leading directly to content creation]
+        </div>
+
         <div class="grid md:grid-cols-3 gap-8">
-            <div class="glass p-8 rounded-3xl">
-                <div class="w-12 h-12 bg-indigo-500/20 flex items-center justify-center rounded-xl mb-6 text-indigo-400">
-                    <i class="fas fa-bolt text-2xl"></i>
+            <div class="glass p-10 rounded-3xl group hover:border-indigo-500/30 transition duration-300">
+                <div class="w-16 h-16 bg-indigo-500/10 flex items-center justify-center rounded-2xl mb-8 text-indigo-400 group-hover:bg-indigo-500/20 transition">
+                    <i class="fas fa-search-dollar text-3xl"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-4" data-i18n="feat-1-title">Research & Plan</h3>
-                <p class="text-slate-400 text-sm leading-relaxed" data-i18n="feat-1-desc">AI scans low-competition keywords and generates a 30-day editable content calendar automatically.</p>
+                <h3 class="text-2xl font-bold mb-5 tracking-tight" data-i18n="feat-1-title">Predictive Trend Radar</h3>
+                <p class="text-slate-400 text-base leading-relaxed mb-6" data-i18n="feat-1-desc">Outrank doesn't just find keywords; it predicts the next viral wave. Analyze low-competition niches across TikTok and YouTube in real-time before they go mainstream.</p>
+                <div class="text-sm font-bold text-indigo-300" data-i18n="feat-1-sub">Beat the crowd, every time.</div>
             </div>
-            <div class="glass p-8 rounded-3xl">
-                <div class="w-12 h-12 bg-purple-500/20 flex items-center justify-center rounded-xl mb-6 text-purple-400">
-                    <i class="fas fa-video text-2xl"></i>
+            <div class="glass p-10 rounded-3xl group hover:border-purple-500/30 transition duration-300 relative overflow-hidden">
+                <div class="w-16 h-16 bg-purple-500/10 flex items-center justify-center rounded-2xl mb-8 text-purple-400 group-hover:bg-purple-500/20 transition">
+                    <i class="fas fa-clapperboard text-3xl"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-4" data-i18n="feat-2-title">Viral Video Gen</h3>
-                <p class="text-slate-400 text-sm leading-relaxed" data-i18n="feat-2-desc">Create SEO articles, AI-voiced videos (Reels/TikTok), and brand visuals in seconds.</p>
+                <h3 class="text-2xl font-bold mb-5 tracking-tight" data-i18n="feat-2-title">Multimodal Production</h3>
+                <p class="text-slate-400 text-base leading-relaxed mb-6" data-i18n="feat-2-desc">Generate 1200+ word SEO articles, AI-voiced videos with dynamic subtitles, and stunning visuals—all synced perfectly with your Brand-Kit (logos, colors, fonts).</p>
+                <div class="text-sm font-bold text-purple-300" data-i18n="feat-2-sub">Your brand, amplified by AI.</div>
             </div>
-            <div class="glass p-8 rounded-3xl">
-                <div class="w-12 h-12 bg-emerald-500/20 flex items-center justify-center rounded-xl mb-6 text-emerald-400">
-                    <i class="fas fa-share-nodes text-2xl"></i>
+            <div class="glass p-10 rounded-3xl group hover:border-emerald-500/30 transition duration-300">
+                <div class="w-16 h-16 bg-emerald-500/10 flex items-center justify-center rounded-2xl mb-8 text-emerald-400 group-hover:bg-emerald-500/20 transition">
+                    <i class="fas fa-network-wired text-3xl"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-4" data-i18n="feat-3-title">Auto Publishing</h3>
-                <p class="text-slate-400 text-sm leading-relaxed" data-i18n="feat-3-desc">Direct deployment to WordPress, TikTok, IG, YT, X, FB, and Reddit. No middleman needed.</p>
+                <h3 class="text-2xl font-bold mb-5 tracking-tight" data-i18n="feat-3-title">Autonomous Omnichannel</h3>
+                <p class="text-slate-400 text-base leading-relaxed mb-6" data-i18n="feat-3-desc">Stop logging in and out. Direct API integration means one click publishes tailored content to WP, TikTok, IG Reels, YouTube Shorts, X, FB, and Reddit simultaneously.</p>
+                <div class="text-sm font-bold text-emerald-300" data-i18n="feat-3-sub">Be everywhere, without being there.</div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-16 items-center pt-16">
+            <div class="img-placeholder w-full aspect-[4/3]">
+                <i class="fas fa-shield-alt mr-3 text-4xl"></i> [PLACEHOLDER: Local hosting setup screen / Encryption status]
+           </div>
+            <div>
+                <h2 class="text-4xl font-800 tracking-tighter mb-8 leading-tight gradient-text" data-i18n="sov-title">Total Sovereignty: No Subscriptions</h2>
+                <div class="space-y-6 text-lg text-slate-400 leading-relaxed">
+                    <p data-i18n="sov-p1">You are not the product. With Outrank Personal, you use your own API keys. You pay only for what you generate directly to the providers (OpenAI, ElevenLabs, etc.).</p>
+                    <p data-i18n="sov-p2">The application runs locally or on your private server. No hidden monthly fees, no data mining, no risk of account deactivation. Your data, your rules.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <section id="pricing" class="py-20 px-6 max-w-4xl mx-auto text-center">
-        <h2 class="text-3xl font-800 mb-12" data-i18n="pricing-title">Current Status</h2>
-        <div class="glass p-10 rounded-3xl border-2 border-indigo-500/30 relative overflow-hidden">
-            <div class="absolute top-0 right-0 bg-indigo-500 text-xs font-bold px-4 py-1 rounded-bl-xl uppercase tracking-widest" data-i18n="pricing-badge">Community Launch</div>
-            <h3 class="text-2xl font-bold mb-4" data-i18n="pricing-plan">Community Edition</h3>
-            <div class="text-5xl font-800 mb-6">$0</div>
-            <ul class="text-slate-300 space-y-4 mb-10 text-left max-w-sm mx-auto">
-                <li><i class="fas fa-check text-indigo-400 mr-2"></i> <span data-i18n="price-list-1">Full Access to Source Code</span></li>
-                <li><i class="fas fa-check text-indigo-400 mr-2"></i> <span data-i18n="price-list-2">Multi-platform posting</span></li>
-                <li><i class="fas fa-check text-indigo-400 mr-2"></i> <span data-i18n="price-list-3">Local execution (Privacy First)</span></li>
-            </ul>
-            <a href="#" class="block w-full bg-white text-slate-900 py-4 rounded-xl font-bold hover:bg-slate-200 transition" data-i18n="btn-deploy">Deploy Now</a>
+    <section id="pricing" class="py-24 px-6 glass border-t border-white/5">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-emerald-500/30 text-emerald-300 text-sm mb-6">
+                <i class="fas fa-check-circle text-xs"></i>
+                <span data-i18n="price-tag">Current Phase: Active Community Launch</span>
+            </div>
+            <h2 class="text-5xl font-800 tracking-tighter mb-16 leading-tight" data-i18n="pricing-title">Take Back Control</h2>
+            <div class="glass p-12 rounded-3xl gradient-border relative overflow-hidden shadow-2xl shadow-indigo-500/10">
+                <div class="absolute top-0 right-0 bg-indigo-500 text-xs font-bold px-5 py-1.5 rounded-bl-xl uppercase tracking-widest text-white" data-i18n="pricing-badge">Open Source (Self-Hosted)</div>
+                <h3 class="text-3xl font-bold mb-6 tracking-tight" data-i18n="pricing-plan">Community Edition</h3>
+                <div class="text-7xl font-800 mb-8">$0<span class="text-2xl text-slate-500 font-medium"> /forever</span></div>
+                
+                <div class="w-full h-px bg-white/10 mb-10"></div>
+
+                <ul class="text-slate-300 space-y-5 mb-12 text-left max-w-lg mx-auto text-lg">
+                    <li><i class="fas fa-check text-indigo-400 mr-3"></i> <span data-i18n="price-list-1">Full Access to Source Code (GitHub)</span></li>
+                    <li><i class="fas fa-check text-indigo-400 mr-3"></i> <span data-i18n="price-list-2">Trend Radar & 30-Day Content Planner</span></li>
+                    <li><i class="fas fa-check text-indigo-400 mr-3"></i> <span data-i18n="price-list-3">Multi-platform direct API posting</span></li>
+                    <li><i class="fas fa-check text-indigo-400 mr-3"></i> <span data-i18n="price-list-4">100% Data Privacy (Local Execution)</span></li>
+                </ul>
+                <a href="https://github.com/your-repo" class="block w-full bg-white text-slate-950 py-5 rounded-2xl font-bold hover:bg-slate-200 transition text-xl shadow-lg" data-i18n="btn-deploy">Deploy Your Autopilot</a>
+            </div>
         </div>
     </section>
 
-    <footer class="py-12 border-t border-slate-800 text-center">
-        <p class="text-slate-500 text-sm">© 2026 Outrank Personal. <span data-i18n="footer-tagline">Automate the routine. Keep the control.</span></p>
+    <footer class="py-16 px-6 border-t border-slate-800 text-center glass">
+        <div class="max-w-7xl mx-auto space-y-8">
+            <div class="text-3xl font-800 tracking-tighter gradient-text">OUTRANK <span class="text-white">PERSONAL</span></div>
+            <p class="text-slate-500 text-base max-w-md mx-auto" data-i18n="footer-tagline">Automate the routine. Beat the algorithm. Keep the control. The future of content is sovereign.</p>
+            <div class="flex gap-6 justify-center text-slate-600 text-xl">
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-telegram"></i></a>
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-github"></i></a>
+                <a href="#" class="hover:text-indigo-400"><i class="fas fa-book"></i></a>
+            </div>
+            <p class="text-slate-700 text-xs">© 2026 Outrank Personal. All Rights Sovereign.</p>
+        </div>
     </footer>
+
+    <script>
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 100 };
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        class Particle {
+            constructor(x, y, size, color, weight) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.color = color;
+                this.weight = weight;
+                this.baseX = x;
+                this.baseY = y;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+            update() {
+                this.draw();
+                
+                // Mouse Interaction
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                let forceDirectionX = dx / distance;
+                let forceDirectionY = dy / distance;
+                let maxDistance = mouse.radius;
+                let force = (maxDistance - distance) / maxDistance;
+                let directionX = forceDirectionX * force * this.weight;
+                let directionY = forceDirectionY * force * this.weight;
+
+                if (distance < mouse.radius) {
+                    this.x -= directionX;
+                    this.y -= directionY;
+                } else {
+                    if (this.x !== this.baseX) {
+                        let dxBase = this.x - this.baseX;
+                        this.x -= dxBase / 10;
+                    }
+                    if (this.y !== this.baseY) {
+                        let dyBase = this.y - this.baseY;
+                        this.y -= dyBase / 10;
+                    }
+                }
+            }
+        }
+
+        function init() {
+            particles = [];
+            const numberOfParticles = (canvas.width * canvas.height) / 15000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                const size = Math.random() * 2 + 1;
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const color = 'rgba(99, 102, 241, 0.6)';
+                const weight = Math.random() * 15 + 1;
+                particles.push(new Particle(x, y, size, color, weight));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+            }
+            connect();
+            requestAnimationFrame(animate);
+        }
+
+        function connect() {
+            let opacityValue = 1;
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let dx = particles[a].x - particles[b].x;
+                    let dy = particles[a].y - particles[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        opacityValue = 1 - (distance / 150);
+                        ctx.strokeStyle = `rgba(165, 180, 252, ${opacityValue * 0.2})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        init();
+        animate();
+    </script>
 
     <script>
         const translations = {
             en: {
-                "nav-features": "Features",
-                "nav-roadmap": "Roadmap",
+                "nav-problem": "The Pain",
+                "nav-features": "Solution",
                 "nav-pricing": "Pricing",
-                "hero-title": "One Click. 7+ Platforms. <br><span class='gradient-text'>Total Dominance.</span>",
-                "hero-subtitle": "The first all-in-one AI content workstation. Turn a single niche idea into viral SEO articles, Reels, and TikToks — published automatically while you sleep.",
-                "btn-start": "Get Started for Free",
-                "btn-github": "View on GitHub",
-                "feat-1-title": "Research & Plan",
-                "feat-1-desc": "AI scans low-competition keywords and generates a 30-day editable content calendar automatically.",
-                "feat-2-title": "Viral Video Gen",
-                "feat-2-desc": "Create SEO articles, AI-voiced videos (Reels/TikTok), and brand visuals in seconds.",
-                "feat-3-title": "Auto Publishing",
-                "feat-3-desc": "Direct deployment to WordPress, TikTok, IG, YT, X, FB, and Reddit. No middleman needed.",
-                "pricing-title": "Current Status",
-                "pricing-badge": "Community Launch",
+                "hero-tag": "Self-Hosted AI Workstation 2026",
+                "hero-title": "One Click. 7+ Platforms. <br><span class='gradient-text'>Zero Compromise.</span>",
+                "hero-subtitle": "Stop chasing the algorithm. Outrank Personal turns one niche idea into viral SEO articles, Reels, and TikToks — created, optimized, and published automatically on your terms.",
+                "btn-start": "Start My Growth Engine",
+                "btn-more": "How it works <i class='fas fa-arrow-right text-sm'></i>",
+                "prob-title": "The Content Creator's Nightmare",
+                "prob-p1": "The algorithms of 2026 are ruthless. To stay visible, you need consistent, high-quality, omnichannel presence. But creation is a full-time job.",
+                "prob-p2": "You're drowning in tools: one for keywords, one for scheduling, five for generation, and another for analytics. It's expensive, fragmented, and exhausting.",
+                "prob-stat-1": "Time Drained",
+                "prob-stat-2": "Expensive Subscriptions",
+                "prob-stat-3": "Creative Burnout",
+                "prob-stat-4": "Algorithm Volatility",
+                "feat-1-title": "Predictive Trend Radar",
+                "feat-1-desc": "Outrank doesn't just find keywords; it predicts the next viral wave. Analyze low-competition niches across TikTok and YouTube in real-time before they go mainstream.",
+                "feat-1-sub": "Beat the crowd, every time.",
+                "feat-2-title": "Multimodal Production",
+                "feat-2-desc": "Generate 1200+ word SEO articles, AI-voiced videos with dynamic subtitles, and stunning visuals—all synced perfectly with your Brand-Kit (logos, colors, fonts).",
+                "feat-2-sub": "Your brand, amplified by AI.",
+                "feat-3-title": "Autonomous Omnichannel",
+                "feat-3-desc": "Stop logging in and out. Direct API integration means one click publishes tailored content to WP, TikTok, IG Reels, YouTube Shorts, X, FB, and Reddit simultaneously.",
+                "feat-3-sub": "Be everywhere, without being there.",
+                "sov-title": "Total Sovereignty: No Subscriptions",
+                "sov-p1": "You are not the product. With Outrank Personal, you use your own API keys. You pay only for what you generate directly to the providers (OpenAI, ElevenLabs, etc.).",
+                "sov-p2": "The application runs locally or on your private server. No hidden monthly fees, no data mining, no risk of account deactivation. Your data, your rules.",
+                "price-tag": "Current Phase: Active Community Launch",
+                "pricing-title": "Take Back Control",
+                "pricing-badge": "Open Source (Self-Hosted)",
                 "pricing-plan": "Community Edition",
-                "price-list-1": "Full Access to Source Code",
-                "price-list-2": "Multi-platform posting",
-                "price-list-3": "Local execution (Privacy First)",
-                "btn-deploy": "Deploy Now",
-                "footer-tagline": "Automate the routine. Keep the control."
+                "price-list-1": "Full Access to Source Code (GitHub)",
+                "price-list-2": "Trend Radar & 30-Day Content Planner",
+                "price-list-3": "Multi-platform direct API posting",
+                "price-list-4": "100% Data Privacy (Local Execution)",
+                "btn-deploy": "Deploy Your Autopilot",
+                "footer-tagline": "Automate the routine. Beat the algorithm. Keep the control. The future of content is sovereign."
             },
             ua: {
-                "nav-features": "Можливості",
-                "nav-roadmap": "План",
+                "nav-problem": "Проблема",
+                "nav-features": "Рішення",
                 "nav-pricing": "Ціни",
-                "hero-title": "Один клік. 7+ платформ. <br><span class='gradient-text'>Повне домінування.</span>",
-                "hero-subtitle": "Перша універсальна AI-станція для контенту. Перетворюйте ідею на SEO-статті та віральні відео з автопостингом, поки ви відпочиваєте.",
-                "btn-start": "Почати безкоштовно",
-                "btn-github": "Дивитись на GitHub",
-                "feat-1-title": "Дослідження та План",
-                "feat-1-desc": "AI шукає низькоконкурентні ключі та створює контент-план на 30 днів автоматично.",
-                "feat-2-title": "Віральне Відео",
-                "feat-2-desc": "Створюйте SEO-статті, відео з AI-озвучкою (Reels/TikTok) та брендований контент за секунди.",
-                "feat-3-title": "Автопублікація",
-                "feat-3-desc": "Пряма публікація на WordPress, TikTok, IG, YT, X, FB та Reddit без посередників.",
-                "pricing-title": "Поточний статус",
-                "pricing-badge": "Старт Спільноти",
+                "hero-tag": "Локальна AI-станція 2026",
+                "hero-title": "Один клік. 7+ платформ. <br><span class='gradient-text'>Жодних компромісів.</span>",
+                "hero-subtitle": "Досить ганятися за алгоритмами. Outrank Personal перетворює ідею на віральні SEO-статті та відео (Reels, TikTok) — автоматично створені та опубліковані на ваших умовах.",
+                "btn-start": "Запустити двигун зростання",
+                "btn-more": "Як це працює <i class='fas fa-arrow-right text-sm'></i>",
+                "prob-title": "Нічний кошмар контент-мейкера",
+                "prob-p1": "Алгоритми 2026 року безжальні. Щоб вас бачили, потрібна постійна, якісна присутність на всіх платформах. Але створення контенту — це повноцінна робота.",
+                "prob-p2": "Ви тонете в інструментах: один для ключів, один для розкладу, п'ять для генерації, ще один для аналітики. Це дорого, хаотично та виснажливо.",
+                "prob-stat-1": "Втрата часу",
+                "prob-stat-2": "Дорогі підписки",
+                "prob-stat-3": "Творче вигорання",
+                "prob-stat-4": "Нестабільність алгоритмів",
+                "feat-1-title": "Предиктивний Тренд-Радар",
+                "feat-1-desc": "Outrank не просто шукає ключові слова, він передбачає вірусні хвилі. Аналізуйте ніші з низькою конкуренцією в TikTok та YouTube в реальному часі до того, як вони стануть мейнстрімом.",
+                "feat-1-sub": "Будьте попереду натовпу щоразу.",
+                "feat-2-title": "Мультимодальний Продакшн",
+                "feat-2-desc": "Генеруйте SEO-статті (1200+ слів), відео з AI-голосом та динамічними субтитрами, а також візуал — усе синхронізовано з вашим Brand-Kit (лого, кольори, шрифти).",
+                "feat-2-sub": "Ваш бренд, посилений AI.",
+                "feat-3-title": "Автономний Омніканал",
+                "feat-3-desc": "Забудьте про постійні логи. Пряма API-інтеграція дозволяє одним кліком публікувати адаптований контент у WP, TikTok, IG, YT, X, FB та Reddit одночасно.",
+                "feat-3-sub": "Будьте скрізь, не витрачаючи час.",
+                "sov-title": "Повний Суверенітет: Без Підписок",
+                "sov-p1": "Ви не є продуктом. З Outrank Personal ви використовуєте власні API-ключі. Ви платите за генерацію напряму провайдерам (OpenAI, ElevenLabs тощо).",
+                "sov-p2": "Додаток працює локально або на вашому приватному сервері. Жодних прихованих щомісячних платежів, збору даних або ризику блокування акаунта.",
+                "price-tag": "Поточна фаза: Активний Старт Спільноти",
+                "pricing-title": "Поверніть контроль собі",
+                "pricing-badge": "Open Source (Локальний запуск)",
                 "pricing-plan": "Community Edition",
-                "price-list-1": "Повний доступ до коду",
-                "price-list-2": "Мультиплатформний постинг",
-                "price-list-3": "Локальний запуск (Приватність)",
-                "btn-deploy": "Запустити зараз",
-                "footer-tagline": "Автоматизуй рутину. Зберігай контроль."
+                "price-list-1": "Повний доступ до коду (GitHub)",
+                "price-list-2": "Тренд-Радар та План контенту на 30 днів",
+                "price-list-3": "Мультиплатформний API-постинг",
+                "price-list-4": "100% Приватність даних (Локальний запуск)",
+                "btn-deploy": "Запустити автопілот",
+                "footer-tagline": "Автоматизуй рутину. Бий алгоритми. Зберігай контроль. Майбутнє контенту суверенне."
             }
         };
 
@@ -178,11 +419,13 @@
         function updateContent() {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                el.innerHTML = translations[currentLang][key];
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key];
+                }
             });
         }
 
-        // Initialize
+        // Initialize language
         updateContent();
     </script>
 </body>
