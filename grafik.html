@@ -3,96 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графік чергування (Прямі кути меню)</title>
+    <title>Графік чергування (Оновлений дизайн)</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
             --warning: #f1c40f; --light: #ecf0f1; --dark: #34495e; --danger: #e74c3c;
             --active-bg: #fff9db;
+            --grad: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
         }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--primary); transition: 0.3s; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; }
         
+        /* НОВА ШАПКА */
         .header { 
             display: grid; 
-            grid-template-columns: 1fr auto 1fr; 
+            grid-template-columns: 1fr auto; 
             align-items: center; 
-            margin-bottom: 20px; 
+            margin-bottom: 25px; 
             border-bottom: 2px solid var(--light); 
             padding-bottom: 15px; 
         }
-        .date-area { font-size: 1em; font-weight: bold; color: var(--dark); }
-        #clock { font-size: 2.2em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; text-align: center; }
-        .top-right-tool { justify-self: end; }
-
-        .top-controls { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; margin-bottom: 20px; align-items: center; }
+        .header-title h1 { margin: 0; font-size: 3em; color: var(--primary); font-weight: 800; letter-spacing: -1px; }
         
-        /* ВИПРАВЛЕНИЙ СЕЛЕКТОР (БЕЗ ВЕРХНЬОГО РАДІУСУ) */
+        .time-area { text-align: center; justify-self: end; }
+        #current-date { display: block; font-size: 1.1em; color: var(--dark); font-weight: bold; margin-bottom: -5px; }
+        #clock { font-size: 2.5em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+        /* ПАНЕЛЬ УПРАВЛІННЯ */
+        .top-controls { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
+        
+        /* СТИЛІЗОВАНА КНОПКА ВИБОРУ ЗМІНИ */
+        .shift-selector-wrapper { position: relative; width: 100%; }
         .group-selector {
-            width: 100%; padding: 15px; 
-            border: 2px solid var(--accent); 
-            border-top-left-radius: 0;   /* Прямий кут зверху зліва */
-            border-top-right-radius: 0;  /* Прямий кут зверху справа */
-            border-bottom-left-radius: 10px; 
-            border-bottom-right-radius: 10px;
-            background: var(--accent); color: white; font-size: 1.2em; font-weight: 800;
-            cursor: pointer; text-align: center; text-transform: uppercase; outline: none;
-            appearance: none; -webkit-appearance: none; /* Прибираємо стандартну стрілку для чистоти */
+            width: 100%; padding: 18px; 
+            border: none; border-radius: 12px;
+            background: var(--grad); color: white; 
+            font-size: 1.3em; font-weight: 800;
+            cursor: pointer; text-align: center; text-transform: uppercase; 
+            outline: none; transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            appearance: none; -webkit-appearance: none;
         }
+        .group-selector:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4); }
+        .group-selector option { background: white; color: var(--dark); font-weight: normal; font-size: 0.9em; }
 
         .personnel-display { 
-            background: #f8f9fa; border: 1px solid #ddd; border-radius: 10px; padding: 12px;
-            display: flex; justify-content: space-around; font-weight: bold; font-size: 1.1em;
+            background: #f8f9fa; border: 1px solid #ddd; border-radius: 10px; padding: 15px;
+            display: flex; justify-content: space-around; font-weight: bold; font-size: 1.2em;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
         }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-size: 0.9em; color: #666; }
-        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; transition: 0.3s; }
+        /* ТАБЛИЦЯ */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8f9fa; padding: 12px 15px; text-align: left; border-bottom: 3px solid var(--dee2e6); font-size: 0.9em; color: #666; text-transform: uppercase; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: top; transition: 0.3s; }
 
         .current-task-row { background-color: var(--active-bg) !important; border-left: 10px solid var(--warning) !important; font-weight: bold; }
         body.dim-past .past-task-row { opacity: 0.35; filter: grayscale(80%); }
 
+        /* МОДАЛЬНЕ ВІКНО */
         #historyModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
         }
         .modal-content { background: white; width: 95%; max-width: 800px; padding: 25px; border-radius: 15px; max-height: 85vh; overflow-y: auto; }
         
-        .footer { margin-top: 20px; display: flex; gap: 12px; }
-        .btn { padding: 14px 25px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.9em; }
-        .btn-success { background: var(--success); color: white; flex-grow: 1; }
+        /* КНОПКИ */
+        .footer { margin-top: 25px; display: flex; gap: 15px; align-items: center; }
+        .btn { padding: 16px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 1em; }
+        .btn-success { background: var(--success); color: white; flex-grow: 1; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.2); }
+        .btn-success:hover { background: #219150; transform: translateY(-2px); }
         .btn-info { background: var(--dark); color: white; }
         .btn-excel { background: #1D6F42; color: white; }
         
-        .light-toggle { 
-            background: #eee; width: 45px; height: 45px; border-radius: 10px; font-size: 20px; 
-            cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; 
-            transition: 0.3s;
-        }
-        .light-toggle.active { background: var(--warning); border-color: #d4ac0d; box-shadow: 0 0 10px var(--warning); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.7; }
+        .btn:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.7; transform: none !important; box-shadow: none !important; }
     </style>
 </head>
 <body class="dim-past">
 
 <div class="container">
     <div class="header">
-        <div class="date-area">
-            <div>Графік</div>
-            <div id="current-date">--.--.----</div>
+        <div class="header-title">
+            <h1>Графік</h1>
+            <small style="color: #7f8c8d; font-size: 1em;">Контроль чергової зміни</small>
         </div>
-        <div id="clock">00:00:00</div>
-        <div class="top-right-tool">
-            <button class="light-toggle active" id="lightBtn" onclick="toggleDimming()" title="Затемнення минулого">💡</button>
+        <div class="time-area">
+            <span id="current-date">--.--.----</span>
+            <div id="clock">00:00:00</div>
         </div>
     </div>
 
     <div class="top-controls">
-        <select id="groupSelect" class="group-selector" onchange="changeShift(this.value)">
-            <option value="1">Зміна №1</option>
-            <option value="2">Зміна №2</option>
-        </select>
+        <div class="shift-selector-wrapper">
+            <select id="groupSelect" class="group-selector" onchange="changeShift(this.value)">
+                <option value="1">Активна: Зміна №1</option>
+                <option value="2">Активна: Зміна №2</option>
+            </select>
+        </div>
         <div class="personnel-display" id="names-box"></div>
     </div>
 
@@ -110,7 +118,7 @@
 
     <div class="footer">
         <button class="btn btn-info" onclick="showHistory()">📜 Архів</button>
-        <button id="nextShiftBtn" class="btn btn-success" disabled onclick="transferShift()">Здати чергування</button>
+        <button id="nextShiftBtn" class="btn btn-success" disabled onclick="transferShift()">↻ Здати чергування</button>
     </div>
 </div>
 
@@ -158,11 +166,6 @@
         {t: "06:20", task: "walk", exec: names[1], post: [names[0]]}
     ];
 
-    function toggleDimming() {
-        document.body.classList.toggle('dim-past');
-        document.getElementById('lightBtn').classList.toggle('active');
-    }
-
     function changeShift(num) {
         currentShiftNum = parseInt(num);
         localStorage.setItem('active_shift', currentShiftNum);
@@ -196,76 +199,4 @@
             let checkHtml = row.task === 'walk' ? 
                 (logs[index] ? `<b style="color:var(--success)">✓ ${logs[index]}</b>` : 
                 (diffMin > 60 ? `<small style="color:var(--danger)">ПРОПУЩЕНО</small>` : 
-                (diffMin < 0 ? `---` : `<input type="checkbox" onchange="mark(${index})">`))) : `<small>сон</small>`;
-
-            tr.innerHTML = `<td>${row.t}</td><td>${row.exec}</td><td>${row.post.join('<br>')}</td><td align="center">${checkHtml}</td>`;
-        });
-        
-        if (currentIdx !== -1 && currentIdx !== lastActiveTask) {
-            if (lastActiveTask !== null) { 
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const o = ctx.createOscillator(); const g = ctx.createGain();
-                o.connect(g); g.connect(ctx.destination); o.frequency.value = 600;
-                g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
-                o.start(); o.stop(ctx.currentTime + 0.5);
-            }
-            lastActiveTask = currentIdx;
-        }
-        document.getElementById('nextShiftBtn').disabled = Object.keys(logs).length < schedule.filter(r => r.task === 'walk').length;
-    }
-
-    function mark(id) {
-        logs[id] = new Date().toLocaleTimeString('uk-UA').slice(0, 5);
-        localStorage.setItem('duty_logs', JSON.stringify(logs));
-        render();
-    }
-
-    function transferShift() {
-        if(!confirm("Здати зміну та заархівувати?")) return;
-        shiftHistory.unshift({
-            date: new Date().toLocaleString('uk-UA'),
-            shift: currentShiftNum,
-            personnel: currentShiftNum === 1 ? s1.join(', ') : s2.join(', '),
-            marks: Object.values(logs).join(', '),
-            count: Object.keys(logs).length
-        });
-        localStorage.setItem('shift_history', JSON.stringify(shiftHistory));
-        logs = {}; localStorage.removeItem('duty_logs');
-        currentShiftNum = currentShiftNum === 1 ? 2 : 1;
-        localStorage.setItem('active_shift', currentShiftNum);
-        render();
-    }
-
-    function showHistory() {
-        document.getElementById('historyModal').style.display = 'flex';
-        const list = document.getElementById('historyList');
-        list.innerHTML = shiftHistory.length ? shiftHistory.map(h => `
-            <div style="border-bottom:1px solid #eee; padding:10px 0;">
-                <b>${h.date} — Зміна №${h.shift}</b><br>
-                <small>Чергові: ${h.personnel}</small><br>
-                <span>Відмітки (${h.count}): ${h.marks || 'відсутні'}</span>
-            </div>
-        `).join('') : '<p style="text-align:center;">Порожньо</p>';
-    }
-
-    function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
-
-    function downloadExcel() {
-        if (!shiftHistory.length) return alert("Порожньо");
-        const ws = XLSX.utils.json_to_sheet(shiftHistory.map(h => ({
-            "Дата": h.date, "Зміна": h.shift, "Склад": h.personnel, "К-ть": h.count, "Час": h.marks
-        })));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "History");
-        XLSX.writeFile(wb, `duty_log.xlsx`);
-    }
-
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA');
-        if (new Date().getSeconds() === 0) render();
-    }, 1000);
-
-    render();
-</script>
-</body>
-</html>
+                (diffMin < 0 ? `---` : `
