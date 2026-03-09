@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Next Walk Timer)</title>
+    <title>Графік чергування (Final Version)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -24,18 +24,19 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--body-bg); margin: 0; padding: 5px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
         .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         
+        /* Шапка с умным монитором */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--light); padding-bottom: 8px; gap: 8px; }
         .header-left { flex: 1; }
         .header-left h1 { margin: 0; font-size: 1.1em; font-weight: 800; line-height: 1; letter-spacing: 1px; }
         .header-left small { font-size: 0.7em; color: #7f8c8d; font-weight: bold; }
 
-        .sleep-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 4px 8px; border-radius: 8px; min-width: 140px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
-        .sleep-monitor-top .label { font-size: 0.55em; text-transform: uppercase; font-weight: 800; color: #7f8c8d; display: block; margin-bottom: -2px; }
-        .sleep-monitor-top .timer { font-family: 'Consolas', monospace; font-size: 1.1em; font-weight: 900; color: var(--accent); display: block; white-space: nowrap; }
+        .status-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 4px 8px; border-radius: 8px; min-width: 145px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
+        .status-monitor-top .label { font-size: 0.55em; text-transform: uppercase; font-weight: 800; color: #7f8c8d; display: block; margin-bottom: -2px; }
+        .status-monitor-top .timer { font-family: 'Consolas', monospace; font-size: 1.1em; font-weight: 900; color: var(--accent); display: block; white-space: nowrap; }
         
-        .sleep-monitor-top.active-sleep { background: var(--sleep-bg); border-color: var(--accent); }
-        .sleep-monitor-top.warning .timer { color: var(--danger); animation: blink 1s infinite; }
-        .sleep-monitor-top.soon .timer { color: #e67e22; }
+        .status-monitor-top.active-sleep { background: var(--sleep-bg); border-color: var(--accent); }
+        .status-monitor-top.warning .timer { color: var(--danger); animation: blink 1s infinite; }
+        .status-monitor-top.soon .timer { color: #e67e22; }
 
         .header-right { flex: 1; text-align: right; }
         #clock { font-size: 1.3em; font-weight: 800; color: var(--dark); display: block; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -71,7 +72,7 @@
             <small id="current-date">--.--.----</small>
         </div>
         
-        <div id="statusMonitor" class="sleep-monitor-top">
+        <div id="statusMonitor" class="status-monitor-top">
             <span id="monitorLabel" class="label">Завантаження</span>
             <span id="topTimer" class="timer">--:--:--</span>
         </div>
@@ -178,9 +179,8 @@
             
             const taskEndTime = new Date(taskStartTime.getTime() + row.dur * 60000);
             const isCurrentlyActive = (now >= taskStartTime && now < taskEndTime);
-            const diffMin = (now - taskStartTime) / 60000;
 
-            // Пошук наступного обходу для таймера в шапці
+            // Поиск следующего обхода для таймера в шапке
             if (row.task === 'walk' && taskStartTime > now && !nextWalkTime) {
                 nextWalkTime = taskStartTime;
             }
@@ -219,26 +219,23 @@
             tr.innerHTML = `<td><b>${row.t}</b></td><td>${label}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
 
-        // ОНОВЛЕННЯ МОНІТОРА В ШАПЦІ
+        // ОБНОВЛЕНИЕ МОНИТОРА В ШАПКЕ
         const monitor = document.getElementById('statusMonitor');
         const labelText = document.getElementById('monitorLabel');
         const timerText = document.getElementById('topTimer');
 
         if (activeSleep) {
-            // Пріоритет 1: Хтось спить
             const remaining = activeSleep.end - now;
-            monitor.className = "sleep-monitor-top active-sleep" + (remaining < 600000 ? " warning" : "");
+            monitor.className = "status-monitor-top active-sleep" + (remaining < 600000 ? " warning" : "");
             labelText.innerText = "Відпочинок";
             timerText.innerText = activeSleep.name + ": " + formatCountdown(remaining);
         } else if (nextWalkTime && now.getHours() >= 8 && now.getHours() < 20) {
-            // Пріоритет 2: Денний час, чекаємо на наступний обхід
             const toNext = nextWalkTime - now;
-            monitor.className = "sleep-monitor-top" + (toNext < 300000 ? " soon" : "");
+            monitor.className = "status-monitor-top" + (toNext < 300000 ? " soon" : "");
             labelText.innerText = "Наступний обхід через";
             timerText.innerText = formatCountdown(toNext);
         } else {
-            // Режим очікування
-            monitor.className = "sleep-monitor-top";
+            monitor.className = "status-monitor-top";
             labelText.innerText = "Статус";
             timerText.innerText = "--:--:--";
         }
