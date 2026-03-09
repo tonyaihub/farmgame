@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outrank Personal | AI Content Autopilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+            scroll-behavior: smooth;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-glow {
+            position: absolute;
+            top: -10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="fixed w-full z-50 glass top-0">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-800 tracking-tighter gradient-text">OUTRANK <span class="text-white">PERSONAL</span></div>
+            <div class="flex items-center gap-8">
+                <div class="hidden md:flex gap-6 text-sm font-medium">
+                    <a href="#features" data-i18n="nav-features" class="hover:text-indigo-400 transition">Features</a>
+                    <a href="#roadmap" data-i18n="nav-roadmap" class="hover:text-indigo-400 transition">Roadmap</a>
+                    <a href="#pricing" data-i18n="nav-pricing" class="hover:text-indigo-400 transition">Pricing</a>
+                </div>
+                <button onclick="toggleLanguage()" id="langBtn" class="bg-indigo-600/20 border border-indigo-500/50 px-3 py-1 rounded text-xs font-bold hover:bg-indigo-600 transition">UA</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative pt-32 pb-20 px-6 overflow-hidden">
+        <div class="hero-glow"></div>
+        <div class="max-w-5xl mx-auto text-center">
+            <h1 class="text-5xl md:text-7xl font-800 mb-6 leading-tight" data-i18n="hero-title">
+                One Click. 7+ Platforms. <br><span class="gradient-text">Total Dominance.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto" data-i18n="hero-subtitle">
+                The first all-in-one AI content workstation. Turn a single niche idea into viral SEO articles, Reels, and TikToks — published automatically while you sleep.
+            </p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <a href="#" class="bg-indigo-600 hover:bg-indigo-500 px-8 py-4 rounded-full font-bold transition shadow-lg shadow-indigo-500/20" data-i18n="btn-start">Get Started for Free</a>
+                <a href="#" class="bg-slate-800 hover:bg-slate-700 px-8 py-4 rounded-full font-bold border border-slate-700 transition" data-i18n="btn-github"><i class="fab fa-github mr-2"></i>View on GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-20 px-6 max-w-7xl mx-auto">
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="glass p-8 rounded-3xl">
+                <div class="w-12 h-12 bg-indigo-500/20 flex items-center justify-center rounded-xl mb-6 text-indigo-400">
+                    <i class="fas fa-bolt text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4" data-i18n="feat-1-title">Research & Plan</h3>
+                <p class="text-slate-400 text-sm leading-relaxed" data-i18n="feat-1-desc">AI scans low-competition keywords and generates a 30-day editable content calendar automatically.</p>
+            </div>
+            <div class="glass p-8 rounded-3xl">
+                <div class="w-12 h-12 bg-purple-500/20 flex items-center justify-center rounded-xl mb-6 text-purple-400">
+                    <i class="fas fa-video text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4" data-i18n="feat-2-title">Viral Video Gen</h3>
+                <p class="text-slate-400 text-sm leading-relaxed" data-i18n="feat-2-desc">Create SEO articles, AI-voiced videos (Reels/TikTok), and brand visuals in seconds.</p>
+            </div>
+            <div class="glass p-8 rounded-3xl">
+                <div class="w-12 h-12 bg-emerald-500/20 flex items-center justify-center rounded-xl mb-6 text-emerald-400">
+                    <i class="fas fa-share-nodes text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4" data-i18n="feat-3-title">Auto Publishing</h3>
+                <p class="text-slate-400 text-sm leading-relaxed" data-i18n="feat-3-desc">Direct deployment to WordPress, TikTok, IG, YT, X, FB, and Reddit. No middleman needed.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="py-20 px-6 max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl font-800 mb-12" data-i18n="pricing-title">Current Status</h2>
+        <div class="glass p-10 rounded-3xl border-2 border-indigo-500/30 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-indigo-500 text-xs font-bold px-4 py-1 rounded-bl-xl uppercase tracking-widest" data-i18n="pricing-badge">Community Launch</div>
+            <h3 class="text-2xl font-bold mb-4" data-i18n="pricing-plan">Community Edition</h3>
+            <div class="text-5xl font-800 mb-6">$0</div>
+            <ul class="text-slate-300 space-y-4 mb-10 text-left max-w-sm mx-auto">
+                <li><i class="fas fa-check text-indigo-400 mr-2"></i> <span data-i18n="price-list-1">Full Access to Source Code</span></li>
+                <li><i class="fas fa-check text-indigo-400 mr-2"></i> <span data-i18n="price-list-2">Multi-platform posting</span></li>
+                <li><i class="fas fa-check text-indigo-400 mr-2"></i> <span data-i18n="price-list-3">Local execution (Privacy First)</span></li>
+            </ul>
+            <a href="#" class="block w-full bg-white text-slate-900 py-4 rounded-xl font-bold hover:bg-slate-200 transition" data-i18n="btn-deploy">Deploy Now</a>
+        </div>
+    </section>
+
+    <footer class="py-12 border-t border-slate-800 text-center">
+        <p class="text-slate-500 text-sm">© 2026 Outrank Personal. <span data-i18n="footer-tagline">Automate the routine. Keep the control.</span></p>
+    </footer>
+
+    <script>
+        const translations = {
+            en: {
+                "nav-features": "Features",
+                "nav-roadmap": "Roadmap",
+                "nav-pricing": "Pricing",
+                "hero-title": "One Click. 7+ Platforms. <br><span class='gradient-text'>Total Dominance.</span>",
+                "hero-subtitle": "The first all-in-one AI content workstation. Turn a single niche idea into viral SEO articles, Reels, and TikToks — published automatically while you sleep.",
+                "btn-start": "Get Started for Free",
+                "btn-github": "View on GitHub",
+                "feat-1-title": "Research & Plan",
+                "feat-1-desc": "AI scans low-competition keywords and generates a 30-day editable content calendar automatically.",
+                "feat-2-title": "Viral Video Gen",
+                "feat-2-desc": "Create SEO articles, AI-voiced videos (Reels/TikTok), and brand visuals in seconds.",
+                "feat-3-title": "Auto Publishing",
+                "feat-3-desc": "Direct deployment to WordPress, TikTok, IG, YT, X, FB, and Reddit. No middleman needed.",
+                "pricing-title": "Current Status",
+                "pricing-badge": "Community Launch",
+                "pricing-plan": "Community Edition",
+                "price-list-1": "Full Access to Source Code",
+                "price-list-2": "Multi-platform posting",
+                "price-list-3": "Local execution (Privacy First)",
+                "btn-deploy": "Deploy Now",
+                "footer-tagline": "Automate the routine. Keep the control."
+            },
+            ua: {
+                "nav-features": "Можливості",
+                "nav-roadmap": "План",
+                "nav-pricing": "Ціни",
+                "hero-title": "Один клік. 7+ платформ. <br><span class='gradient-text'>Повне домінування.</span>",
+                "hero-subtitle": "Перша універсальна AI-станція для контенту. Перетворюйте ідею на SEO-статті та віральні відео з автопостингом, поки ви відпочиваєте.",
+                "btn-start": "Почати безкоштовно",
+                "btn-github": "Дивитись на GitHub",
+                "feat-1-title": "Дослідження та План",
+                "feat-1-desc": "AI шукає низькоконкурентні ключі та створює контент-план на 30 днів автоматично.",
+                "feat-2-title": "Віральне Відео",
+                "feat-2-desc": "Створюйте SEO-статті, відео з AI-озвучкою (Reels/TikTok) та брендований контент за секунди.",
+                "feat-3-title": "Автопублікація",
+                "feat-3-desc": "Пряма публікація на WordPress, TikTok, IG, YT, X, FB та Reddit без посередників.",
+                "pricing-title": "Поточний статус",
+                "pricing-badge": "Старт Спільноти",
+                "pricing-plan": "Community Edition",
+                "price-list-1": "Повний доступ до коду",
+                "price-list-2": "Мультиплатформний постинг",
+                "price-list-3": "Локальний запуск (Приватність)",
+                "btn-deploy": "Запустити зараз",
+                "footer-tagline": "Автоматизуй рутину. Зберігай контроль."
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ua' : 'en';
+            document.getElementById('langBtn').innerText = currentLang === 'en' ? 'UA' : 'EN';
+            updateContent();
+        }
+
+        function updateContent() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.innerHTML = translations[currentLang][key];
+            });
+        }
+
+        // Initialize
+        updateContent();
+    </script>
+</body>
+</html>
