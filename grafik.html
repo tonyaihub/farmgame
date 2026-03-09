@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Classic Mode)</title>
+    <title>Графік чергування (Countdown Edition)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -29,7 +29,7 @@
         .header-left h1 { margin: 0; font-size: 1.3em; font-weight: 800; line-height: 1; letter-spacing: 1px; }
         .header-left small { font-size: 0.8em; color: #7f8c8d; font-weight: bold; }
 
-        .status-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 6px 8px; border-radius: 8px; min-width: 160px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
+        .status-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 6px 8px; border-radius: 8px; min-width: 160px; border: 1px solid rgba(0,0,0,0.05); }
         .status-monitor-top .label { font-size: 0.65em; text-transform: uppercase; font-weight: 800; color: #7f8c8d; display: block; margin-bottom: -2px; }
         .status-monitor-top .timer { font-family: 'Consolas', monospace; font-size: 1.2em; font-weight: 900; color: var(--accent); display: block; white-space: nowrap; }
 
@@ -37,18 +37,12 @@
         #clock { font-size: 1.4em; font-weight: 800; color: var(--dark); display: block; line-height: 1; font-variant-numeric: tabular-nums; }
         
         .header-btns { display: flex; gap: 5px; margin-top: 6px; }
-        .tool-btn { background: var(--light); width: 42px; height: 42px; border-radius: 8px; font-size: 22px; cursor: pointer; border: none; color: var(--text); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s; }
-        .tool-btn:active { transform: scale(0.9); }
+        .tool-btn { background: var(--light); width: 42px; height: 42px; border-radius: 8px; font-size: 22px; cursor: pointer; border: none; color: var(--text); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .tool-btn.active { background: var(--warning); color: black; }
 
-        /* ЕФЕКТ ПРОЗОРОСТІ */
+        /* Прозрачность прошлых строк */
         .past-task-row { opacity: 0.4; filter: grayscale(100%); transition: 0.3s; }
-        
-        /* РЕЖИМ ПІДСВІТКИ (ЛАМПОЧКА) */
-        body.high-contrast .past-task-row { 
-            opacity: 1 !important; 
-            filter: none !important; 
-        }
+        body.high-contrast .past-task-row { opacity: 1 !important; filter: none !important; font-weight: bold; }
 
         .current-task-row { background-color: var(--active-bg); font-weight: bold; border-left: 4px solid var(--warning) !important; animation: pulse 2s infinite; }
         .sleep-row { color: var(--sleep-text); background-color: var(--sleep-bg); }
@@ -63,8 +57,10 @@
         @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.05); } 100% { background-color: var(--active-bg); } }
         
         .footer { margin-top: 15px; text-align: center; }
-        .btn { padding: 16px; border-radius: 25px; border: none; font-weight: bold; width: 100%; font-size: 1em; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn { padding: 16px; border-radius: 25px; border: none; font-weight: bold; width: 100%; font-size: 1em; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
         .btn-success { background: var(--success); color: white; }
+        .btn:disabled { background: #dcdde1; color: #7f8c8d; cursor: not-allowed; font-family: 'Consolas', monospace; }
+        body.dark-theme .btn:disabled { background: #353b48; color: #718093; }
     </style>
 </head>
 <body>
@@ -112,7 +108,7 @@
     </div>
 
     <div class="footer">
-        <div id="statusMessage" style="font-size: 0.95em; font-weight: 800; margin-bottom: 10px;"></div>
+        <div id="statusMessage" style="font-size: 0.95em; font-weight: 800; margin-bottom: 10px; color: var(--primary);"></div>
         <button id="nextShiftBtn" class="btn" disabled onclick="transferShift()">Наступна зміна</button>
     </div>
 </div>
@@ -221,18 +217,19 @@
         const monitor = document.getElementById('statusMonitor');
         const labelText = document.getElementById('monitorLabel');
         const timerText = document.getElementById('topTimer');
-        const cur = now.getHours() * 60 + now.getMinutes();
+        const h = now.getHours(), m = now.getMinutes();
+        const cur = h * 60 + m;
 
         if (cur >= (6*60+45) && cur < (8*60)) {
-            monitor.className = "status-monitor-top"; labelText.innerText = "Підготовка"; timerText.innerText = "До зміни";
+            labelText.innerText = "Підготовка"; timerText.innerText = "До зміни";
         } 
         else if (activeSleep) {
-            monitor.className = "status-monitor-top"; labelText.innerText = "Відпочинок"; timerText.innerText = activeSleep.name + ": " + formatCountdown(activeSleep.end - now);
+            labelText.innerText = "Відпочинок"; timerText.innerText = activeSleep.name + ": " + formatCountdown(activeSleep.end - now);
         } 
         else if (nextWalkTime) {
-            monitor.className = "status-monitor-top"; labelText.innerText = "Наступний обхід"; timerText.innerText = formatCountdown(nextWalkTime - now);
+            labelText.innerText = "Обхід через"; timerText.innerText = formatCountdown(nextWalkTime - now);
         } else {
-            monitor.className = "status-monitor-top"; labelText.innerText = "Статус"; timerText.innerText = "--:--:--";
+            labelText.innerText = "Статус"; timerText.innerText = "--:--:--";
         }
     }
 
@@ -243,7 +240,7 @@
 
     function toggleContrast() {
         const btn = document.getElementById('lightBtn');
-        const isContrast = document.body.classList.toggle('high-contrast');
+        document.body.classList.toggle('high-contrast');
         btn.classList.toggle('active');
     }
 
@@ -253,11 +250,20 @@
         const target = new Date(shiftStart);
         target.setDate(target.getDate() + 1); target.setHours(8, 0, 0, 0);
 
+        const countdownThreshold = new Date(target.getTime() - 75 * 60000); 
+
         if (processed >= total && now >= target) {
             btn.disabled = false; btn.classList.add('btn-success'); btn.innerText = "↻ Здати зміну";
+            msg.innerText = "ГОТОВО ДО ПЕРЕЗМІНКИ!"; msg.style.color = "var(--success)";
         } else {
             btn.disabled = true; btn.classList.remove('btn-success');
-            btn.innerText = "Наступна зміна";
+            msg.innerText = "ПЕРЕЗМІНКА О 08:00"; msg.style.color = "var(--primary)";
+            
+            if (now >= countdownThreshold && now < target) {
+                btn.innerText = "До зміни: " + formatCountdown(target - now);
+            } else {
+                btn.innerText = "Наступна зміна";
+            }
         }
     }
 
@@ -269,7 +275,7 @@
     function changeShift(n) { currentShiftNum = parseInt(n); localStorage.setItem('active_shift', n); render(); }
 
     function transferShift() { 
-        if(confirm("Здати зміну?")) { 
+        if(confirm("Здати зміну? Усі записи буде очищено.")) { 
             logs = {}; localStorage.removeItem('duty_logs'); 
             currentShiftNum = (currentShiftNum === 1) ? 2 : 1;
             localStorage.setItem('active_shift', currentShiftNum); render(); 
