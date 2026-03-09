@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Sleep Header Final)</title>
+    <title>Графік чергування (Next Walk Timer)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -11,29 +11,31 @@
             --active-bg: #fff9db; --body-bg: #f0f2f5; --card-bg: white; --text: #2c3e50;
             --grad: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             --sleep-bg: #e3f2fd; --sleep-text: #1565c0;
+            --next-bg: #f8f9fa;
         }
 
         body.dark-theme {
             --body-bg: #1a1a1a; --card-bg: #2d2d2d; --text: #ecf0f1;
             --light: #3d3d3d; --active-bg: #4d4520;
             --sleep-bg: #0d47a1; --sleep-text: #bbdefb;
+            --next-bg: #252525;
         }
 
         body { font-family: 'Segoe UI', sans-serif; background: var(--body-bg); margin: 0; padding: 5px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
         .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         
-        /* Шапка з монітором сну */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--light); padding-bottom: 8px; gap: 8px; }
         .header-left { flex: 1; }
         .header-left h1 { margin: 0; font-size: 1.1em; font-weight: 800; line-height: 1; letter-spacing: 1px; }
         .header-left small { font-size: 0.7em; color: #7f8c8d; font-weight: bold; }
 
-        .sleep-monitor-top { flex: 2; text-align: center; background: var(--light); padding: 4px 8px; border-radius: 8px; min-width: 130px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
+        .sleep-monitor-top { flex: 2; text-align: center; background: var(--next-bg); padding: 4px 8px; border-radius: 8px; min-width: 140px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
         .sleep-monitor-top .label { font-size: 0.55em; text-transform: uppercase; font-weight: 800; color: #7f8c8d; display: block; margin-bottom: -2px; }
         .sleep-monitor-top .timer { font-family: 'Consolas', monospace; font-size: 1.1em; font-weight: 900; color: var(--accent); display: block; white-space: nowrap; }
         
-        .sleep-monitor-top.active-sleep { background: var(--sleep-bg); border-color: var(--accent); box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); }
+        .sleep-monitor-top.active-sleep { background: var(--sleep-bg); border-color: var(--accent); }
         .sleep-monitor-top.warning .timer { color: var(--danger); animation: blink 1s infinite; }
+        .sleep-monitor-top.soon .timer { color: #e67e22; }
 
         .header-right { flex: 1; text-align: right; }
         #clock { font-size: 1.3em; font-weight: 800; color: var(--dark); display: block; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -69,8 +71,8 @@
             <small id="current-date">--.--.----</small>
         </div>
         
-        <div id="sleepMonitor" class="sleep-monitor-top">
-            <span class="label">Відпочинок</span>
+        <div id="statusMonitor" class="sleep-monitor-top">
+            <span id="monitorLabel" class="label">Завантаження</span>
             <span id="topTimer" class="timer">--:--:--</span>
         </div>
 
@@ -141,11 +143,6 @@
         {t: "06:45-08:00", startH: 6, startM: 45, task: "walk", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]], dur: 75}
     ];
 
-    function toggleTheme() {
-        const isDark = document.body.classList.toggle('dark-theme');
-        localStorage.setItem('dark_theme', isDark);
-    }
-
     function formatCountdown(ms) {
         if (ms < 0) return "00:00:00";
         const totalSeconds = Math.floor(ms / 1000);
@@ -168,49 +165,50 @@
         document.getElementById('current-date').innerText = shiftStart.toLocaleDateString('uk-UA');
         tbody.innerHTML = '';
 
-        let activeSleepFound = false;
+        let activeSleep = null;
+        let nextWalkTime = null;
         let processedCount = 0;
         let totalWalks = 0;
 
         schedule.forEach((row, index) => {
             const tr = tbody.insertRow();
-            let taskTime = new Date(shiftStart);
-            taskTime.setHours(row.startH, row.startM, 0, 0);
-            if (row.startH < 8) taskTime.setDate(taskTime.getDate() + 1);
+            let taskStartTime = new Date(shiftStart);
+            taskStartTime.setHours(row.startH, row.startM, 0, 0);
+            if (row.startH < 8) taskStartTime.setDate(taskStartTime.getDate() + 1);
             
-            const endTime = new Date(taskTime.getTime() + row.dur * 60000);
-            const diffMin = (now - taskTime) / 60000;
+            const taskEndTime = new Date(taskStartTime.getTime() + row.dur * 60000);
+            const isCurrentlyActive = (now >= taskStartTime && now < taskEndTime);
+            const diffMin = (now - taskStartTime) / 60000;
+
+            // Пошук наступного обходу для таймера в шапці
+            if (row.task === 'walk' && taskStartTime > now && !nextWalkTime) {
+                nextWalkTime = taskStartTime;
+            }
+
             let checkHtml = "";
 
             if (row.task === 'sleep') {
                 tr.classList.add('sleep-row');
-                if (now >= taskTime && now < endTime) {
+                if (isCurrentlyActive) {
                     tr.classList.add('current-task-row');
-                    const remaining = endTime - now;
-                    checkHtml = `<b>${formatCountdown(remaining)}</b>`;
-                    
-                    // Оновлення блоку в шапці
-                    activeSleepFound = true;
-                    const monitor = document.getElementById('sleepMonitor');
-                    const timerText = document.getElementById('topTimer');
-                    monitor.className = "sleep-monitor-top active-sleep" + (remaining < 600000 ? " warning" : "");
-                    timerText.innerText = row.exec + ": " + formatCountdown(remaining);
+                    activeSleep = { name: row.exec, end: taskEndTime };
+                    checkHtml = `<b>${formatCountdown(taskEndTime - now)}</b>`;
                 } else {
-                    checkHtml = `<small>${now >= endTime ? 'завершено' : 'сон'}</small>`;
-                    if (now >= endTime) tr.classList.add('past-task-row');
+                    checkHtml = `<small>${now >= taskEndTime ? 'завершено' : 'сон'}</small>`;
+                    if (now >= taskEndTime) tr.classList.add('past-task-row');
                 }
             } else {
                 totalWalks++;
-                if (diffMin >= 0 && diffMin < row.dur) tr.classList.add('current-task-row');
-                else if (diffMin >= row.dur) tr.classList.add('past-task-row');
+                if (isCurrentlyActive) tr.classList.add('current-task-row');
+                else if (now >= taskEndTime) tr.classList.add('past-task-row');
 
                 if (logs[index]) {
                     checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
                     processedCount++;
-                } else if (diffMin > row.dur) {
+                } else if (now >= taskEndTime) {
                     checkHtml = `<small style="color:var(--danger)">ВТРАЧЕНО</small>`;
                     processedCount++;
-                } else if (diffMin < 0) {
+                } else if (now < taskStartTime) {
                     checkHtml = `<span style="opacity:0.3">...</span>`;
                 } else {
                     checkHtml = `<input type="checkbox" style="width:18px;height:18px" onchange="mark(${index})">`;
@@ -221,12 +219,36 @@
             tr.innerHTML = `<td><b>${row.t}</b></td><td>${label}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
 
-        if (!activeSleepFound) {
-            document.getElementById('sleepMonitor').className = "sleep-monitor-top";
-            document.getElementById('topTimer').innerText = "--:--:--";
+        // ОНОВЛЕННЯ МОНІТОРА В ШАПЦІ
+        const monitor = document.getElementById('statusMonitor');
+        const labelText = document.getElementById('monitorLabel');
+        const timerText = document.getElementById('topTimer');
+
+        if (activeSleep) {
+            // Пріоритет 1: Хтось спить
+            const remaining = activeSleep.end - now;
+            monitor.className = "sleep-monitor-top active-sleep" + (remaining < 600000 ? " warning" : "");
+            labelText.innerText = "Відпочинок";
+            timerText.innerText = activeSleep.name + ": " + formatCountdown(remaining);
+        } else if (nextWalkTime && now.getHours() >= 8 && now.getHours() < 20) {
+            // Пріоритет 2: Денний час, чекаємо на наступний обхід
+            const toNext = nextWalkTime - now;
+            monitor.className = "sleep-monitor-top" + (toNext < 300000 ? " soon" : "");
+            labelText.innerText = "Наступний обхід через";
+            timerText.innerText = formatCountdown(toNext);
+        } else {
+            // Режим очікування
+            monitor.className = "sleep-monitor-top";
+            labelText.innerText = "Статус";
+            timerText.innerText = "--:--:--";
         }
 
         updateStatus(processedCount, totalWalks, now);
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.classList.toggle('dark-theme');
+        localStorage.setItem('dark_theme', isDark);
     }
 
     function updateStatus(processed, total, now) {
@@ -234,7 +256,7 @@
         const msg = document.getElementById('statusMessage');
         const isReady = processed >= total && now.getHours() >= 8;
         btn.disabled = !isReady;
-        msg.innerText = isReady ? "Можна здавати зміну" : `Виконано: ${processed}/${total}`;
+        msg.innerText = isReady ? "Можна здавати зміну" : `Виконано обходів: ${processed}/${total}`;
         msg.style.color = isReady ? "var(--success)" : "var(--danger)";
     }
 
