@@ -3,99 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік Чергування (Обхід Edition)</title>
+    <title>Графік + Архів</title>
     <style>
         :root {
             --bg: #1a1a1a; --card: #2d2d2d; --text: #ecf0f1;
             --accent: #3498db; --active-bg: #4d4520; --border: #3d3d3d;
-            --warning: #f1c40f; --success: #27ae60;
+            --warning: #f1c40f; --success: #27ae60; --danger: #e74c3c;
         }
 
-        html, body {
-            height: 100%; margin: 0; padding: 0;
-            background-color: var(--bg); font-family: 'Segoe UI', sans-serif;
-            color: var(--text); overflow: hidden;
-        }
-
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow: hidden; }
         .main-container { display: flex; flex-direction: column; height: 100vh; padding: 10px; box-sizing: border-box; }
 
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--card); padding: 12px; border-radius: 12px;
-            margin-bottom: 10px; border: 1px solid var(--border); flex-shrink: 0;
-        }
+        .header, .footer { flex-shrink: 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 10px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--border); }
+        .header h1 { margin: 0; font-size: 18px; text-transform: uppercase; }
 
-        .header-left h1 { margin: 0; font-size: 20px; text-transform: uppercase; color: white; }
-        .header-left small { opacity: 0.6; font-size: 12px; }
-
-        .status-monitor {
-            background: rgba(0,0,0,0.4); padding: 6px 12px; border-radius: 8px;
-            text-align: center; border: 1px solid var(--border);
-        }
-        .status-monitor span { display: block; font-size: 9px; color: #95a5a6; text-transform: uppercase; }
-        .status-monitor b { font-size: 16px; color: var(--warning); font-family: monospace; }
-
-        .clock { font-size: 18px; font-weight: bold; color: var(--accent); display: block; }
-        
-        .tool-btn {
-            margin-top: 5px; width: 35px; height: 35px; border-radius: 6px; border: none;
-            background: var(--border); color: white; cursor: pointer; font-size: 18px;
-        }
-        .tool-btn.active { background: var(--warning); color: black; }
-
-        .table-area {
-            flex-grow: 1; background: var(--card); border-radius: 12px;
-            overflow-y: auto; border: 1px solid var(--border);
-            -webkit-overflow-scrolling: touch;
-        }
-
+        .table-area { flex-grow: 1; background: var(--card); border-radius: 12px; overflow-y: auto; border: 1px solid var(--border); margin-bottom: 8px; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { 
-            position: sticky; top: 0; background: #222; z-index: 10;
-            padding: 12px 5px; font-size: 11px; text-transform: uppercase; color: #7f8c8d;
-            border-bottom: 2px solid var(--accent); text-align: left;
-        }
+        th { position: sticky; top: 0; background: #222; z-index: 10; padding: 10px 5px; font-size: 10px; text-transform: uppercase; color: #7f8c8d; border-bottom: 2px solid var(--accent); text-align: left; }
+        td { padding: 8px 5px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
 
-        td { padding: 10px 5px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; }
-
-        .col-plan { width: 28%; font-weight: bold; color: var(--accent); }
-        .col-task { width: 28%; }
-        .col-post { width: 32%; }
-        .col-zvit { width: 12%; text-align: center; }
-
-        .past-task-row { opacity: 0.4; filter: grayscale(100%); }
-        body.light-on .past-task-row { opacity: 1 !important; filter: none !important; }
         .active-row { background: var(--active-bg); border-left: 4px solid var(--warning); font-weight: bold; }
+        .past-task-row { opacity: 0.4; }
         
-        .name-item { display: block; margin-bottom: 2px; }
-        .label-obkhid { font-size: 10px; color: var(--warning); display: block; font-weight: normal; margin-top: 2px; }
+        /* Випадаючий список */
+        select { background: #3d3d3d; color: white; border: 1px solid var(--accent); border-radius: 4px; padding: 4px; width: 100%; font-size: 13px; }
+        
+        .col-plan { width: 25%; }
+        .col-task { width: 30%; }
+        .col-post { width: 32%; }
+        .col-zvit { width: 13%; text-align: center; }
 
-        input[type="checkbox"] { transform: scale(1.5); accent-color: var(--success); cursor: pointer; }
-        input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.3; }
+        .archive-section { background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #444; }
+        .archive-item { font-size: 12px; border-bottom: 1px solid #333; padding: 5px 0; }
+        .archive-item:last-child { border: none; }
 
-        .footer { padding-top: 10px; flex-shrink: 0; }
-        .next-btn {
-            width: 100%; height: 50px; border-radius: 12px; border: none;
-            background: var(--accent); color: white; font-size: 16px; font-weight: bold;
-        }
-        .next-btn:disabled { background: #3d3d3d; color: #777; }
+        .next-btn { width: 100%; height: 45px; border-radius: 10px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; }
+        .next-btn:disabled { background: #333; color: #666; }
+        
+        .label-obkhid { font-size: 9px; color: var(--warning); display: block; }
+        input[type="checkbox"] { transform: scale(1.3); }
     </style>
 </head>
-<body class="light-on">
+<body>
 
 <div class="main-container">
     <div class="header">
-        <div class="header-left">
-            <h1>ГРАФІК</h1>
-            <small id="date-display">--.--.----</small>
-        </div>
-        <div class="status-monitor">
-            <span id="mon-label">Наступний обхід</span>
-            <b id="timer-display">00:00:00</b>
+        <div>
+            <h1 id="shift-title">Зміна №1</h1>
+            <small id="date-display"></small>
         </div>
         <div style="text-align: right;">
-            <span class="clock" id="clock-display">00:00:00</span>
-            <button class="tool-btn active" id="light-btn" onclick="toggleLight()">💡</button>
+            <span id="clock-display" style="font-weight: bold; color: var(--accent);"></span>
+            <div id="timer-display" style="font-size: 11px; color: var(--warning);"></div>
         </div>
     </div>
 
@@ -104,54 +64,54 @@
             <thead>
                 <tr>
                     <th class="col-plan">План</th>
-                    <th class="col-task">Завдання</th>
-                    <th class="col-post">Пост</th>
+                    <th class="col-task">Обхідний</th>
+                    <th class="col-post">На посту</th>
                     <th class="col-zvit">Звіт</th>
                 </tr>
             </thead>
             <tbody id="schedule-body"></tbody>
         </table>
+
+        <div class="archive-section">
+            <h3 style="font-size: 14px; margin: 0 0 10px 0; color: var(--accent);">📜 Архів останніх змін</h3>
+            <div id="archive-list"></div>
+        </div>
     </div>
 
     <div class="footer">
-        <button id="shift-btn" class="next-btn" disabled>Наступна зміна</button>
+        <button id="shift-btn" class="next-btn" onclick="saveToArchive()" disabled>Здати зміну</button>
     </div>
 </div>
 
 <script>
-    const s1 = ["Кузнєцов", "Драний", "Литовченко"];
-    let logs = JSON.parse(localStorage.getItem('duty_logs_strict')) || {};
+    const members = ["Кузнєцов", "Драний", "Литовченко"];
+    let logs = JSON.parse(localStorage.getItem('logs_v4')) || {};
+    let selections = JSON.parse(localStorage.getItem('select_v4')) || {};
+    let archive = JSON.parse(localStorage.getItem('duty_archive')) || [];
 
-    const fullSchedule = (n) => [
-        {t: "08:00-08:20", h: 8, m: 0, d: 20, task: "Зміна", post: [n[0], n[1], n[2]], isWalk: false},
-        {t: "08:20", h: 8, m: 20, d: 60, task: n[0], post: [n[1], n[2]], isWalk: true},
-        {t: "09:20", h: 9, m: 20, d: 60, task: n[1], post: [n[0], n[2]], isWalk: true},
-        {t: "10:20", h: 10, m: 20, d: 60, task: n[2], post: [n[0], n[1]], isWalk: true},
-        {t: "11:20", h: 11, m: 20, d: 60, task: n[0], post: [n[1], n[2]], isWalk: true},
-        {t: "12:20", h: 12, m: 20, d: 60, task: n[1], post: [n[0], n[2]], isWalk: true},
-        {t: "13:20", h: 13, m: 20, d: 60, task: n[2], post: [n[0], n[1]], isWalk: true},
-        {t: "14:20", h: 14, m: 20, d: 60, task: n[0], post: [n[1], n[2]], isWalk: true},
-        {t: "15:20", h: 15, m: 20, d: 60, task: n[1], post: [n[0], n[2]], isWalk: true},
-        {t: "16:20", h: 16, m: 20, d: 60, task: n[2], post: [n[0], n[1]], isWalk: true},
-        {t: "17:20", h: 17, m: 20, d: 60, task: n[0], post: [n[1], n[2]], isWalk: true},
-        {t: "18:20", h: 18, m: 20, d: 60, task: n[1], post: [n[0], n[2]], isWalk: true},
-        {t: "19:20", h: 19, m: 20, d: 60, task: n[2], post: [n[0], n[1]], isWalk: true},
-        {t: "20:00", h: 20, m: 0, d: 120, task: "Сон: "+n[0], post: [n[1], n[2]], isWalk: false},
-        {t: "20:20", h: 20, m: 20, d: 120, task: n[1], post: [n[2]], isWalk: true},
-        {t: "22:20", h: 22, m: 20, d: 100, task: n[2], post: [n[1]], isWalk: true},
-        {t: "00:00", h: 0, m: 0, d: 120, task: "Сон: "+n[1], post: [n[0], n[2]], isWalk: false},
-        {t: "00:20", h: 0, m: 20, d: 120, task: n[0], post: [n[2]], isWalk: true},
-        {t: "02:20", h: 2, m: 20, d: 100, task: n[2], post: [n[0]], isWalk: true},
-        {t: "04:00", h: 4, m: 0, d: 120, task: "Сон: "+n[2], post: [n[0], n[1]], isWalk: false},
-        {t: "04:20", h: 4, m: 20, d: 120, task: n[0], post: [n[1]], isWalk: true},
-        {t: "06:20", h: 6, m: 20, d: 25, task: n[1], post: [n[0]], isWalk: true},
-        {t: "06:45", h: 6, m: 45, d: 75, task: "Підготовка", post: [n[0], n[1]], isWalk: false}
+    const scheduleData = [
+        {t: "08:20", h: 8, m: 20, d: 60, walk: true},
+        {t: "09:20", h: 9, m: 20, d: 60, walk: true},
+        {t: "10:20", h: 10, m: 20, d: 60, walk: true},
+        {t: "11:20", h: 11, m: 20, d: 60, walk: true},
+        {t: "12:20", h: 12, m: 20, d: 60, walk: true},
+        {t: "13:20", h: 13, m: 20, d: 60, walk: true},
+        {t: "14:20", h: 14, m: 20, d: 60, walk: true},
+        {t: "15:20", h: 15, m: 20, d: 60, walk: true},
+        {t: "16:20", h: 16, m: 20, d: 60, walk: true},
+        {t: "17:20", h: 17, m: 20, d: 60, walk: true},
+        {t: "18:20", h: 18, m: 20, d: 60, walk: true},
+        {t: "19:20", h: 19, m: 20, d: 60, walk: true},
+        {t: "20:00", h: 20, m: 0, d: 120, walk: false, task: "СОН 1"},
+        {t: "20:20", h: 20, m: 20, d: 120, walk: true},
+        {t: "22:20", h: 22, m: 20, d: 100, walk: true},
+        {t: "00:00", h: 0, m: 0, d: 120, walk: false, task: "СОН 2"},
+        {t: "00:20", h: 0, m: 20, d: 120, walk: true},
+        {t: "02:20", h: 2, m: 20, d: 100, walk: true},
+        {t: "04:00", h: 4, m: 0, d: 120, walk: false, task: "СОН 3"},
+        {t: "04:20", h: 4, m: 20, d: 120, walk: true},
+        {t: "06:20", h: 6, m: 20, d: 25, walk: true}
     ];
-
-    function toggleLight() {
-        document.body.classList.toggle('light-on');
-        document.getElementById('light-btn').classList.toggle('active');
-    }
 
     function render() {
         const now = new Date();
@@ -166,55 +126,83 @@
         tbody.innerHTML = '';
         let nextWalk = null;
 
-        fullSchedule(s1).forEach((row, idx) => {
+        scheduleData.forEach((row, idx) => {
             const tr = document.createElement('tr');
             const tStart = new Date(shiftStart);
             tStart.setHours(row.h, row.m, 0, 0);
             if (row.h < 8) tStart.setDate(tStart.getDate() + 1);
             const tEnd = new Date(tStart.getTime() + row.d * 60000);
 
-            const isPast = now >= tEnd;
             const isActive = now >= tStart && now < tEnd;
-
-            if (isPast) tr.className = 'past-task-row';
+            if (now >= tEnd) tr.className = 'past-task-row';
             if (isActive) tr.className = 'active-row';
             if (tStart > now && !nextWalk) nextWalk = tStart;
 
+            // Вибір обхідного
+            let taskCell = "";
+            let postCell = "";
+
+            if (row.walk) {
+                const selected = selections[idx] || members[idx % 3];
+                const others = members.filter(m => m !== selected);
+                
+                taskCell = `<select onchange="updateSelect(${idx}, this.value)" ${!isActive ? 'disabled' : ''}>
+                    ${members.map(m => `<option value="${m}" ${m === selected ? 'selected' : ''}>${m}</option>`).join('')}
+                </select>`;
+                postCell = others.join('<br>');
+            } else {
+                taskCell = `<span style="color:var(--accent)">${row.task}</span>`;
+                postCell = "Всі";
+            }
+
             tr.innerHTML = `
-                <td class="col-plan">
-                    ${row.t} 
-                    ${row.isWalk ? '<span class="label-obkhid">Обхід</span>' : ''}
-                </td>
-                <td class="col-task">${row.task}</td>
-                <td class="col-post">${row.post.map(p => `<span class="name-item">${p}</span>`).join('')}</td>
-                <td class="col-zvit">
-                    <input type="checkbox" 
-                           ${logs[idx] ? 'checked' : ''} 
-                           ${!isActive ? 'disabled' : ''} 
-                           onchange="saveLog(${idx})">
-                </td>
+                <td class="col-plan">${row.t} ${row.walk ? '<span class="label-obkhid">Обхід</span>' : ''}</td>
+                <td class="col-task">${taskCell}</td>
+                <td class="col-post">${postCell}</td>
+                <td class="col-zvit"><input type="checkbox" ${logs[idx]?'checked':''} ${!isActive?'disabled':''} onchange="saveLog(${idx})"></td>
             `;
             tbody.appendChild(tr);
         });
 
-        if (nextWalk) {
-            let diff = nextWalk - now;
-            document.getElementById('timer-display').innerText = new Date(diff).toISOString().substr(11, 8);
-        }
-
+        if (nextWalk) document.getElementById('timer-display').innerText = "Обхід за: " + new Date(nextWalk - now).toISOString().substr(11, 8);
+        
         const btn = document.getElementById('shift-btn');
         const endShift = new Date(shiftStart); endShift.setDate(endShift.getDate()+1); endShift.setHours(8,0,0,0);
-        if (now >= endShift) {
-            btn.disabled = false; btn.innerText = "Здати зміну";
-        } else {
-            btn.disabled = true; btn.innerText = "До перезмінки: " + new Date(endShift - now).toISOString().substr(11, 8);
-        }
+        btn.disabled = now < endShift;
+        
+        renderArchive();
     }
 
-    function saveLog(id) {
-        logs[id] = document.getElementById('schedule-body').rows[id].querySelector('input').checked;
-        localStorage.setItem('duty_logs_strict', JSON.stringify(logs));
+    function updateSelect(id, val) { selections[id] = val; localStorage.setItem('select_v4', JSON.stringify(selections)); render(); }
+    function saveLog(id) { logs[id] = !logs[id]; localStorage.setItem('logs_v4', JSON.stringify(logs)); render(); }
+
+    function saveToArchive() {
+        const dateStr = document.getElementById('date-display').innerText;
+        const totalWalks = Object.values(logs).filter(v => v).length;
+        const entry = {
+            date: dateStr,
+            shift: "Зміна №1",
+            walks: totalWalks,
+            dutyTime: "22 год" // 24 год - 2 год сну
+        };
+        archive.unshift(entry);
+        localStorage.setItem('duty_archive', JSON.stringify(archive.slice(0, 10))); // Зберігаємо останні 10
+        
+        // Очищення поточної зміни
+        logs = {}; selections = {};
+        localStorage.removeItem('logs_v4'); localStorage.removeItem('select_v4');
+        alert("Зміну збережено в архів!");
         render();
+    }
+
+    function renderArchive() {
+        const list = document.getElementById('archive-list');
+        list.innerHTML = archive.map(a => `
+            <div class="archive-item">
+                <b>${a.date}</b> | ${a.shift}<br>
+                Обходів: <span style="color:var(--success)">${a.walks}</span> | Час чергування: ${a.dutyTime}
+            </div>
+        `).join('') || "Архів порожній";
     }
 
     setInterval(render, 1000);
