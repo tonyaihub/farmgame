@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система управления дежурствами</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 10px; }
+        .info-bar { display: flex; justify-content: space-between; background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; }
+        .shift-selector { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .btn-s1 { background: var(--accent); color: white; }
+        .btn-s2 { background: var(--success); color: white; }
+        .active-row { background: var(--warning) !important; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: var(--primary); color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background: #fafafa; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; text-transform: uppercase; }
+        .badge-walk { background: #ffeaa7; color: #d35400; }
+        .badge-post { background: #fab1a0; color: #c0392b; }
+        .badge-sleep { background: #a29bfe; color: #2d3436; }
+        input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>График дежурств: Март 2026</h1>
+    
+    <div class="info-bar">
+        <div id="current-date">Дата: --.--.----</div>
+        <div id="active-shift-info">Сейчас дежурит: <span id="shift-name">Загрузка...</span></div>
+    </div>
+
+    <div class="shift-selector">
+        <button class="btn-s1" onclick="renderSchedule(1)">Смена 1 (Кузнєцов...)</button>
+        <button class="btn-s2" onclick="renderSchedule(2)">Смена 2 (Щербатюк...)</button>
+    </div>
+
+    <table id="schedule-table">
+        <thead>
+            <tr>
+                <th>Время</th>
+                <th>Задача</th>
+                <th>Исполнитель</th>
+                <th>На посту</th>
+                <th>ОТМ</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    const shift1 = ["Кузнєцов А.", "Драний О.", "Литовченко С."];
+    const shift2 = ["Щербатюк О.", "Ікальчик К.", "Приведенюк Р."];
+
+    function getActiveShiftByDate() {
+        const day = new Date().getDate();
+        // Упрощенная логика чередования 3 через 3 для примера
+        const s1Days = [1,2,3, 7,8,9, 13,14,15, 19,20,21, 25,26,27, 31];
+        return s1Days.includes(day) ? 1 : 2;
+    }
+
+    function renderSchedule(shiftNum) {
+        const names = shiftNum === 1 ? shift1 : shift2;
+        const tbody = document.getElementById('table-body');
+        document.getElementById('shift-name').innerText = "Смена " + shiftNum;
+        tbody.innerHTML = '';
+
+        const scheduleData = [
+            {t: "08:20", task: "Обход", exec: names[0], post: names[1] + ", " + names[2]},
+            {t: "09:20", task: "Обход", exec: names[1], post: names[0] + ", " + names[2]},
+            {t: "10:20", task: "Обход", exec: names[2], post: names[0] + ", " + names[1]},
+            {t: "11:20", task: "Обход", exec: names[0], post: names[1] + ", " + names[2]},
+            {t: "12:20", task: "Обход", exec: names[1], post: names[0] + ", " + names[2]},
+            {t: "13:20", task: "Обход", exec: names[2], post: names[0] + ", " + names[1]},
+            {t: "14:20", task: "Обход", exec: names[0], post: names[1] + ", " + names[2]},
+            {t: "15:20", task: "Обход", exec: names[1], post: names[0] + ", " + names[2]},
+            {t: "16:20", task: "Обход", exec: names[2], post: names[0] + ", " + names[1]},
+            {t: "17:20", task: "Обход", exec: names[0], post: names[1] + ", " + names[2]},
+            {t: "18:00", task: "Усиление", exec: "Все", post: "Все"},
+            {t: "20:00", task: "Сон/Ночь", exec: names[0] + " (Сон)", post: names[1] + ", " + names[2]},
+            {t: "20:20", task: "Обход Н", exec: names[1], post: names[2]},
+            {t: "22:20", task: "Обход Н", exec: names[2], post: names[1]},
+            {t: "00:00", task: "Сон/Ночь", exec: names[1] + " (Сон)", post: names[0] + ", " + names[2]},
+            {t: "00:20", task: "Обход Н", exec: names[0], post: names[2]},
+            {t: "02:20", task: "Обход Н", exec: names[2], post: names[0]},
+            {t: "04:00", task: "Сон/Ночь", exec: names[2] + " (Сон)", post: names[0] + ", " + names[1]},
+            {t: "04:20", task: "Обход Н", exec: names[0], post: names[1]},
+            {t: "06:20", task: "Обход Н", exec: names[1], post: names[0]}
+        ];
+
+        const currentHour = new Date().getHours();
+
+        scheduleData.forEach(item => {
+            const row = document.createElement('tr');
+            const itemHour = parseInt(item.t.split(':')[0]);
+            
+            // Подсветка текущего часа
+            if (currentHour === itemHour) row.className = 'active-row';
+
+            let badgeClass = 'badge-walk';
+            if(item.task.includes("Сон")) badgeClass = 'badge-sleep';
+            if(item.task.includes("Усиление")) badgeClass = 'badge-post';
+
+            row.innerHTML = `
+                <td>${item.t}</td>
+                <td><span class="status-badge ${badgeClass}">${item.task}</span></td>
+                <td>${item.exec}</td>
+                <td>${item.post}</td>
+                <td><input type="checkbox"></td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Инициализация
+    document.getElementById('current-date').innerText = "Дата: " + new Date().toLocaleDateString();
+    renderSchedule(getActiveShiftByDate());
+</script>
+
+</body>
+</html>
