@@ -1,71 +1,84 @@
-deвул<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування ( Парк )</title>
+    <title>Графік чергування (Sleep Header)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
             --warning: #f1c40f; --light: #ecf0f1; --dark: #34495e; --danger: #e74c3c;
             --active-bg: #fff9db; --body-bg: #f0f2f5; --card-bg: white; --text: #2c3e50;
             --grad: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            --sleep-bg: #e3f2fd; --sleep-text: #1565c0;
         }
 
         body.dark-theme {
             --body-bg: #1a1a1a; --card-bg: #2d2d2d; --text: #ecf0f1;
             --light: #3d3d3d; --active-bg: #4d4520;
+            --sleep-bg: #0d47a1; --sleep-text: #bbdefb;
         }
 
         body { font-family: 'Segoe UI', sans-serif; background: var(--body-bg); margin: 0; padding: 5px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
         .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--light); padding-bottom: 8px; flex-wrap: nowrap; gap: 5px; }
-        .header-title h1 { margin: 0; font-size: 1.4em; font-weight: 800; line-height: 1; }
-        .header-title small { font-size: 0.7em; color: #7f8c8d; font-weight: bold; display: block; }
-        
-        .time-area { text-align: center; flex-grow: 1; min-width: 100px; }
-        #clock { font-size: 1.5em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
-        #current-date { font-size: 0.75em; font-weight: bold; display: block; margin-bottom: 2px; }
+        /* Оновлена шапка */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--light); padding-bottom: 8px; gap: 8px; }
+        .header-left { flex: 1; }
+        .header-left h1 { margin: 0; font-size: 1.2em; font-weight: 800; line-height: 1; }
+        .header-left small { font-size: 0.7em; color: #7f8c8d; }
 
-        .top-right-tool { display: flex; gap: 4px; }
-        .tool-btn { background: var(--light); width: 36px; height: 36px; border-radius: 8px; font-size: 16px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
-        .tool-btn.active { background: var(--warning); color: #000; }
+        .sleep-monitor-top { flex: 2; text-align: center; background: var(--light); padding: 4px 8px; border-radius: 8px; min-width: 120px; border: 1px solid rgba(0,0,0,0.05); }
+        .sleep-monitor-top .label { font-size: 0.6em; text-transform: uppercase; font-weight: 800; color: #7f8c8d; display: block; margin-bottom: -2px; }
+        .sleep-monitor-top .timer { font-family: 'Consolas', monospace; font-size: 1.2em; font-weight: 900; color: var(--accent); display: block; }
+        .sleep-monitor-top.active-sleep { background: var(--sleep-bg); border-color: var(--accent); }
+        .sleep-monitor-top.warning .timer { color: var(--danger); animation: blink 1s infinite; }
+
+        .header-right { flex: 1; text-align: right; }
+        #clock { font-size: 1.3em; font-weight: 800; color: var(--dark); display: block; line-height: 1; font-variant-numeric: tabular-nums; }
+        #current-date { font-size: 0.7em; font-weight: bold; }
+
+        .top-tools { display: flex; gap: 4px; margin-bottom: 10px; justify-content: flex-end; }
+        .tool-btn { background: var(--light); width: 34px; height: 34px; border-radius: 8px; font-size: 16px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
 
         .top-controls { margin-bottom: 12px; }
-        .group-selector { width: 100%; padding: 10px; border: none; border-radius: 8px; background: var(--grad); color: white; font-size: 1em; font-weight: 800; text-align: center; appearance: none; margin-bottom: 6px; }
-        .personnel-display { background: var(--light); border-radius: 8px; padding: 6px; display: flex; justify-content: space-around; font-weight: bold; font-size: 0.8em; flex-wrap: wrap; gap: 4px; }
+        .group-selector { width: 100%; padding: 10px; border: none; border-radius: 8px; background: var(--grad); color: white; font-size: 1em; font-weight: 800; text-align: center; appearance: none; }
+        
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 310px; }
+        th { background: var(--light); padding: 6px 4px; text-align: left; font-size: 0.65em; text-transform: uppercase; border-bottom: 2px solid var(--accent); }
+        td { padding: 8px 4px; border-bottom: 1px solid var(--light); font-size: 0.75em; }
 
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 300px; table-layout: fixed; }
-        th { background: var(--light); padding: 6px 4px; text-align: left; border-bottom: 2px solid var(--accent); font-size: 0.65em; text-transform: uppercase; }
-        td { padding: 8px 4px; border-bottom: 1px solid var(--light); vertical-align: middle; font-size: 0.75em; word-wrap: break-word; }
-
-        .current-task-row { animation: pulse 2s infinite; border-left: 4px solid var(--warning) !important; background-color: var(--active-bg); }
-        .info-row { font-style: bold;  color: var(--accent); }
-        body.dim-past .past-task-row { opacity: 0.45; filter: grayscale(40%); }
-
+        .current-task-row { background-color: var(--active-bg); font-weight: bold; border-left: 4px solid var(--warning) !important; }
+        .sleep-row { color: var(--sleep-text); background-color: var(--sleep-bg); }
+        
+        @keyframes blink { 50% { opacity: 0.5; } }
+        @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.05); } 100% { background-color: var(--active-bg); } }
+        
         .footer { margin-top: 15px; text-align: center; }
-        .btn { padding: 14px; border-radius: 25px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 100%; font-size: 0.9em; transition: 0.2s; }
+        .btn { padding: 14px; border-radius: 25px; border: none; font-weight: bold; width: 100%; font-size: 0.9em; cursor: pointer; }
         .btn-success { background: var(--success); color: white; }
-        .btn-success:disabled { background: #ccc !important; opacity: 0.6; cursor: not-allowed; }
-        .status-msg { font-size: 0.95em; margin-bottom: 9px; font-weight: bold; }
-
-        @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.1); } 100% { background-color: var(--active-bg); } }
     </style>
 </head>
-<body class="dim-past">
+<body>
 
 <div class="container">
     <div class="header">
-        <div class="header-title"><h1>Графік</h1><small>чергування</small></div>
-        <div class="time-area">
-            <span id="current-date">--.--.----</span>
-            <div id="clock">00:00:00</div>
+        <div class="header-left">
+            <h1>ГРАФІК</h1>
+            <small id="current-date">--.--.----</small>
         </div>
-        <div class="top-right-tool">
-            <button class="tool-btn" onclick="toggleTheme()">🌓</button>
-            <button class="tool-btn active" id="lightBtn" onclick="toggleDimming()">💡</button>
+        
+        <div id="sleepMonitor" class="sleep-monitor-top">
+            <span class="label">Відпочинок</span>
+            <span id="topTimer" class="timer">--:--:--</span>
+        </div>
+
+        <div class="header-right">
+            <span id="clock">00:00:00</span>
+            <div style="display: flex; gap: 4px; margin-top: 4px; justify-content: flex-end;">
+                <button class="tool-btn" onclick="toggleTheme()">🌓</button>
+            </div>
         </div>
     </div>
 
@@ -74,17 +87,16 @@ deвул<!DOCTYPE html>
             <option value="1">Зміна №1</option>
             <option value="2">Зміна №2</option>
         </select>
-        <div class="personnel-display" id="names-box"></div>
     </div>
 
     <div class="table-wrapper">
         <table id="mainTable">
             <thead>
                 <tr>
-                    <th style="width: 26%;">План</th>
-                    <th style="width: 28%;">Завдання</th>
-                    <th style="width: 28%;">На посту</th>
-                    <th style="width: 18%; text-align:center;">Звіт</th>
+                    <th style="width: 25%;">План</th>
+                    <th style="width: 30%;">Завдання</th>
+                    <th style="width: 25%;">Пост</th>
+                    <th style="width: 20%; text-align:center;">Звіт</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -92,7 +104,7 @@ deвул<!DOCTYPE html>
     </div>
 
     <div class="footer">
-        <div id="statusMessage" class="status-msg"></div>
+        <div id="statusMessage" style="font-size: 0.8em; font-weight: bold; margin-bottom: 8px;"></div>
         <button id="nextShiftBtn" class="btn btn-success" disabled onclick="transferShift()">↻ Наступна зміна</button>
     </div>
 </div>
@@ -102,13 +114,11 @@ deвул<!DOCTYPE html>
     const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
     let logs = JSON.parse(localStorage.getItem('duty_logs')) || {};
     let currentShiftNum = parseInt(localStorage.getItem('active_shift')) || 1;
-    let lastNotifiedIdx = null;
 
     if(localStorage.getItem('dark_theme') === 'true') document.body.classList.add('dark-theme');
-    if (Notification.permission !== 'granted') Notification.requestPermission();
 
     const scheduleData = (names) => [
-        {t: "08:00-08:20", startH: 8, startM: 0, task: "info", label: "Зміна чергових", exec: "Всі", post: [names[0], names[1], names[2]], dur: 20},
+        {t: "08:00-08:20", startH: 8, startM: 0, task: "walk", label: "Зміна чергових", exec: "Всі", post: [names[0], names[1], names[2]], dur: 20},
         {t: "08:20", startH: 8, startM: 20, task: "walk", exec: names[0], post: [names[1], names[2]], dur: 60},
         {t: "09:20", startH: 9, startM: 20, task: "walk", exec: names[1], post: [names[0], names[2]], dur: 60},
         {t: "10:20", startH: 10, startM: 20, task: "walk", exec: names[2], post: [names[0], names[1]], dur: 60},
@@ -130,7 +140,7 @@ deвул<!DOCTYPE html>
         {t: "04:00", startH: 4, startM: 0, task: "sleep", exec: names[2], post: [names[0], names[1]], dur: 120},
         {t: "04:20", startH: 4, startM: 20, task: "walk", exec: names[0], post: [names[1]], dur: 120},
         {t: "06:20", startH: 6, startM: 20, task: "walk", exec: names[1], post: [names[0]], dur: 25},
-        {t: "06:45-08:00", startH: 6, startM: 45, task: "info", label: "Прибирання", exec: "До зміни", post: [names[0], names[1]], dur: 75}
+        {t: "06:45-08:00", startH: 6, startM: 45, task: "walk", label: "Підготовка", exec: "До зміни", post: [names[0], names[1]], dur: 75}
     ];
 
     function toggleTheme() {
@@ -138,9 +148,13 @@ deвул<!DOCTYPE html>
         localStorage.setItem('dark_theme', isDark);
     }
 
-    function toggleDimming() {
-        document.body.classList.toggle('dim-past');
-        document.getElementById('lightBtn').classList.toggle('active');
+    function formatCountdown(ms) {
+        if (ms < 0) return "00:00:00";
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return [hours, minutes, seconds].map(v => v.toString().padStart(2, '0')).join(':');
     }
 
     function render() {
@@ -154,10 +168,9 @@ deвул<!DOCTYPE html>
         shiftStart.setHours(8, 0, 0, 0);
 
         document.getElementById('current-date').innerText = shiftStart.toLocaleDateString('uk-UA');
-        document.getElementById('names-box').innerHTML = names.map(n => `<span>${n}</span>`).join('');
-        document.getElementById('groupSelect').value = currentShiftNum;
         tbody.innerHTML = '';
 
+        let activeSleepFound = false;
         let processedCount = 0;
         let totalWalks = 0;
 
@@ -166,43 +179,53 @@ deвул<!DOCTYPE html>
             let taskTime = new Date(shiftStart);
             taskTime.setHours(row.startH, row.startM, 0, 0);
             if (row.startH < 8) taskTime.setDate(taskTime.getDate() + 1);
-            
+            const endTime = new Date(taskTime.getTime() + row.dur * 60000);
             const diffMin = (now - taskTime) / 60000;
 
-            if (diffMin >= 0 && diffMin < 1 && lastNotifiedIdx !== index) {
-                if (Notification.permission === "granted") {
-                    new Notification("УВАГА", { body: `${row.label || row.exec}` });
-                }
-                lastNotifiedIdx = index;
-            }
-
-            if (diffMin >= 0 && diffMin < row.dur) tr.className = 'current-task-row';
-            else if (diffMin >= row.dur) tr.className = 'past-task-row';
-
             let checkHtml = "";
-            if (row.task === 'walk') {
+
+            if (row.task === 'sleep') {
+                tr.classList.add('sleep-row');
+                if (now >= taskTime && now < endTime) {
+                    tr.classList.add('current-task-row');
+                    const remaining = endTime - now;
+                    checkHtml = `<b>${formatCountdown(remaining)}</b>`;
+                    
+                    // Оновлення шапки
+                    activeSleepFound = true;
+                    const monitor = document.getElementById('sleepMonitor');
+                    const timerText = document.getElementById('topTimer');
+                    monitor.className = "sleep-monitor-top active-sleep" + (remaining < 600000 ? " warning" : "");
+                    timerText.innerText = row.exec + ": " + formatCountdown(remaining);
+                } else {
+                    checkHtml = `<small>${now >= endTime ? 'готово' : 'сон'}</small>`;
+                }
+            } else {
                 totalWalks++;
+                if (diffMin >= 0 && diffMin < row.dur) tr.classList.add('current-task-row');
+                else if (diffMin >= row.dur) tr.classList.add('past-task-row');
+
                 if (logs[index]) {
                     checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
                     processedCount++;
                 } else if (diffMin > row.dur) {
-                    checkHtml = `<small style="color:var(--danger);font-weight:bold">ВТРАЧЕНО</small>`;
-                    processedCount++; 
+                    checkHtml = `<small style="color:var(--danger)">ВТРАЧЕНО</small>`;
+                    processedCount++;
                 } else if (diffMin < 0) {
                     checkHtml = `<span style="opacity:0.3">...</span>`;
                 } else {
-                    checkHtml = `<input type="checkbox" style="width:18px;height:18px" onchange="mark(${index})">`;
+                    checkHtml = `<input type="checkbox" onchange="mark(${index})">`;
                 }
-            } else if (row.task === 'info') {
-                tr.classList.add('info-row');
-                checkHtml = `<small>—</small>`;
-            } else {
-                checkHtml = `<small style="opacity:0.5">сон</small>`;
             }
 
-            const displayLabel = row.label ? `<b>${row.label}</b>` : row.exec;
-            tr.innerHTML = `<td><b>${row.t}</b></td><td>${displayLabel}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
+            const label = row.label ? `<b>${row.label}</b>` : row.exec;
+            tr.innerHTML = `<td><b>${row.t}</b></td><td>${label}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
+
+        if (!activeSleepFound) {
+            document.getElementById('sleepMonitor').className = "sleep-monitor-top";
+            document.getElementById('topTimer').innerText = "--:--:--";
+        }
 
         updateStatus(processedCount, totalWalks, now);
     }
@@ -210,21 +233,10 @@ deвул<!DOCTYPE html>
     function updateStatus(processed, total, now) {
         const btn = document.getElementById('nextShiftBtn');
         const msg = document.getElementById('statusMessage');
-        const isTimeForNext = now.getHours() >= 8;
-
-        if (processed < total) {
-            btn.disabled = true;
-            msg.innerText = `Заповнено: ${processed}/${total}`;
-            msg.style.color = "var(--danger)";
-        } else if (!isTimeForNext) {
-            btn.disabled = true;
-            msg.innerText = "Здача о 08:00 ранку";
-            msg.style.color = "#e67e22";
-        } else {
-            btn.disabled = false;
-            msg.innerText = "Готово до зміни!";
-            msg.style.color = "var(--success)";
-        }
+        const isReady = processed >= total && now.getHours() >= 8;
+        btn.disabled = !isReady;
+        msg.innerText = isReady ? "Можна здавати зміну" : `Заповнено обходів: ${processed}/${total}`;
+        msg.style.color = isReady ? "var(--success)" : "var(--danger)";
     }
 
     function mark(id) { 
@@ -240,9 +252,8 @@ deвул<!DOCTYPE html>
     }
 
     function transferShift() { 
-        if(confirm("Перейти до наступної зміни?")) { 
-            logs = {}; 
-            localStorage.removeItem('duty_logs'); 
+        if(confirm("Здати зміну?")) { 
+            logs = {}; localStorage.removeItem('duty_logs'); 
             currentShiftNum = (currentShiftNum === 1) ? 2 : 1;
             localStorage.setItem('active_shift', currentShiftNum);
             render(); 
@@ -251,7 +262,7 @@ deвул<!DOCTYPE html>
 
     setInterval(() => {
         document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA');
-        if (new Date().getSeconds() === 0) render();
+        render();
     }, 1000);
 
     render();
