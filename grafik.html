@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік + Архів</title>
+    <title>Графік Чергування PRO</title>
     <style>
         :root {
             --bg: #1a1a1a; --card: #2d2d2d; --text: #ecf0f1;
             --accent: #3498db; --active-bg: #4d4520; --border: #3d3d3d;
-            --warning: #f1c40f; --success: #27ae60; --danger: #e74c3c;
+            --warning: #f1c40f; --success: #27ae60; --sleep: #a29bfe;
         }
 
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow: hidden; }
         .main-container { display: flex; flex-direction: column; height: 100vh; padding: 10px; box-sizing: border-box; }
 
-        .header, .footer { flex-shrink: 0; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 10px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--border); }
+        .header { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 10px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--border); flex-shrink: 0; }
         .header h1 { margin: 0; font-size: 18px; text-transform: uppercase; }
 
-        .table-area { flex-grow: 1; background: var(--card); border-radius: 12px; overflow-y: auto; border: 1px solid var(--border); margin-bottom: 8px; }
+        .table-area { flex-grow: 1; background: var(--card); border-radius: 12px; overflow-y: auto; border: 1px solid var(--border); margin-bottom: 8px; position: relative; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { position: sticky; top: 0; background: #222; z-index: 10; padding: 10px 5px; font-size: 10px; text-transform: uppercase; color: #7f8c8d; border-bottom: 2px solid var(--accent); text-align: left; }
         td { padding: 8px 5px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
@@ -26,23 +25,23 @@
         .active-row { background: var(--active-bg); border-left: 4px solid var(--warning); font-weight: bold; }
         .past-task-row { opacity: 0.4; }
         
-        /* Випадаючий список */
-        select { background: #3d3d3d; color: white; border: 1px solid var(--accent); border-radius: 4px; padding: 4px; width: 100%; font-size: 13px; }
+        select { background: #3d3d3d; color: white; border: 1px solid var(--accent); border-radius: 4px; padding: 4px; width: 100%; font-size: 13px; outline: none; }
+        select:disabled { border-color: #555; color: #aaa; appearance: none; }
         
         .col-plan { width: 25%; }
-        .col-task { width: 30%; }
-        .col-post { width: 32%; }
+        .col-task { width: 32%; }
+        .col-post { width: 30%; }
         .col-zvit { width: 13%; text-align: center; }
 
-        .archive-section { background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #444; }
-        .archive-item { font-size: 12px; border-bottom: 1px solid #333; padding: 5px 0; }
-        .archive-item:last-child { border: none; }
+        .archive-section { background: #111; padding: 10px; border-radius: 8px; margin: 10px; border: 1px solid #444; }
+        .archive-item { font-size: 12px; border-bottom: 1px solid #333; padding: 5px 0; display: flex; justify-content: space-between; }
 
-        .next-btn { width: 100%; height: 45px; border-radius: 10px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; }
-        .next-btn:disabled { background: #333; color: #666; }
+        .next-btn { width: 100%; height: 50px; border-radius: 12px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+        .next-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
         
-        .label-obkhid { font-size: 9px; color: var(--warning); display: block; }
-        input[type="checkbox"] { transform: scale(1.3); }
+        .label-obkhid { font-size: 9px; color: var(--warning); display: block; font-weight: normal; }
+        .label-sleep { font-size: 9px; color: var(--sleep); display: block; font-weight: normal; }
+        input[type="checkbox"] { transform: scale(1.3); accent-color: var(--success); }
     </style>
 </head>
 <body>
@@ -51,10 +50,10 @@
     <div class="header">
         <div>
             <h1 id="shift-title">Зміна №1</h1>
-            <small id="date-display"></small>
+            <small id="date-display">--.--.----</small>
         </div>
         <div style="text-align: right;">
-            <span id="clock-display" style="font-weight: bold; color: var(--accent);"></span>
+            <span id="clock-display" style="font-weight: bold; color: var(--accent); font-size: 18px;"></span>
             <div id="timer-display" style="font-size: 11px; color: var(--warning);"></div>
         </div>
     </div>
@@ -64,7 +63,7 @@
             <thead>
                 <tr>
                     <th class="col-plan">План</th>
-                    <th class="col-task">Обхідний</th>
+                    <th class="col-task">Дія / Хто</th>
                     <th class="col-post">На посту</th>
                     <th class="col-zvit">Звіт</th>
                 </tr>
@@ -73,49 +72,49 @@
         </table>
 
         <div class="archive-section">
-            <h3 style="font-size: 14px; margin: 0 0 10px 0; color: var(--accent);">📜 Архів останніх змін</h3>
+            <h3 style="font-size: 14px; margin: 0 0 10px 0; color: var(--accent); border-bottom: 1px solid #444; padding-bottom: 5px;">📜 Архів змін</h3>
             <div id="archive-list"></div>
         </div>
     </div>
 
-    <div class="footer">
-        <button id="shift-btn" class="next-btn" onclick="saveToArchive()" disabled>Здати зміну</button>
-    </div>
+    <button id="shift-btn" class="next-btn" onclick="saveToArchive()" disabled>Здати зміну</button>
 </div>
 
 <script>
     const members = ["Кузнєцов", "Драний", "Литовченко"];
-    let logs = JSON.parse(localStorage.getItem('logs_v4')) || {};
-    let selections = JSON.parse(localStorage.getItem('select_v4')) || {};
-    let archive = JSON.parse(localStorage.getItem('duty_archive')) || [];
+    let logs = JSON.parse(localStorage.getItem('logs_final_v5')) || {};
+    let selections = JSON.parse(localStorage.getItem('select_final_v5')) || {};
+    let archive = JSON.parse(localStorage.getItem('duty_archive_v5')) || [];
 
     const scheduleData = [
-        {t: "08:20", h: 8, m: 20, d: 60, walk: true},
-        {t: "09:20", h: 9, m: 20, d: 60, walk: true},
-        {t: "10:20", h: 10, m: 20, d: 60, walk: true},
-        {t: "11:20", h: 11, m: 20, d: 60, walk: true},
-        {t: "12:20", h: 12, m: 20, d: 60, walk: true},
-        {t: "13:20", h: 13, m: 20, d: 60, walk: true},
-        {t: "14:20", h: 14, m: 20, d: 60, walk: true},
-        {t: "15:20", h: 15, m: 20, d: 60, walk: true},
-        {t: "16:20", h: 16, m: 20, d: 60, walk: true},
-        {t: "17:20", h: 17, m: 20, d: 60, walk: true},
-        {t: "18:20", h: 18, m: 20, d: 60, walk: true},
-        {t: "19:20", h: 19, m: 20, d: 60, walk: true},
-        {t: "20:00", h: 20, m: 0, d: 120, walk: false, task: "СОН 1"},
-        {t: "20:20", h: 20, m: 20, d: 120, walk: true},
-        {t: "22:20", h: 22, m: 20, d: 100, walk: true},
-        {t: "00:00", h: 0, m: 0, d: 120, walk: false, task: "СОН 2"},
-        {t: "00:20", h: 0, m: 20, d: 120, walk: true},
-        {t: "02:20", h: 2, m: 20, d: 100, walk: true},
-        {t: "04:00", h: 4, m: 0, d: 120, walk: false, task: "СОН 3"},
-        {t: "04:20", h: 4, m: 20, d: 120, walk: true},
-        {t: "06:20", h: 6, m: 20, d: 25, walk: true}
+        {t: "08:00", h: 8, m: 0, d: 20, type: "Зміна", task: "Зміна чергових", fixedPost: "Всі"},
+        {t: "08:20", h: 8, m: 20, d: 60, type: "Обхід"},
+        {t: "09:20", h: 9, m: 20, d: 60, type: "Обхід"},
+        {t: "10:20", h: 10, m: 20, d: 60, type: "Обхід"},
+        {t: "11:20", h: 11, m: 20, d: 60, type: "Обхід"},
+        {t: "12:20", h: 12, m: 20, d: 60, type: "Обхід"},
+        {t: "13:20", h: 13, m: 20, d: 60, type: "Обхід"},
+        {t: "14:20", h: 14, m: 20, d: 60, type: "Обхід"},
+        {t: "15:20", h: 15, m: 20, d: 60, type: "Обхід"},
+        {t: "16:20", h: 16, m: 20, d: 60, type: "Обхід"},
+        {t: "17:20", h: 17, m: 20, d: 60, type: "Обхід"},
+        {t: "18:20", h: 18, m: 20, d: 60, type: "Обхід"},
+        {t: "19:20", h: 19, m: 20, d: 60, type: "Обхід"},
+        {t: "20:00", h: 20, m: 0, d: 120, type: "Сон"},
+        {t: "20:20", h: 20, m: 20, d: 120, type: "Обхід"},
+        {t: "22:20", h: 22, m: 20, d: 100, type: "Обхід"},
+        {t: "00:00", h: 0, m: 0, d: 120, type: "Сон"},
+        {t: "00:20", h: 0, m: 20, d: 120, type: "Обхід"},
+        {t: "02:20", h: 2, m: 20, d: 100, type: "Обхід"},
+        {t: "04:00", h: 4, m: 0, d: 120, type: "Сон"},
+        {t: "04:20", h: 4, m: 20, d: 120, type: "Обхід"},
+        {t: "06:20", h: 6, m: 20, d: 25, type: "Обхід"},
+        {t: "06:45", h: 6, m: 45, d: 75, type: "Підготовка", task: "Підготовка", fixedPost: "Всі"}
     ];
 
     function render() {
         const now = new Date();
-        document.getElementById('clock-display').innerText = now.toLocaleTimeString('uk-UA');
+        document.getElementById('clock-display').innerText = now.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
         
         let shiftStart = new Date(now);
         if (now.getHours() < 8) shiftStart.setDate(shiftStart.getDate() - 1);
@@ -138,25 +137,29 @@
             if (isActive) tr.className = 'active-row';
             if (tStart > now && !nextWalk) nextWalk = tStart;
 
-            // Вибір обхідного
             let taskCell = "";
             let postCell = "";
 
-            if (row.walk) {
+            if (row.type === "Обхід" || row.type === "Сон") {
                 const selected = selections[idx] || members[idx % 3];
                 const others = members.filter(m => m !== selected);
-                
-                taskCell = `<select onchange="updateSelect(${idx}, this.value)" ${!isActive ? 'disabled' : ''}>
-                    ${members.map(m => `<option value="${m}" ${m === selected ? 'selected' : ''}>${m}</option>`).join('')}
-                </select>`;
-                postCell = others.join('<br>');
+                const label = row.type === "Обхід" ? "Обхід: " : "Сон: ";
+                const labelClass = row.type === "Обхід" ? "label-obkhid" : "label-sleep";
+
+                taskCell = `
+                    <span class="${labelClass}">${row.type}</span>
+                    <select onchange="updateSelect(${idx}, this.value)" ${!isActive ? 'disabled' : ''}>
+                        ${members.map(m => `<option value="${m}" ${m === selected ? 'selected' : ''}>${m}</option>`).join('')}
+                    </select>
+                `;
+                postCell = others.map(o => `<div>${o}</div>`).join('');
             } else {
                 taskCell = `<span style="color:var(--accent)">${row.task}</span>`;
-                postCell = "Всі";
+                postCell = row.fixedPost;
             }
 
             tr.innerHTML = `
-                <td class="col-plan">${row.t} ${row.walk ? '<span class="label-obkhid">Обхід</span>' : ''}</td>
+                <td class="col-plan">${row.t}</td>
                 <td class="col-task">${taskCell}</td>
                 <td class="col-post">${postCell}</td>
                 <td class="col-zvit"><input type="checkbox" ${logs[idx]?'checked':''} ${!isActive?'disabled':''} onchange="saveLog(${idx})"></td>
@@ -164,7 +167,7 @@
             tbody.appendChild(tr);
         });
 
-        if (nextWalk) document.getElementById('timer-display').innerText = "Обхід за: " + new Date(nextWalk - now).toISOString().substr(11, 8);
+        if (nextWalk) document.getElementById('timer-display').innerText = "Наст. обхід через: " + new Date(nextWalk - now).toISOString().substr(11, 8);
         
         const btn = document.getElementById('shift-btn');
         const endShift = new Date(shiftStart); endShift.setDate(endShift.getDate()+1); endShift.setHours(8,0,0,0);
@@ -173,25 +176,17 @@
         renderArchive();
     }
 
-    function updateSelect(id, val) { selections[id] = val; localStorage.setItem('select_v4', JSON.stringify(selections)); render(); }
-    function saveLog(id) { logs[id] = !logs[id]; localStorage.setItem('logs_v4', JSON.stringify(logs)); render(); }
+    function updateSelect(id, val) { selections[id] = val; localStorage.setItem('select_final_v5', JSON.stringify(selections)); render(); }
+    function saveLog(id) { logs[id] = !logs[id]; localStorage.setItem('logs_final_v5', JSON.stringify(logs)); render(); }
 
     function saveToArchive() {
         const dateStr = document.getElementById('date-display').innerText;
         const totalWalks = Object.values(logs).filter(v => v).length;
-        const entry = {
-            date: dateStr,
-            shift: "Зміна №1",
-            walks: totalWalks,
-            dutyTime: "22 год" // 24 год - 2 год сну
-        };
-        archive.unshift(entry);
-        localStorage.setItem('duty_archive', JSON.stringify(archive.slice(0, 10))); // Зберігаємо останні 10
-        
-        // Очищення поточної зміни
+        archive.unshift({ date: dateStr, shift: "Зміна №1", walks: totalWalks });
+        localStorage.setItem('duty_archive_v5', JSON.stringify(archive.slice(0, 15)));
         logs = {}; selections = {};
-        localStorage.removeItem('logs_v4'); localStorage.removeItem('select_v4');
-        alert("Зміну збережено в архів!");
+        localStorage.removeItem('logs_final_v5'); localStorage.removeItem('select_final_v5');
+        alert("Дані успішно архівовано!");
         render();
     }
 
@@ -199,10 +194,10 @@
         const list = document.getElementById('archive-list');
         list.innerHTML = archive.map(a => `
             <div class="archive-item">
-                <b>${a.date}</b> | ${a.shift}<br>
-                Обходів: <span style="color:var(--success)">${a.walks}</span> | Час чергування: ${a.dutyTime}
+                <span>📅 <b>${a.date}</b></span>
+                <span>Обходів: <b style="color:var(--success)">${a.walks}</b></span>
             </div>
-        `).join('') || "Архів порожній";
+        `).join('') || "<small style='color:#666'>Архів поки порожній...</small>";
     }
 
     setInterval(render, 1000);
