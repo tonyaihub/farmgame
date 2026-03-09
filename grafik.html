@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система «Часовой» — Только Фамилии</title>
+    <title>Система «Часовой» — Вертикальный список</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -25,7 +25,10 @@
         
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; }
-        td { padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.3s; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.3s; vertical-align: middle; }
+        
+        /* Стили для имен в колонке */
+        .name-list { line-height: 1.4; display: block; }
         
         .active-row { background: #fff9db !important; }
         .active-executor { background: var(--warning) !important; color: white !important; font-weight: bold; border-radius: 4px; }
@@ -38,7 +41,7 @@
         .check-box { width: 28px; height: 28px; cursor: pointer; accent-color: var(--success); }
         
         .log-time { font-size: 0.75em; color: var(--success); display: block; margin-top: 4px; font-family: monospace; font-weight: bold; }
-        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.8em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 5px; border-radius: 4px; }
+        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.8em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 5px; border-radius: 4px; display: inline-block; }
         .waiting-text { color: #aaa; font-size: 0.75em; font-style: italic; }
 
         .footer { margin-top: 30px; padding: 25px; border-top: 2px solid var(--light); text-align: center; background: #f8f9fa; border-radius: 0 0 15px 15px; }
@@ -53,7 +56,7 @@
     <div class="header">
         <div>
             <h2 style="margin:0;">Оперативный Журнал 24/7</h2>
-            <small>Фамилии сотрудников (без инициалов)</small>
+            <small>Список состава без запятых</small>
         </div>
         <div id="clock" style="font-size: 1.4em; font-weight: bold; color: var(--accent); background: #fff; padding: 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">--:--:--</div>
     </div>
@@ -88,7 +91,6 @@
 </div>
 
 <script>
-    // Списки сотрудников только с фамилиями
     const s1 = ["Кузнєцов", "Драний", "Литовченко"];
     const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
     
@@ -112,27 +114,27 @@
         const now = new Date();
 
         const schedule = [
-            {t: "08:20", task: "walk", exec: names[0], post: names[1]+", "+names[2]},
-            {t: "09:20", task: "walk", exec: names[1], post: names[0]+", "+names[2]},
-            {t: "10:20", task: "walk", exec: names[2], post: names[0]+", "+names[1]},
-            {t: "11:20", task: "walk", exec: names[0], post: names[1]+", "+names[2]},
-            {t: "12:20", task: "walk", exec: names[1], post: names[0]+", "+names[2]},
-            {t: "13:20", task: "walk", exec: names[2], post: names[0]+", "+names[1]},
-            {t: "14:20", task: "walk", exec: names[0], post: names[1]+", "+names[2]},
-            {t: "15:20", task: "walk", exec: names[1], post: names[0]+", "+names[2]},
-            {t: "16:20", task: "walk", exec: names[2], post: names[0]+", "+names[1]},
-            {t: "17:20", task: "walk", exec: names[0], post: names[1]+", "+names[2]},
-            {t: "18:20", task: "walk", exec: names[1], post: names[0]+", "+names[2]},
-            {t: "19:20", task: "walk", exec: names[2], post: names[0]+", "+names[1]},
-            {t: "20:00", task: "sleep", exec: names[0] + " (Сон)", post: names[1]+", "+names[2]},
-            {t: "20:20", task: "walk", exec: names[1], post: names[2]},
-            {t: "22:20", task: "walk", exec: names[2], post: names[1]},
-            {t: "00:00", task: "sleep", exec: names[1] + " (Сон)", post: names[0]+", "+names[2]},
-            {t: "00:20", task: "walk", exec: names[0], post: names[2]},
-            {t: "02:20", task: "walk", exec: names[2], post: names[0]},
-            {t: "04:00", task: "sleep", exec: names[2] + " (Сон)", post: names[0]+", "+names[1]},
-            {t: "04:20", task: "walk", exec: names[0], post: names[1]},
-            {t: "06:20", task: "walk", exec: names[1], post: names[0]}
+            {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
+            {t: "09:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
+            {t: "10:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
+            {t: "11:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
+            {t: "12:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
+            {t: "13:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
+            {t: "14:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
+            {t: "15:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
+            {t: "16:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
+            {t: "17:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
+            {t: "18:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
+            {t: "19:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
+            {t: "20:00", task: "sleep", exec: names[0], post: [names[1], names[2]]},
+            {t: "20:20", task: "walk", exec: names[1], post: [names[2]]},
+            {t: "22:20", task: "walk", exec: names[2], post: [names[1]]},
+            {t: "00:00", task: "sleep", exec: names[1], post: [names[0], names[2]]},
+            {t: "00:20", task: "walk", exec: names[0], post: [names[2]]},
+            {t: "02:20", task: "walk", exec: names[2], post: [names[0]]},
+            {t: "04:00", task: "sleep", exec: names[2], post: [names[0], names[1]]},
+            {t: "04:20", task: "walk", exec: names[0], post: [names[1]]},
+            {t: "06:20", task: "walk", exec: names[1], post: [names[0]]}
         ];
 
         schedule.forEach((r, i) => {
@@ -141,11 +143,8 @@
             let schedDate = new Date();
             schedDate.setHours(sH, sM, 0, 0);
 
-            if (now.getHours() < 8 && sH >= 8) {
-                schedDate.setDate(schedDate.getDate() - 1);
-            } else if (now.getHours() >= 8 && sH < 8) {
-                schedDate.setDate(schedDate.getDate() + 1);
-            }
+            if (now.getHours() < 8 && sH >= 8) schedDate.setDate(schedDate.getDate() - 1);
+            else if (now.getHours() >= 8 && sH < 8) schedDate.setDate(schedDate.getDate() + 1);
             
             const diffMin = (now - schedDate) / 60000;
             const isTooEarly = diffMin < 0;
@@ -154,11 +153,16 @@
 
             if (isActiveNow) tr.className = 'active-row';
 
+            // Генерируем список фамилий для колонки "На посту"
+            const postList = r.post.map(name => `<span class="name-list">${name}</span>`).join('');
+
             tr.innerHTML = `
                 <td><strong>${r.t}</strong></td>
                 <td><span class="badge ${r.task}">${r.task==='walk'?'Обход':'Ночь'}</span></td>
-                <td class="${isActiveNow ? 'active-executor' : ''}">${r.exec}</td>
-                <td style="color:#666">${r.post}</td>
+                <td class="${isActiveNow ? 'active-executor' : ''}">
+                    ${r.exec} ${r.task === 'sleep' ? '<br><small>(Сон)</small>' : ''}
+                </td>
+                <td style="color:#666">${postList}</td>
                 <td class="check-container">
                     ${logs[i] ? `<span class="log-time">ОК: ${logs[i]}</span>` : 
                       isExpired ? '<span class="expired-text">Просрочено</span>' : 
