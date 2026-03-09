@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графік чергування (Safe Transfer)</title>
+    <title>Графік чергування — Система</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -28,26 +28,27 @@
         #clock { font-size: 2.5em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
         
         .top-right-tool { display: flex; justify-content: flex-end; gap: 10px; }
-        .tool-btn { background: var(--light); width: 45px; height: 45px; border-radius: 10px; font-size: 20px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
-        .tool-btn.active { background: var(--warning); }
+        .tool-btn { background: var(--light); width: 45px; height: 45px; border-radius: 10px; font-size: 20px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); transition: 0.2s; }
+        .tool-btn:hover { filter: brightness(1.1); }
+        .tool-btn.active { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
 
         .top-controls { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 25px; }
-        .group-selector { width: 100%; padding: 18px; border: none; border-radius: 0 0 12px 12px; background: var(--grad); color: white; font-size: 1.3em; font-weight: 800; cursor: pointer; text-align: center; outline: none; appearance: none; }
+        .group-selector { width: 100%; padding: 18px; border: none; border-radius: 0 0 12px 12px; background: var(--grad); color: white; font-size: 1.3em; font-weight: 800; cursor: pointer; text-align: center; outline: none; appearance: none; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
         .personnel-display { background: var(--light); border-radius: 8px; padding: 4px 15px; display: flex; justify-content: space-around; font-weight: bold; align-items: center; min-height: 35px; }
 
         table { width: 100%; border-collapse: collapse; }
-        th { background: var(--light); padding: 12px 15px; text-align: left; border-bottom: 3px solid var(--accent); color: var(--text); }
+        th { background: var(--light); padding: 12px 15px; text-align: left; border-bottom: 3px solid var(--accent); color: var(--text); font-size: 0.9em; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid var(--light); vertical-align: top; }
 
-        @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.2); } 100% { background-color: var(--active-bg); } }
+        @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.15); } 100% { background-color: var(--active-bg); } }
         .current-task-row { animation: pulse 2s infinite; border-left: 10px solid var(--warning) !important; font-weight: bold; }
         body.dim-past .past-task-row { opacity: 0.35; filter: grayscale(80%); }
 
         .footer { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
-        .btn { padding: 16px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; width: 100%; }
-        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
-        .btn-success:disabled { background: #95a5a6 !important; opacity: 0.5; cursor: not-allowed; box-shadow: none; }
-        .status-msg { font-size: 0.9em; text-align: center; color: #e67e22; font-weight: bold; }
+        .btn { padding: 18px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; width: 100%; font-size: 1.1em; }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
+        .btn-success:disabled { background: #95a5a6 !important; opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
+        .status-msg { font-size: 0.95em; text-align: center; font-weight: bold; min-height: 20px; }
     </style>
 </head>
 <body class="dim-past">
@@ -57,8 +58,8 @@
         <div class="header-title"><h1>Графік</h1><small>чергувань</small></div>
         <div class="time-area"><span id="current-date">--.--.----</span><div id="clock">00:00:00</div></div>
         <div class="top-right-tool">
-            <button class="tool-btn" onclick="toggleTheme()">🌓</button>
-            <button class="tool-btn active" id="lightBtn" onclick="toggleDimming()">💡</button>
+            <button class="tool-btn" onclick="toggleTheme()" title="Змінити тему">🌓</button>
+            <button class="tool-btn active" id="lightBtn" onclick="toggleDimming()" title="Затемнення минулого">💡</button>
         </div>
     </div>
 
@@ -77,7 +78,7 @@
 
     <div class="footer">
         <div id="statusMessage" class="status-msg"></div>
-        <button id="nextShiftBtn" class="btn btn-success" disabled onclick="transferShift()">↻ Здати чергування</button>
+        <button id="nextShiftBtn" class="btn btn-success" disabled onclick="transferShift()">↻ Наступна зміна</button>
     </div>
 </div>
 
@@ -86,8 +87,24 @@
     const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
     let logs = JSON.parse(localStorage.getItem('duty_logs')) || {};
     let currentShiftNum = parseInt(localStorage.getItem('active_shift')) || 1;
+    let lastNotifiedIdx = null;
 
     if(localStorage.getItem('dark_theme') === 'true') document.body.classList.add('dark-theme');
+    if (Notification.permission !== 'granted') Notification.requestPermission();
+
+    function playSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            [600, 800].forEach((freq, i) => {
+                const o = ctx.createOscillator(); const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.frequency.value = freq;
+                g.gain.setValueAtTime(0.1, ctx.currentTime + i*0.3);
+                g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i*0.3 + 0.2);
+                o.start(ctx.currentTime + i*0.3); o.stop(ctx.currentTime + i*0.3 + 0.2);
+            });
+        } catch(e) { console.log("Audio play blocked"); }
+    }
 
     const scheduleData = (names) => [
         {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
@@ -138,6 +155,8 @@
         document.getElementById('groupSelect').value = currentShiftNum;
         tbody.innerHTML = '';
 
+        let processedCount = 0;
+
         schedule.forEach((row, index) => {
             const tr = tbody.insertRow();
             const [h, m] = row.t.split(':').map(Number);
@@ -146,37 +165,60 @@
             if (h < 8) tT.setDate(tT.getDate() + 1);
             
             const diffMin = (now - tT) / 60000;
+
+            // Логіка сповіщень (активне вікно 1 хвилина)
+            if (diffMin >= 0 && diffMin < 1 && lastNotifiedIdx !== index) {
+                playSound();
+                if (Notification.permission === "granted") {
+                    new Notification("ЧАС ОБХОДУ!", { body: `Виконавець: ${row.exec}`, icon: "https://cdn-icons-png.flaticon.com/512/311/311081.png" });
+                }
+                lastNotifiedIdx = index;
+            }
+
             if (diffMin >= 0 && diffMin < 60) tr.className = 'current-task-row';
             else if (diffMin >= 60) tr.className = 'past-task-row';
 
-            let checkHtml = row.task === 'walk' ? 
-                (logs[index] ? `<b style="color:var(--success)">✓ ${logs[index]}</b>` : 
-                (diffMin > 60 ? `<small style="color:var(--danger)">ПРОПУЩЕНО</small>` : 
-                (diffMin < 0 ? `---` : `<input type="checkbox" onchange="mark(${index})">`))) : `<small>сон</small>`;
+            let checkHtml = "";
+            if (row.task === 'walk') {
+                if (logs[index]) {
+                    checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
+                    processedCount++;
+                } else if (diffMin > 60) {
+                    checkHtml = `<small style="color:var(--danger); font-weight:bold;">ВТРАЧЕНО</small>`;
+                    processedCount++; 
+                } else if (diffMin < 0) {
+                    checkHtml = `<span style="opacity:0.3">---</span>`;
+                } else {
+                    checkHtml = `<input type="checkbox" style="width:20px; height:20px; cursor:pointer;" onchange="mark(${index})">`;
+                }
+            } else {
+                checkHtml = `<small style="opacity:0.6">сон</small>`;
+            }
 
-            tr.innerHTML = `<td>${row.t}</td><td>${row.exec}</td><td>${row.post.join('<br>')}</td><td align="center">${checkHtml}</td>`;
+            tr.innerHTML = `<td><b>${row.t}</b></td><td>${row.exec}</td><td>${row.post.join('<br>')}</td><td align="center">${checkHtml}</td>`;
         });
 
-        checkShiftCompletion(schedule, now);
+        checkShiftCompletion(schedule, processedCount, now);
     }
 
-    function checkShiftCompletion(schedule, now) {
+    function checkShiftCompletion(schedule, processedCount, now) {
         const totalWalks = schedule.filter(r => r.task === 'walk').length;
-        const completedWalks = Object.keys(logs).length;
-        const isAfterEight = now.getHours() >= 8 && (now - (new Date().setHours(8,0,0,0))) >= 0;
-        
         const btn = document.getElementById('nextShiftBtn');
         const msg = document.getElementById('statusMessage');
 
-        if (completedWalks < totalWalks) {
+        const isAfterEight = now.getHours() >= 8;
+
+        if (processedCount < totalWalks) {
             btn.disabled = true;
-            msg.innerText = `Заповніть всі обходи (${completedWalks}/${totalWalks})`;
-        } else if (now.getHours() < 8) {
+            msg.innerText = `Оброблено: ${processedCount} з ${totalWalks} обходів`;
+            msg.style.color = "var(--danger)";
+        } else if (!isAfterEight) {
             btn.disabled = true;
-            msg.innerText = "Здача зміни доступна тільки після 08:00";
+            msg.innerText = "Здача зміни стане доступною о 08:00";
+            msg.style.color = "#e67e22";
         } else {
             btn.disabled = false;
-            msg.innerText = "Всі умови виконані. Можна здавати зміну.";
+            msg.innerText = "Зміну завершено. Готово до перемикання.";
             msg.style.color = "var(--success)";
         }
     }
@@ -194,7 +236,7 @@
     }
 
     function transferShift() { 
-        if(confirm("Здати зміну? Всі дані будуть очищені.")) { 
+        if(confirm("Перейти до наступної зміни? Поточні відмітки будуть видалені.")) { 
             logs = {}; 
             localStorage.removeItem('duty_logs'); 
             currentShiftNum = currentShiftNum === 1 ? 2 : 1;
