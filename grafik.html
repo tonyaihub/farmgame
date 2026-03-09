@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система «Часовой» — Строгий Контроль</title>
+    <title>Система «Часовой» — Полный Контроль</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -28,19 +28,18 @@
         td { padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.3s; }
         
         .active-row { background: #fff9db !important; }
-        .active-executor { background: var(--warning) !important; color: white !important; font-weight: bold; border-radius: 4px; }
+        .active-executor { background: var(--warning) !important; color: white !important; font-weight: bold; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         
         .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; }
         .walk { background: #d1ecf1; color: #0c5460; }
         .sleep { background: #e2e3e5; color: #383d41; }
         
         .check-container { text-align: center; width: 180px; }
-        .check-box { width: 26px; height: 26px; cursor: pointer; accent-color: var(--success); }
-        .check-box:disabled { cursor: not-allowed; filter: grayscale(1); opacity: 0.3; }
+        .check-box { width: 28px; height: 28px; cursor: pointer; accent-color: var(--success); }
         
-        .log-time { font-size: 0.75em; color: var(--success); display: block; margin-top: 4px; font-family: monospace; }
-        .delay-info { font-weight: bold; color: var(--danger); }
-        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.75em; text-transform: uppercase; }
+        .log-time { font-size: 0.75em; color: var(--success); display: block; margin-top: 4px; font-family: monospace; font-weight: bold; }
+        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.8em; text-transform: uppercase; }
+        .waiting-text { color: #aaa; font-size: 0.75em; font-style: italic; }
 
         .footer { margin-top: 30px; padding: 25px; border-top: 2px solid var(--light); text-align: center; background: #f8f9fa; border-radius: 0 0 15px 15px; }
         #nextShiftBtn { padding: 18px 60px; font-size: 1.1em; border: none; border-radius: 50px; cursor: pointer; transition: 0.4s; font-weight: bold; text-transform: uppercase; }
@@ -53,10 +52,10 @@
 <div class="container">
     <div class="header">
         <div>
-            <h2 style="margin:0;">Оперативный Журнал</h2>
-            <small>Контроль своевременности (лимит 60 мин)</small>
+            <h2 style="margin:0;">Оперативный Журнал 24/7</h2>
+            <small>Защита от раннего заполнения и просрочки (60 мин)</small>
         </div>
-        <div id="clock" style="font-size: 1.4em; font-weight: bold; color: var(--accent);">--:--:--</div>
+        <div id="clock" style="font-size: 1.4em; font-weight: bold; color: var(--accent); background: #fff; padding: 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">--:--:--</div>
     </div>
 
     <div class="selector-panel">
@@ -109,7 +108,7 @@
         document.getElementById('date-info').innerText = new Date().toLocaleDateString();
         
         tbody.innerHTML = '';
-        logs = {};
+        const now = new Date();
 
         const schedule = [
             {t: "08:20", task: "walk", exec: names[0], post: names[1]+", "+names[2]},
@@ -135,73 +134,71 @@
             {t: "06:20", task: "walk", exec: names[1], post: names[0]}
         ];
 
-        const now = new Date();
-        const curH = now.getHours();
-
         schedule.forEach((r, i) => {
             const tr = tbody.insertRow();
             const [sH, sM] = r.t.split(':').map(Number);
-            const rowHour = sH;
             
-            // Расчет просрочки
+            // Расчет реального времени начала этого обхода
             const schedDate = new Date();
             schedDate.setHours(sH, sM, 0, 0);
-            if (sH < 8 && now.getHours() >= 20) schedDate.setDate(schedDate.getDate() + 1);
             
-            const diffMin = Math.floor((now - schedDate) / 60000);
-            const isExpired = diffMin > 60; // Если прошло больше 60 минут
+            // Логика переходящих суток (ночь)
+            if (sH < 8 && now.getHours() >= 20) schedDate.setDate(schedDate.getDate() + 1);
+            if (sH >= 20 && now.getHours() < 8) schedDate.setDate(schedDate.getDate() - 1);
+            
+            const diffMin = (now - schedDate) / 60000;
+            const isTooEarly = diffMin < 0;    // Будущее
+            const isExpired = diffMin > 60;   // Прошло больше часа
+            const isActiveNow = diffMin >= 0 && diffMin <= 60; // Текущий период (активен)
 
-            if(rowHour === curH) tr.className = 'active-row';
+            if (isActiveNow) tr.className = 'active-row';
 
             tr.innerHTML = `
                 <td><strong>${r.t}</strong></td>
                 <td><span class="badge ${r.task}">${r.task==='walk'?'Обход':'Ночь'}</span></td>
-                <td class="${rowHour === curH ? 'active-executor' : ''}">${r.exec}</td>
+                <td class="${isActiveNow ? 'active-executor' : ''}">${r.exec}</td>
                 <td style="color:#666">${r.post}</td>
                 <td class="check-container">
-                    ${isExpired ? '<span class="expired-text">Просрочено</span>' : 
-                    `<input type="checkbox" class="check-box" onchange="mark(${i}, '${r.t}')">`}
-                    <span id="log-${i}" class="log-time"></span>
+                    ${logs[i] ? `<span class="log-time">ОК: ${logs[i]}</span>` : 
+                      isExpired ? '<span class="expired-text">Просрочено</span>' : 
+                      isTooEarly ? '<span class="waiting-text">Ожидание...</span>' : 
+                      `<input type="checkbox" class="check-box" onchange="mark(${i})">`}
                 </td>
             `;
         });
         updateStatus();
     }
 
-    function mark(id, schedTime) {
-        const span = document.getElementById('log-'+id);
+    function mark(id) {
         if(!logs[id]) {
-            const now = new Date();
-            logs[id] = true;
-            span.innerHTML = `ОК: ${now.toLocaleTimeString()}`;
-        } else {
-            delete logs[id];
-            span.innerHTML = "";
+            logs[id] = new Date().toLocaleTimeString();
         }
-        updateStatus();
+        build(); // Перерисовываем, чтобы чекбокс заменился на время
     }
 
     function updateStatus() {
-        const total = document.querySelectorAll('.check-box, .expired-text').length;
+        const total = document.querySelectorAll('tr').length - 1; // Минус заголовок
         const checked = Object.keys(logs).length;
         const expired = document.querySelectorAll('.expired-text').length;
         
-        // Кнопка активна, если всё либо отмечено, либо уже просрочено
-        document.getElementById('nextShiftBtn').disabled = (checked + expired !== total);
+        document.getElementById('nextShiftBtn').disabled = (checked + expired < total);
         document.getElementById('progress-info').innerText = `Готовность: ${Math.round((checked+expired)/total*100)}%`;
     }
 
     function transferShift() {
-        if(confirm("Передать смену? Все пропущенные обходы будут зафиксированы как невыполненные.")) {
+        if(confirm("Вы уверены? Это действие очистит журнал и переключит группу.")) {
+            logs = {}; // Очистка при полной передаче
             setShift(currentShiftNum === 1 ? 2 : 1);
             window.scrollTo(0,0);
         }
     }
 
+    // Часы и автообновление таблицы раз в минуту (чтобы ловить момент просрочки)
     setInterval(() => { 
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        // Перерисовываем раз в 5 минут для обновления статуса просрочки
-        if(new Date().getMinutes() % 5 === 0 && new Date().getSeconds() === 0) build();
+        const clock = document.getElementById('clock');
+        const d = new Date();
+        clock.innerText = d.toLocaleTimeString();
+        if (d.getSeconds() === 0) build();
     }, 1000);
 
     setShift(currentShiftNum);
