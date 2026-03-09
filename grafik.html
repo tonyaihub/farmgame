@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система «Часовой» — Вертикальный список</title>
+    <title>Система «Часовой» — Умные Оповещения</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -13,11 +13,24 @@
         .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 20px; margin-bottom: 20px; }
         
-        .selector-panel { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        .btn-select { 
-            padding: 12px 25px; border: 2px solid var(--primary); background: white; 
-            color: var(--primary); cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s;
+        /* Стили оповещений */
+        #alert-container { margin-bottom: 20px; }
+        .alert-box { 
+            background: var(--danger); color: white; padding: 15px; border-radius: 10px; 
+            margin-bottom: 10px; text-align: center; animation: pulse 2s infinite; 
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
         }
+        .alert-box.blue { background: var(--accent); animation: none; }
+        .alert-box.orange { background: var(--warning); }
+        .alert-text { font-size: 1.3em; font-weight: bold; display: block; margin-bottom: 8px; }
+        .close-btn { 
+            background: rgba(255,255,255,0.2); border: 1px solid white; color: white; 
+            padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;
+        }
+        .close-btn:hover { background: white; color: var(--danger); }
+
+        .selector-panel { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .btn-select { padding: 12px 25px; border: 2px solid var(--primary); background: white; cursor: pointer; border-radius: 8px; font-weight: bold; }
         .btn-select.active { background: var(--primary); color: white; }
 
         .status-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
@@ -25,29 +38,19 @@
         
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; padding: 15px; text-align: left; border-bottom: 3px solid var(--light); font-size: 0.85em; }
-        td { padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.3s; vertical-align: middle; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
-        /* Стили для имен в колонке */
         .name-list { line-height: 1.4; display: block; }
-        
         .active-row { background: #fff9db !important; }
         .active-executor { background: var(--warning) !important; color: white !important; font-weight: bold; border-radius: 4px; }
-        
         .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; }
         .walk { background: #d1ecf1; color: #0c5460; }
         .sleep { background: #e2e3e5; color: #383d41; }
         
-        .check-container { text-align: center; width: 180px; }
-        .check-box { width: 28px; height: 28px; cursor: pointer; accent-color: var(--success); }
-        
         .log-time { font-size: 0.75em; color: var(--success); display: block; margin-top: 4px; font-family: monospace; font-weight: bold; }
-        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.8em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 5px; border-radius: 4px; display: inline-block; }
-        .waiting-text { color: #aaa; font-size: 0.75em; font-style: italic; }
+        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.8em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 5px; border-radius: 4px; }
 
-        .footer { margin-top: 30px; padding: 25px; border-top: 2px solid var(--light); text-align: center; background: #f8f9fa; border-radius: 0 0 15px 15px; }
-        #nextShiftBtn { padding: 18px 60px; font-size: 1.1em; border: none; border-radius: 50px; cursor: pointer; transition: 0.4s; font-weight: bold; text-transform: uppercase; }
-        #nextShiftBtn:disabled { background: #ccc; color: #999; cursor: not-allowed; }
-        #nextShiftBtn:enabled { background: var(--accent); color: white; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.02);} 100% {transform: scale(1);} }
     </style>
 </head>
 <body>
@@ -56,20 +59,22 @@
     <div class="header">
         <div>
             <h2 style="margin:0;">Оперативный Журнал 24/7</h2>
-            <small>Список состава без запятых</small>
+            <small>Система умных уведомлений</small>
         </div>
-        <div id="clock" style="font-size: 1.4em; font-weight: bold; color: var(--accent); background: #fff; padding: 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">--:--:--</div>
+        <div id="clock" style="font-size: 1.4em; font-weight: bold; color: var(--accent);">--:--:--</div>
     </div>
+
+    <div class="status-panel">
+        <div class="status-card" id="date-info">--.--.----</div>
+        <div class="status-card" id="shift-display">Смена: --</div>
+        <div class="status-card" id="progress-info">Выполнено: 0%</div>
+    </div>
+
+    <div id="alert-container"></div>
 
     <div class="selector-panel">
         <button id="btnS1" class="btn-select" onclick="setShift(1)">СМЕНА 1</button>
         <button id="btnS2" class="btn-select" onclick="setShift(2)">СМЕНА 2</button>
-    </div>
-
-    <div class="status-panel">
-        <div class="status-card" id="date-info">Дата: --.--.----</div>
-        <div class="status-card" id="shift-display">Смена: --</div>
-        <div class="status-card" id="progress-info">Выполнено: 0%</div>
     </div>
 
     <table id="mainTable">
@@ -93,9 +98,33 @@
 <script>
     const s1 = ["Кузнєцов", "Драний", "Литовченко"];
     const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
-    
     let currentShiftNum = [1,2,3, 7,8,9, 13,14,15, 19,20,21, 25,26,27, 31].includes(new Date().getDate()) ? 1 : 2;
     let logs = {};
+    let hiddenAlerts = new Set();
+
+    const scheduleData = (names) => [
+        {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
+        {t: "09:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
+        {t: "10:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
+        {t: "11:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
+        {t: "12:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
+        {t: "13:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
+        {t: "14:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
+        {t: "15:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
+        {t: "16:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
+        {t: "17:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
+        {t: "18:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
+        {t: "19:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
+        {t: "20:00", task: "sleep", exec: names[0], post: [names[1], names[2]]},
+        {t: "20:20", task: "walk", exec: names[1], post: [names[2]]},
+        {t: "22:20", task: "walk", exec: names[2], post: [names[1]]},
+        {t: "00:00", task: "sleep", exec: names[1], post: [names[0], names[2]]},
+        {t: "00:20", task: "walk", exec: names[0], post: [names[2]]},
+        {t: "02:20", task: "walk", exec: names[2], post: [names[0]]},
+        {t: "04:00", task: "sleep", exec: names[2], post: [names[0], names[1]]},
+        {t: "04:20", task: "walk", exec: names[0], post: [names[1]]},
+        {t: "06:20", task: "walk", exec: names[1], post: [names[0]]}
+    ];
 
     function setShift(num) {
         currentShiftNum = num;
@@ -107,89 +136,96 @@
     function build() {
         const names = currentShiftNum === 1 ? s1 : s2;
         const tbody = document.getElementById('tableBody');
+        const now = new Date();
         document.getElementById('shift-display').innerText = "АКТИВНА: СМЕНА №" + currentShiftNum;
-        document.getElementById('date-info').innerText = new Date().toLocaleDateString();
+        document.getElementById('date-info').innerText = now.toLocaleDateString();
         
         tbody.innerHTML = '';
-        const now = new Date();
-
-        const schedule = [
-            {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
-            {t: "09:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
-            {t: "10:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
-            {t: "11:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
-            {t: "12:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
-            {t: "13:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
-            {t: "14:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
-            {t: "15:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
-            {t: "16:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
-            {t: "17:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
-            {t: "18:20", task: "walk", exec: names[1], post: [names[0], names[2]]},
-            {t: "19:20", task: "walk", exec: names[2], post: [names[0], names[1]]},
-            {t: "20:00", task: "sleep", exec: names[0], post: [names[1], names[2]]},
-            {t: "20:20", task: "walk", exec: names[1], post: [names[2]]},
-            {t: "22:20", task: "walk", exec: names[2], post: [names[1]]},
-            {t: "00:00", task: "sleep", exec: names[1], post: [names[0], names[2]]},
-            {t: "00:20", task: "walk", exec: names[0], post: [names[2]]},
-            {t: "02:20", task: "walk", exec: names[2], post: [names[0]]},
-            {t: "04:00", task: "sleep", exec: names[2], post: [names[0], names[1]]},
-            {t: "04:20", task: "walk", exec: names[0], post: [names[1]]},
-            {t: "06:20", task: "walk", exec: names[1], post: [names[0]]}
-        ];
+        const schedule = scheduleData(names);
 
         schedule.forEach((r, i) => {
             const tr = tbody.insertRow();
             const [sH, sM] = r.t.split(':').map(Number);
-            let schedDate = new Date();
-            schedDate.setHours(sH, sM, 0, 0);
-
-            if (now.getHours() < 8 && sH >= 8) schedDate.setDate(schedDate.getDate() - 1);
-            else if (now.getHours() >= 8 && sH < 8) schedDate.setDate(schedDate.getDate() + 1);
+            let sDate = new Date(); sDate.setHours(sH, sM, 0, 0);
+            if (now.getHours() < 8 && sH >= 8) sDate.setDate(sDate.getDate() - 1);
+            else if (now.getHours() >= 8 && sH < 8) sDate.setDate(sDate.getDate() + 1);
             
-            const diffMin = (now - schedDate) / 60000;
-            const isTooEarly = diffMin < 0;
-            const isExpired = diffMin > 60;
-            const isActiveNow = diffMin >= 0 && diffMin <= 60;
-
-            if (isActiveNow) tr.className = 'active-row';
-
-            // Генерируем список фамилий для колонки "На посту"
-            const postList = r.post.map(name => `<span class="name-list">${name}</span>`).join('');
+            const diff = (now - sDate) / 60000;
+            const isAct = diff >= 0 && diff <= 60;
+            if (isAct) tr.className = 'active-row';
 
             tr.innerHTML = `
                 <td><strong>${r.t}</strong></td>
                 <td><span class="badge ${r.task}">${r.task==='walk'?'Обход':'Ночь'}</span></td>
-                <td class="${isActiveNow ? 'active-executor' : ''}">
-                    ${r.exec} ${r.task === 'sleep' ? '<br><small>(Сон)</small>' : ''}
-                </td>
-                <td style="color:#666">${postList}</td>
+                <td class="${isAct ? 'active-executor' : ''}">${r.exec}${r.task==='sleep'?'<br><small>(Сон)</small>':''}</td>
+                <td style="color:#666">${r.post.map(n=>`<span class="name-list">${n}</span>`).join('')}</td>
                 <td class="check-container">
-                    ${logs[i] ? `<span class="log-time">ОК: ${logs[i]}</span>` : 
-                      isExpired ? '<span class="expired-text">Просрочено</span>' : 
-                      isTooEarly ? '<span class="waiting-text">Ожидание...</span>' : 
-                      `<input type="checkbox" class="check-box" onchange="mark(${i})">`}
+                    ${logs[i]?`<span class="log-time">ОК: ${logs[i]}</span>`:diff>60?'<span class="expired-text">Просрочено</span>':diff<0?'<small style="color:#ccc">Ожидание</small>':`<input type="checkbox" class="check-box" onchange="mark(${i})">`}
                 </td>
             `;
         });
         updateStatus();
     }
 
-    function mark(id) {
-        if(!logs[id]) logs[id] = new Date().toLocaleTimeString();
-        build(); 
+    function checkAlerts() {
+        const now = new Date();
+        const curTimeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        const container = document.getElementById('alert-container');
+        let html = '';
+
+        // 1. Отметка в ГРУППЕ
+        if (["20:15", "06:45"].includes(curTimeStr) && !hiddenAlerts.has('group_'+curTimeStr)) {
+            html += `<div class="alert-box blue"><span class="alert-text">📱 Отметка в ГРУППЕ!</span><button class="close-btn" onclick="closeAlert('group_${curTimeStr}')">ЗАКРЫТЬ</button></div>`;
+        }
+
+        const names = currentShiftNum === 1 ? s1 : s2;
+        const schedule = scheduleData(names);
+
+        schedule.forEach((r, i) => {
+            const [sH, sM] = r.t.split(':').map(Number);
+            let sDate = new Date(); sDate.setHours(sH, sM, 0, 0);
+            if (now.getHours() < 8 && sH >= 8) sDate.setDate(sDate.getDate() - 1);
+            else if (now.getHours() >= 8 && sH < 8) sDate.setDate(sDate.getDate() + 1);
+
+            const diff = (sDate - now) / 60000;
+
+            // 2. На обход через 5 минут
+            if (r.task === 'walk' && diff > 0 && diff <= 5 && !hiddenAlerts.has('walk_'+i)) {
+                html += `<div class="alert-box orange"><span class="alert-text">🚶 На обход через 5 минут! (${r.t})</span><button class="close-btn" onclick="closeAlert('walk_${i}')">ЗАКРЫТЬ</button></div>`;
+            }
+
+            // 3. Разбуди коллегу (за 5 мин до конца сна)
+            // Ищем конец сна (следующий обход после сна)
+            if (r.task === 'sleep' && diff < 0 && diff > -120) { // Если сейчас фаза сна
+                const nextTask = schedule[i+1];
+                if (nextTask) {
+                    const [nH, nM] = nextTask.t.split(':').map(Number);
+                    let nDate = new Date(); nDate.setHours(nH, nM, 0, 0);
+                    if (now.getHours() < 8 && nH >= 8) nDate.setDate(nDate.getDate() - 1);
+                    else if (now.getHours() >= 8 && nH < 8) nDate.setDate(nDate.getDate() + 1);
+                    
+                    const diffToWake = (nDate - now) / 60000;
+                    if (diffToWake > 0 && diffToWake <= 5 && !hiddenAlerts.has('wake_'+i)) {
+                        html += `<div class="alert-box"><span class="alert-text">⏰ Разбуди коллегу! (${nextTask.exec})</span><button class="close-btn" onclick="closeAlert('wake_${i}')">ЗАКРЫТЬ</button></div>`;
+                    }
+                }
+            }
+        });
+        container.innerHTML = html;
     }
 
+    function closeAlert(id) { hiddenAlerts.add(id); checkAlerts(); }
+    function mark(id) { logs[id] = new Date().toLocaleTimeString(); build(); }
     function updateStatus() {
-        const total = document.querySelectorAll('tr').length - 1;
-        const checked = Object.keys(logs).length;
-        const expired = document.querySelectorAll('.expired-text').length;
-        document.getElementById('nextShiftBtn').disabled = (checked + expired < total);
-        document.getElementById('progress-info').innerText = `Готовность: ${Math.round((checked+expired)/total*100)}%`;
+        const total = 21;
+        const done = Object.keys(logs).length + document.querySelectorAll('.expired-text').length;
+        document.getElementById('nextShiftBtn').disabled = (done < total);
+        document.getElementById('progress-info').innerText = `Готовность: ${Math.round(done/total*100)}%`;
     }
 
     function transferShift() {
-        if(confirm("Передать смену следующей группе?")) {
-            logs = {}; 
+        if(confirm("Передать смену?")) {
+            logs = {}; hiddenAlerts.clear();
             setShift(currentShiftNum === 1 ? 2 : 1);
             window.scrollTo(0,0);
         }
@@ -197,6 +233,7 @@
 
     setInterval(() => { 
         document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        checkAlerts();
         if (new Date().getSeconds() === 0) build();
     }, 1000);
 
