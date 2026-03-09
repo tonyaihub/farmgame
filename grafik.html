@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування (Final Version)</title>
+    <title>Графік чергування (Button Timer)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -24,7 +24,6 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--body-bg); margin: 0; padding: 5px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
         .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         
-        /* Шапка с умным монитором */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--light); padding-bottom: 8px; gap: 8px; }
         .header-left { flex: 1; }
         .header-left h1 { margin: 0; font-size: 1.1em; font-weight: 800; line-height: 1; letter-spacing: 1px; }
@@ -58,9 +57,10 @@
         @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.05); } 100% { background-color: var(--active-bg); } }
         
         .footer { margin-top: 15px; text-align: center; }
-        .btn { padding: 14px; border-radius: 25px; border: none; font-weight: bold; width: 100%; font-size: 0.9em; cursor: pointer; transition: 0.2s; }
+        .btn { padding: 14px; border-radius: 25px; border: none; font-weight: bold; width: 100%; font-size: 0.9em; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-success { background: var(--success); color: white; }
-        .btn-success:disabled { background: #ccc !important; cursor: not-allowed; }
+        .btn:disabled { background: #dcdde1; color: #7f8c8d; cursor: not-allowed; box-shadow: none; font-family: 'Consolas', monospace; }
+        body.dark-theme .btn:disabled { background: #353b48; color: #718093; }
     </style>
 </head>
 <body>
@@ -105,8 +105,8 @@
     </div>
 
     <div class="footer">
-        <div id="statusMessage" style="font-size: 0.8em; font-weight: bold; margin-bottom: 8px;"></div>
-        <button id="nextShiftBtn" class="btn btn-success" disabled onclick="transferShift()">↻ Наступна зміна</button>
+        <div id="statusMessage" style="font-size: 0.85em; font-weight: 800; margin-bottom: 10px; color: var(--primary);"></div>
+        <button id="nextShiftBtn" class="btn" disabled onclick="transferShift()">Наступна зміна</button>
     </div>
 </div>
 
@@ -180,7 +180,6 @@
             const taskEndTime = new Date(taskStartTime.getTime() + row.dur * 60000);
             const isCurrentlyActive = (now >= taskStartTime && now < taskEndTime);
 
-            // Поиск следующего обхода для таймера в шапке
             if (row.task === 'walk' && taskStartTime > now && !nextWalkTime) {
                 nextWalkTime = taskStartTime;
             }
@@ -219,7 +218,7 @@
             tr.innerHTML = `<td><b>${row.t}</b></td><td>${label}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
 
-        // ОБНОВЛЕНИЕ МОНИТОРА В ШАПКЕ
+        // МОНИТОР В ШАПКЕ
         const monitor = document.getElementById('statusMonitor');
         const labelText = document.getElementById('monitorLabel');
         const timerText = document.getElementById('topTimer');
@@ -240,7 +239,7 @@
             timerText.innerText = "--:--:--";
         }
 
-        updateStatus(processedCount, totalWalks, now);
+        updateStatus(processedCount, totalWalks, now, shiftStart);
     }
 
     function toggleTheme() {
@@ -248,13 +247,42 @@
         localStorage.setItem('dark_theme', isDark);
     }
 
-    function updateStatus(processed, total, now) {
+    function updateStatus(processed, total, now, shiftStart) {
         const btn = document.getElementById('nextShiftBtn');
         const msg = document.getElementById('statusMessage');
-        const isReady = processed >= total && now.getHours() >= 8;
-        btn.disabled = !isReady;
-        msg.innerText = isReady ? "Можна здавати зміну" : `Виконано обходів: ${processed}/${total}`;
-        msg.style.color = isReady ? "var(--success)" : "var(--danger)";
+        
+        // Время пересменки (08:00 следующего дня относительно начала смены)
+        const targetTime = new Date(shiftStart);
+        targetTime.setDate(targetTime.getDate() + 1);
+        targetTime.setHours(8, 0, 0, 0);
+
+        // Начало отсчета на кнопке (06:45)
+        const countdownStartTime = new Date(targetTime);
+        countdownStartTime.setMinutes(-75); 
+
+        const allDone = processed >= total;
+        const isPastTarget = now >= targetTime;
+
+        if (allDone && isPastTarget) {
+            btn.disabled = false;
+            btn.classList.add('btn-success');
+            btn.innerText = "↻ Здати зміну";
+            msg.innerText = "ГОТОВО ДО ПЕРЕЗМІНКИ!";
+            msg.style.color = "var(--success)";
+        } else {
+            btn.disabled = true;
+            btn.classList.remove('btn-success');
+            msg.innerText = "ПЕРЕЗМІНКА О 08:00";
+            msg.style.color = "var(--primary)";
+
+            // Если время между 06:45 и 08:00, показываем таймер на кнопке
+            if (now >= countdownStartTime && now < targetTime) {
+                const diff = targetTime - now;
+                btn.innerText = "До перезмінки: " + formatCountdown(diff);
+            } else {
+                btn.innerText = "Наступна зміна";
+            }
+        }
     }
 
     function mark(id) { 
