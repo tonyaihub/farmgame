@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік Чергування</title>
+    <title>Графік Чергування (Strict Mode)</title>
     <style>
         :root {
             --bg: #1a1a1a;
@@ -17,45 +17,30 @@
         }
 
         html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
+            height: 100%; margin: 0; padding: 0;
             background-color: var(--bg);
             font-family: 'Segoe UI', sans-serif;
             color: var(--text);
-            overflow: hidden; /* Забороняємо прокрутку всього екрана */
+            overflow: hidden;
         }
 
         .main-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            padding: 10px;
-            box-sizing: border-box;
+            display: flex; flex-direction: column;
+            height: 100vh; padding: 10px; box-sizing: border-box;
         }
 
-        /* Шапка */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card);
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-            flex-shrink: 0; /* Не даємо шапці стискатися */
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card); padding: 12px; border-radius: 12px;
+            margin-bottom: 10px; border: 1px solid var(--border); flex-shrink: 0;
         }
 
         .header-left h1 { margin: 0; font-size: 20px; text-transform: uppercase; color: white; }
         .header-left small { opacity: 0.6; font-size: 12px; }
 
         .status-monitor {
-            background: rgba(0,0,0,0.4);
-            padding: 6px 12px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid var(--border);
+            background: rgba(0,0,0,0.4); padding: 6px 12px; border-radius: 8px;
+            text-align: center; border: 1px solid var(--border);
         }
         .status-monitor span { display: block; font-size: 9px; color: #95a5a6; text-transform: uppercase; }
         .status-monitor b { font-size: 16px; color: var(--warning); font-family: monospace; }
@@ -68,52 +53,42 @@
         }
         .tool-btn.active { background: var(--warning); color: black; }
 
-        /* Контейнер таблиці з прокруткою */
         .table-area {
-            flex-grow: 1;
-            background: var(--card);
-            border-radius: 12px;
-            overflow-y: auto; /* Вмикаємо вертикальну прокрутку */
-            border: 1px solid var(--border);
-            -webkit-overflow-scrolling: touch; /* Плавна прокрутка на iPhone */
+            flex-grow: 1; background: var(--card); border-radius: 12px;
+            overflow-y: auto; border: 1px solid var(--border);
+            -webkit-overflow-scrolling: touch;
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        
         th { 
             position: sticky; top: 0; background: #222; z-index: 10;
             padding: 12px 5px; font-size: 11px; text-transform: uppercase; color: #7f8c8d;
             border-bottom: 2px solid var(--accent); text-align: left;
         }
 
-        td { 
-            padding: 10px 5px; border-bottom: 1px solid var(--border); 
-            font-size: 14px; vertical-align: top;
-        }
+        td { padding: 10px 5px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; }
 
-        /* Колонки */
         .col-plan { width: 22%; font-weight: bold; color: var(--accent); }
         .col-task { width: 32%; }
         .col-post { width: 34%; }
         .col-zvit { width: 12%; text-align: center; }
 
-        /* Рядки */
         .past-task-row { opacity: 0.4; filter: grayscale(100%); }
         body.light-on .past-task-row { opacity: 1 !important; filter: none !important; }
         .active-row { background: var(--active-bg); border-left: 4px solid var(--warning); font-weight: bold; }
-        .sleep-row { color: #a29bfe; }
-
+        
         .name-item { display: block; margin-bottom: 2px; }
 
-        /* Кнопка */
+        /* Стили чекбокса */
+        input[type="checkbox"] { transform: scale(1.5); accent-color: var(--success); cursor: pointer; }
+        input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.5; filter: grayscale(1); }
+
         .footer { padding-top: 10px; flex-shrink: 0; }
         .next-btn {
             width: 100%; height: 50px; border-radius: 12px; border: none;
             background: var(--accent); color: white; font-size: 16px; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .next-btn:disabled { background: #3d3d3d; color: #777; }
-        .next-btn.ready { background: var(--success); }
     </style>
 </head>
 <body class="light-on">
@@ -155,7 +130,7 @@
 
 <script>
     const s1 = ["Кузнєцов", "Драний", "Литовченко"];
-    let logs = JSON.parse(localStorage.getItem('duty_logs_final')) || {};
+    let logs = JSON.parse(localStorage.getItem('duty_logs_strict')) || {};
 
     const fullSchedule = (n) => [
         {t: "08:00-08:20", h: 8, m: 0, d: 20, task: "Зміна", post: [n[0], n[1], n[2]]},
@@ -171,13 +146,13 @@
         {t: "17:20", h: 17, m: 20, d: 60, task: n[0], post: [n[1], n[2]]},
         {t: "18:20", h: 18, m: 20, d: 60, task: n[1], post: [n[0], n[2]]},
         {t: "19:20", h: 19, m: 20, d: 60, task: n[2], post: [n[0], n[1]]},
-        {t: "20:00", h: 20, m: 0, d: 120, task: "Сон: "+n[0], post: [n[1], n[2]], s:1},
+        {t: "20:00", h: 20, m: 0, d: 120, task: "Сон: "+n[0], post: [n[1], n[2]]},
         {t: "20:20", h: 20, m: 20, d: 120, task: n[1], post: [n[2]]},
         {t: "22:20", h: 22, m: 20, d: 100, task: n[2], post: [n[1]]},
-        {t: "00:00", h: 0, m: 0, d: 120, task: "Сон: "+n[1], post: [n[0], n[2]], s:1},
+        {t: "00:00", h: 0, m: 0, d: 120, task: "Сон: "+n[1], post: [n[0], n[2]]},
         {t: "00:20", h: 0, m: 20, d: 120, task: n[0], post: [n[2]]},
         {t: "02:20", h: 2, m: 20, d: 100, task: n[2], post: [n[0]]},
-        {t: "04:00", h: 4, m: 0, d: 120, task: "Сон: "+n[2], post: [n[0], n[1]], s:1},
+        {t: "04:00", h: 4, m: 0, d: 120, task: "Сон: "+n[2], post: [n[0], n[1]]},
         {t: "04:20", h: 4, m: 20, d: 120, task: n[0], post: [n[1]]},
         {t: "06:20", h: 6, m: 20, d: 25, task: n[1], post: [n[0]]},
         {t: "06:45", h: 6, m: 45, d: 75, task: "Підготовка", post: [n[0], n[1]]}
@@ -208,36 +183,44 @@
             if (row.h < 8) tStart.setDate(tStart.getDate() + 1);
             const tEnd = new Date(tStart.getTime() + row.d * 60000);
 
-            if (now >= tEnd) tr.className = 'past-task-row';
-            if (now >= tStart && now < tEnd) tr.className = 'active-row';
-            if (row.s) tr.classList.add('sleep-row');
+            const isPast = now >= tEnd;
+            const isActive = now >= tStart && now < tEnd;
+
+            if (isPast) tr.className = 'past-task-row';
+            if (isActive) tr.className = 'active-row';
             if (tStart > now && !nextWalk) nextWalk = tStart;
 
             tr.innerHTML = `
                 <td class="col-plan">${row.t}</td>
                 <td class="col-task">${row.task}</td>
                 <td class="col-post">${row.post.map(p => `<span class="name-item">${p}</span>`).join('')}</td>
-                <td class="col-zvit"><input type="checkbox" ${logs[idx]?'checked':''} onchange="saveLog(${idx})"></td>
+                <td class="col-zvit">
+                    <input type="checkbox" 
+                           ${logs[idx] ? 'checked' : ''} 
+                           ${!isActive ? 'disabled' : ''} 
+                           onchange="saveLog(${idx})">
+                </td>
             `;
             tbody.appendChild(tr);
         });
 
         if (nextWalk) {
-            document.getElementById('timer-display').innerText = new Date(nextWalk - now).toISOString().substr(11, 8);
+            let diff = nextWalk - now;
+            document.getElementById('timer-display').innerText = new Date(diff).toISOString().substr(11, 8);
         }
 
         const btn = document.getElementById('shift-btn');
         const endShift = new Date(shiftStart); endShift.setDate(endShift.getDate()+1); endShift.setHours(8,0,0,0);
         if (now >= endShift) {
-            btn.disabled = false; btn.classList.add('ready'); btn.innerText = "Здати зміну";
+            btn.disabled = false; btn.innerText = "Здати зміну";
         } else {
-            btn.disabled = true; btn.innerText = "До зміни: " + new Date(endShift - now).toISOString().substr(11, 8);
+            btn.disabled = true; btn.innerText = "До перезмінки: " + new Date(endShift - now).toISOString().substr(11, 8);
         }
     }
 
     function saveLog(id) {
         logs[id] = !logs[id];
-        localStorage.setItem('duty_logs_final', JSON.stringify(logs));
+        localStorage.setItem('duty_logs_strict', JSON.stringify(logs));
         render();
     }
 
