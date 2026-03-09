@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Графік чергування — Мобільна версія</title>
+    <title>Графік чергування (24h Shift)</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -18,51 +18,39 @@
         }
 
         body { font-family: 'Segoe UI', sans-serif; background: var(--body-bg); margin: 0; padding: 5px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
+        .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         
-        .container { max-width: 1000px; margin: auto; background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--light); padding-bottom: 8px; flex-wrap: nowrap; gap: 5px; }
+        .header-title h1 { margin: 0; font-size: 1.4em; font-weight: 800; line-height: 1; }
+        .header-title small { font-size: 0.7em; color: #7f8c8d; font-weight: bold; display: block; }
         
-        /* АДАПТИВНА ШАПКА */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--light); padding-bottom: 10px; flex-wrap: wrap; gap: 10px; }
-        .header-title h1 { margin: 0; font-size: 1.8em; font-weight: 800; line-height: 1; }
-        .header-title small { font-size: 0.8em; color: #7f8c8d; font-weight: bold; }
-        
-        .time-area { text-align: center; flex-grow: 1; }
-        #clock { font-size: 1.8em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
-        #current-date { font-size: 0.9em; font-weight: bold; display: block; }
+        .time-area { text-align: center; flex-grow: 1; min-width: 100px; }
+        #clock { font-size: 1.5em; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
+        #current-date { font-size: 0.75em; font-weight: bold; display: block; margin-bottom: 2px; }
 
-        .top-right-tool { display: flex; gap: 5px; }
-        .tool-btn { background: var(--light); width: 40px; height: 40px; border-radius: 8px; font-size: 18px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
-        .tool-btn.active { background: var(--warning); }
+        .top-right-tool { display: flex; gap: 4px; }
+        .tool-btn { background: var(--light); width: 36px; height: 36px; border-radius: 8px; font-size: 16px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
+        .tool-btn.active { background: var(--warning); color: #000; }
 
-        /* СЕЛЕКТОР ТА ПРІЗВИЩА */
-        .top-controls { margin-bottom: 15px; }
-        .group-selector { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--grad); color: white; font-size: 1.1em; font-weight: 800; text-align: center; appearance: none; margin-bottom: 8px; }
-        .personnel-display { background: var(--light); border-radius: 8px; padding: 8px; display: flex; justify-content: space-around; font-weight: bold; font-size: 0.85em; flex-wrap: wrap; gap: 5px; }
+        .top-controls { margin-bottom: 12px; }
+        .group-selector { width: 100%; padding: 10px; border: none; border-radius: 8px; background: var(--grad); color: white; font-size: 1em; font-weight: 800; text-align: center; appearance: none; margin-bottom: 6px; }
+        .personnel-display { background: var(--light); border-radius: 8px; padding: 6px; display: flex; justify-content: space-around; font-weight: bold; font-size: 0.8em; flex-wrap: wrap; gap: 4px; }
 
-        /* ТАБЛИЦЯ (АДАПТИВНІСТЬ) */
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 320px; }
-        th { background: var(--light); padding: 8px 5px; text-align: left; border-bottom: 2px solid var(--accent); font-size: 0.75em; text-transform: uppercase; }
-        td { padding: 10px 5px; border-bottom: 1px solid var(--light); vertical-align: middle; font-size: 0.85em; }
+        table { width: 100%; border-collapse: collapse; min-width: 290px; table-layout: fixed; }
+        th { background: var(--light); padding: 6px 4px; text-align: left; border-bottom: 2px solid var(--accent); font-size: 0.7em; text-transform: uppercase; }
+        td { padding: 8px 4px; border-bottom: 1px solid var(--light); vertical-align: middle; font-size: 0.8em; word-wrap: break-word; }
 
-        .current-task-row { animation: pulse 2s infinite; border-left: 5px solid var(--warning) !important; background-color: var(--active-bg); }
-        body.dim-past .past-task-row { opacity: 0.4; filter: grayscale(50%); }
+        .current-task-row { animation: pulse 2s infinite; border-left: 4px solid var(--warning) !important; background-color: var(--active-bg); }
+        body.dim-past .past-task-row { opacity: 0.45; filter: grayscale(40%); }
 
-        /* КНОПКА ТА СТАТУС */
         .footer { margin-top: 15px; text-align: center; }
-        .btn { padding: 15px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 100%; font-size: 1em; }
+        .btn { padding: 14px; border-radius: 25px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 100%; font-size: 0.9em; transition: 0.2s; }
         .btn-success { background: var(--success); color: white; }
-        .btn-success:disabled { background: #ccc !important; opacity: 0.6; }
-        .status-msg { font-size: 0.8em; margin-bottom: 8px; font-weight: bold; }
+        .btn-success:disabled { background: #ccc !important; opacity: 0.6; cursor: not-allowed; }
+        .status-msg { font-size: 0.75em; margin-bottom: 6px; font-weight: bold; }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
-
-        /* Мобільні виправлення для дуже малих екранів */
-        @media (max-width: 380px) {
-            .header-title h1 { font-size: 1.4em; }
-            #clock { font-size: 1.5em; }
-            td, th { font-size: 0.75em; padding: 8px 3px; }
-        }
+        @keyframes pulse { 0% { background-color: var(--active-bg); } 50% { filter: brightness(1.1); } 100% { background-color: var(--active-bg); } }
     </style>
 </head>
 <body class="dim-past">
@@ -92,10 +80,10 @@
         <table id="mainTable">
             <thead>
                 <tr>
-                    <th style="width: 15%;">План</th>
+                    <th style="width: 18%;">План</th>
                     <th style="width: 30%;">Хто</th>
-                    <th style="width: 35%;">Пост</th>
-                    <th style="width: 20%; text-align:center;">Звіт</th>
+                    <th style="width: 34%;">Пост</th>
+                    <th style="width: 18%; text-align:center;">Звіт</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -117,6 +105,21 @@
 
     if(localStorage.getItem('dark_theme') === 'true') document.body.classList.add('dark-theme');
     if (Notification.permission !== 'granted') Notification.requestPermission();
+
+    // Звукове сповіщення
+    function playSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            [523.25, 659.25].forEach((freq, i) => {
+                const o = ctx.createOscillator(); const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.frequency.value = freq;
+                g.gain.setValueAtTime(0.1, ctx.currentTime + i*0.2);
+                g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i*0.2 + 0.15);
+                o.start(ctx.currentTime + i*0.2); o.stop(ctx.currentTime + i*0.2 + 0.15);
+            });
+        } catch(e) {}
+    }
 
     const scheduleData = (names) => [
         {t: "08:20", task: "walk", exec: names[0], post: [names[1], names[2]]},
@@ -158,9 +161,13 @@
         const tbody = document.getElementById('tableBody');
         const schedule = scheduleData(names);
 
+        // ЛОГІКА ЗМІНИ 08:00 - 08:00
         let shiftStart = new Date(now);
+        if (now.getHours() < 8) {
+            // Якщо зараз ніч (00:00 - 07:59), то зміна почалася вчора о 08:00
+            shiftStart.setDate(shiftStart.getDate() - 1);
+        }
         shiftStart.setHours(8, 0, 0, 0);
-        if (now.getHours() < 8) shiftStart.setDate(shiftStart.getDate() - 1);
 
         document.getElementById('current-date').innerText = shiftStart.toLocaleDateString('uk-UA');
         document.getElementById('names-box').innerHTML = names.map(n => `<span>${n}</span>`).join('');
@@ -172,15 +179,21 @@
         schedule.forEach((row, index) => {
             const tr = tbody.insertRow();
             const [h, m] = row.t.split(':').map(Number);
-            let tT = new Date(shiftStart);
-            tT.setHours(h, m, 0, 0);
-            if (h < 8) tT.setDate(tT.getDate() + 1);
             
-            const diffMin = (now - tT) / 60000;
+            let taskTime = new Date(shiftStart);
+            taskTime.setHours(h, m, 0, 0);
+            if (h < 8) {
+                // Завдання 00:00 - 06:20 відносяться до наступної календарної доби від старту зміни
+                taskTime.setDate(taskTime.getDate() + 1);
+            }
+            
+            const diffMin = (now - taskTime) / 60000;
 
+            // Сповіщення
             if (diffMin >= 0 && diffMin < 1 && lastNotifiedIdx !== index) {
+                playSound();
                 if (Notification.permission === "granted") {
-                    new Notification("ЧАС ОБХОДУ!", { body: `Виконавець: ${row.exec}` });
+                    new Notification("ЧАС ОБХОДУ", { body: `${row.t} - Виконує ${row.exec}` });
                 }
                 lastNotifiedIdx = index;
             }
@@ -194,41 +207,50 @@
                     checkHtml = `<b style="color:var(--success)">✓ ${logs[index]}</b>`;
                     processedCount++;
                 } else if (diffMin > 60) {
-                    checkHtml = `<small style="color:var(--danger)">ВТРАЧЕНО</small>`;
+                    checkHtml = `<small style="color:var(--danger);font-weight:bold">ВТРАЧЕНО</small>`;
                     processedCount++; 
                 } else if (diffMin < 0) {
                     checkHtml = `<span style="opacity:0.3">...</span>`;
                 } else {
-                    checkHtml = `<input type="checkbox" style="transform: scale(1.2);" onchange="mark(${index})">`;
+                    checkHtml = `<input type="checkbox" style="width:18px;height:18px" onchange="mark(${index})">`;
                 }
             } else {
-                checkHtml = `<small>сон</small>`;
+                checkHtml = `<small style="opacity:0.5">сон</small>`;
             }
 
-            tr.innerHTML = `<td>${row.t}</td><td>${row.exec}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
+            tr.innerHTML = `<td><b>${row.t}</b></td><td>${row.exec}</td><td>${row.post.join(', ')}</td><td align="center">${checkHtml}</td>`;
         });
 
-        const totalWalks = schedule.filter(r => r.task === 'walk').length;
+        updateNextShiftButton(schedule, processedCount, now);
+    }
+
+    function updateNextShiftButton(schedule, processed, now) {
+        const total = schedule.filter(r => r.task === 'walk').length;
         const btn = document.getElementById('nextShiftBtn');
         const msg = document.getElementById('statusMessage');
 
-        if (processedCount < totalWalks) {
+        // Кнопка активна тільки якщо настав час наступної зміни (08:00+) 
+        // і всі завдання поточної зміни оброблені
+        const isTimeForNext = now.getHours() >= 8;
+
+        if (processed < total) {
             btn.disabled = true;
-            msg.innerText = `Оброблено: ${processedCount}/${totalWalks}`;
+            msg.innerText = `Не всі пункти заповнені (${processed}/${total})`;
             msg.style.color = "var(--danger)";
-        } else if (now.getHours() < 8 && now.getHours() >= 0) {
+        } else if (!isTimeForNext) {
             btn.disabled = true;
-            msg.innerText = "Здача можлива після 08:00";
+            msg.innerText = "Здача можлива о 08:00 ранку";
             msg.style.color = "#e67e22";
         } else {
             btn.disabled = false;
-            msg.innerText = "Готово до зміни!";
+            msg.innerText = "Зміну завершено!";
             msg.style.color = "var(--success)";
         }
     }
 
     function mark(id) { 
-        logs[id] = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}); 
+        const timeStr = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
+        logs[id] = timeStr; 
         localStorage.setItem('duty_logs', JSON.stringify(logs)); 
         render(); 
     }
@@ -243,7 +265,7 @@
         if(confirm("Перейти до наступної зміни?")) { 
             logs = {}; 
             localStorage.removeItem('duty_logs'); 
-            currentShiftNum = currentShiftNum === 1 ? 2 : 1;
+            currentShiftNum = (currentShiftNum === 1) ? 2 : 1;
             localStorage.setItem('active_shift', currentShiftNum);
             render(); 
         } 
