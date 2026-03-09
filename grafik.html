@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система «Часовой» — Полный Контроль</title>
+    <title>Система «Часовой» — Только Фамилии</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
@@ -28,7 +28,7 @@
         td { padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.3s; }
         
         .active-row { background: #fff9db !important; }
-        .active-executor { background: var(--warning) !important; color: white !important; font-weight: bold; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .active-executor { background: var(--warning) !important; color: white !important; font-weight: bold; border-radius: 4px; }
         
         .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; }
         .walk { background: #d1ecf1; color: #0c5460; }
@@ -38,7 +38,7 @@
         .check-box { width: 28px; height: 28px; cursor: pointer; accent-color: var(--success); }
         
         .log-time { font-size: 0.75em; color: var(--success); display: block; margin-top: 4px; font-family: monospace; font-weight: bold; }
-        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.8em; text-transform: uppercase; }
+        .expired-text { color: var(--danger); font-weight: bold; font-size: 0.8em; text-transform: uppercase; border: 1px solid var(--danger); padding: 2px 5px; border-radius: 4px; }
         .waiting-text { color: #aaa; font-size: 0.75em; font-style: italic; }
 
         .footer { margin-top: 30px; padding: 25px; border-top: 2px solid var(--light); text-align: center; background: #f8f9fa; border-radius: 0 0 15px 15px; }
@@ -53,7 +53,7 @@
     <div class="header">
         <div>
             <h2 style="margin:0;">Оперативный Журнал 24/7</h2>
-            <small>Защита от раннего заполнения и просрочки (60 мин)</small>
+            <small>Фамилии сотрудников (без инициалов)</small>
         </div>
         <div id="clock" style="font-size: 1.4em; font-weight: bold; color: var(--accent); background: #fff; padding: 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">--:--:--</div>
     </div>
@@ -88,8 +88,9 @@
 </div>
 
 <script>
-    const s1 = ["Кузнєцов А.", "Драний О.", "Литовченко С."];
-    const s2 = ["Щербатюк О.", "Ікальчик К.", "Приведенюк Р."];
+    // Списки сотрудников только с фамилиями
+    const s1 = ["Кузнєцов", "Драний", "Литовченко"];
+    const s2 = ["Щербатюк", "Ікальчик", "Приведенюк"];
     
     let currentShiftNum = [1,2,3, 7,8,9, 13,14,15, 19,20,21, 25,26,27, 31].includes(new Date().getDate()) ? 1 : 2;
     let logs = {};
@@ -137,19 +138,19 @@
         schedule.forEach((r, i) => {
             const tr = tbody.insertRow();
             const [sH, sM] = r.t.split(':').map(Number);
-            
-            // Расчет реального времени начала этого обхода
-            const schedDate = new Date();
+            let schedDate = new Date();
             schedDate.setHours(sH, sM, 0, 0);
-            
-            // Логика переходящих суток (ночь)
-            if (sH < 8 && now.getHours() >= 20) schedDate.setDate(schedDate.getDate() + 1);
-            if (sH >= 20 && now.getHours() < 8) schedDate.setDate(schedDate.getDate() - 1);
+
+            if (now.getHours() < 8 && sH >= 8) {
+                schedDate.setDate(schedDate.getDate() - 1);
+            } else if (now.getHours() >= 8 && sH < 8) {
+                schedDate.setDate(schedDate.getDate() + 1);
+            }
             
             const diffMin = (now - schedDate) / 60000;
-            const isTooEarly = diffMin < 0;    // Будущее
-            const isExpired = diffMin > 60;   // Прошло больше часа
-            const isActiveNow = diffMin >= 0 && diffMin <= 60; // Текущий период (активен)
+            const isTooEarly = diffMin < 0;
+            const isExpired = diffMin > 60;
+            const isActiveNow = diffMin >= 0 && diffMin <= 60;
 
             if (isActiveNow) tr.className = 'active-row';
 
@@ -170,35 +171,29 @@
     }
 
     function mark(id) {
-        if(!logs[id]) {
-            logs[id] = new Date().toLocaleTimeString();
-        }
-        build(); // Перерисовываем, чтобы чекбокс заменился на время
+        if(!logs[id]) logs[id] = new Date().toLocaleTimeString();
+        build(); 
     }
 
     function updateStatus() {
-        const total = document.querySelectorAll('tr').length - 1; // Минус заголовок
+        const total = document.querySelectorAll('tr').length - 1;
         const checked = Object.keys(logs).length;
         const expired = document.querySelectorAll('.expired-text').length;
-        
         document.getElementById('nextShiftBtn').disabled = (checked + expired < total);
         document.getElementById('progress-info').innerText = `Готовность: ${Math.round((checked+expired)/total*100)}%`;
     }
 
     function transferShift() {
-        if(confirm("Вы уверены? Это действие очистит журнал и переключит группу.")) {
-            logs = {}; // Очистка при полной передаче
+        if(confirm("Передать смену следующей группе?")) {
+            logs = {}; 
             setShift(currentShiftNum === 1 ? 2 : 1);
             window.scrollTo(0,0);
         }
     }
 
-    // Часы и автообновление таблицы раз в минуту (чтобы ловить момент просрочки)
     setInterval(() => { 
-        const clock = document.getElementById('clock');
-        const d = new Date();
-        clock.innerText = d.toLocaleTimeString();
-        if (d.getSeconds() === 0) build();
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        if (new Date().getSeconds() === 0) build();
     }, 1000);
 
     setShift(currentShiftNum);
